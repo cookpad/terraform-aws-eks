@@ -2,6 +2,7 @@ on: [push]
 
 jobs:
   lint:
+    runs-on: ubuntu-latest
     steps:
       - name: Terraform Lint
         uses: ./.github/actions/lint-terraform
