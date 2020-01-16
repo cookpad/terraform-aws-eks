@@ -1,0 +1,5 @@
+name: 'Terrform Lint'
+description: 'Lint terraform config'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

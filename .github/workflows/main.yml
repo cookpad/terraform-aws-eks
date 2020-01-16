@@ -1,0 +1,7 @@
+on: [push]
+
+jobs:
+  lint:
+    steps:
+      - name: Terraform Lint
+        uses: ./.github/actions/lint-terraform
