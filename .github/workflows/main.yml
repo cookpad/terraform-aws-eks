@@ -1,8 +1,23 @@
-on: [push]
-
+name: "Terraform Lint"
+on:
+  - pull_request
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Terraform Lint
-        uses: ./.github/actions/lint-terraform
+      - name: 'Checkout'
+        uses: actions/checkout@master
+      - name: 'Terraform Format'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: latest
+          tf_actions_subcommand: 'fmt'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Terraform Validate'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'validate'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
