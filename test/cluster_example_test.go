@@ -32,19 +32,25 @@ func TestTerraformAwsEksExample(t *testing.T) {
 }
 
 func deployTerraform(t *testing.T, workingDir string) {
-	uniqueId := random.UniqueId()
-	clusterName := fmt.Sprintf("testing-%s", uniqueId)
+	var terraformOptions *terraform.Options
 
-	terraformOptions := &terraform.Options{
-		// The path to where our Terraform code is located
-		TerraformDir: workingDir,
-		Vars: map[string]interface{}{
-			"cluster_name": clusterName,
-		},
+	if test_structure.IsTestDataPresent(t, test_structure.FormatTestDataPath(workingDir, "TerraformOptions.json")) {
+		terraformOptions = test_structure.LoadTerraformOptions(t, workingDir)
+	} else {
+		uniqueId := random.UniqueId()
+		clusterName := fmt.Sprintf("testing-%s", uniqueId)
+
+		terraformOptions = &terraform.Options{
+			// The path to where our Terraform code is located
+			TerraformDir: workingDir,
+			Vars: map[string]interface{}{
+				"cluster_name": clusterName,
+			},
+		}
+
+		// Save the Terraform Options struct, so future test stages can use it
+		test_structure.SaveTerraformOptions(t, workingDir, terraformOptions)
 	}
-
-	// Save the Terraform Options struct, so future test stages can use it
-	test_structure.SaveTerraformOptions(t, workingDir, terraformOptions)
 
 	// Run `terraform init` and `terraform apply`. Fail the test if there are any errors.
 	terraform.InitAndApply(t, terraformOptions)
@@ -68,6 +74,7 @@ func validateCluster(t *testing.T, workingDir string) {
 func cleanupTerraform(t *testing.T, workingDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 	terraform.Destroy(t, terraformOptions)
+	test_structure.CleanupTestDataFolder(t, workingDir)
 }
 
 func writeKubeconfig(config string) (string, error) {
