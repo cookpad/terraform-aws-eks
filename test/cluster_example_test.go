@@ -5,9 +5,11 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 )
@@ -66,8 +68,14 @@ func validateCluster(t *testing.T, workingDir string) {
 
 	k8sOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
 
-	// Do a thing with the API to check it works
-	k8s.GetServiceAccount(t, k8sOptions, "default")
+	maxRetries := 40
+	sleepBetweenRetries := 3 * time.Second
+
+	retry.DoWithRetry(t, "Check that access to the k8s api works", maxRetries, sleepBetweenRetries, func() (string, error) {
+		// Try an operation on the API to check it works
+		_, err := k8s.GetServiceAccountE(t, k8sOptions, "default")
+		return "", err
+	})
 
 }
 
