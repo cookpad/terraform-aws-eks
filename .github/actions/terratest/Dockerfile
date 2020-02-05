@@ -10,7 +10,7 @@ RUN apk add --no-cache \
       go \
       perl-utils \
       python3 && \
-    pip3 install awscli --user && \
+    pip3 install awscli && \
     git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
     echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile && ln -s ~/.tfenv/bin/* /usr/local/bin && \
     tfenv install $TERRAFORM_VERSION
