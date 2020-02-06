@@ -34,11 +34,23 @@ resource "aws_eks_cluster" "control_plane" {
 
   version = var.k8s_version
 
+  enabled_cluster_log_types = var.cluster_log_types
+
   vpc_config {
-    security_group_ids = [aws_security_group.control_plane.id]
-    subnet_ids         = var.subnet_ids
+    endpoint_private_access = true
+    endpoint_public_access  = var.endpoint_public_access
+    security_group_ids      = [aws_security_group.control_plane.id]
+    subnet_ids              = var.subnet_ids
   }
+
+  depends_on = [aws_cloudwatch_log_group.control_plane]
 }
+
+resource "aws_cloudwatch_log_group" "control_plane" {
+  name              = "/aws/eks/${var.name}/cluster"
+  retention_in_days = 7
+}
+
 
 /*
   Template a kubeconfig, for testing etc.
