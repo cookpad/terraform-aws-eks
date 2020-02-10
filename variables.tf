@@ -8,6 +8,12 @@ variable "eks_service_role" {
   description = "The service role to used by EKS"
 }
 
+variable "node_iam_role" {
+  type        = string
+  default     = "EKSNode"
+  description = "The IAM role used by nodes"
+}
+
 variable "k8s_version" {
   default = "1.14"
 }
@@ -28,7 +34,7 @@ variable "endpoint_public_access" {
 }
 
 variable "cluster_log_types" {
-  type = list(string)
+  type        = list(string)
   description = "A list of the desired control plane logging to enable."
-  default = ["api","audit","authenticator","controllerManager","scheduler"]
+  default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }
