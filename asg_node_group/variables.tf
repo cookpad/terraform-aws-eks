@@ -54,7 +54,8 @@ variable "instance_lifecycle" {
 variable "spot_allocation_strategy" {
   type        = string
   default     = "lowest-price"
-  description = "How to allocate capacity across the Spot pools. Valid values: 'lowest-price,' capacity-optimized"
+  description = "How to allocate capacity across the Spot pools. Valid values: 'lowest-price' or 'capacity-optimized'."
+}
 
 variable "spot_instance_pools" {
   type        = number
