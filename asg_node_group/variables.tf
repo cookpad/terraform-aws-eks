@@ -55,6 +55,11 @@ variable "spot_allocation_strategy" {
   type        = string
   default     = "lowest-price"
   description = "How to allocate capacity across the Spot pools. Valid values: 'lowest-price,' capacity-optimized"
+
+variable "spot_instance_pools" {
+  type        = number
+  default     = 2
+  description = "Number of Spot pools per availability zone to allocate capacity. EC2 Auto Scaling selects the cheapest Spot pools and evenly allocates Spot capacity across the number of Spot pools that you specify."
 }
 
 variable "custom_instance_types" {
