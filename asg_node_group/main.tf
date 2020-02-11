@@ -10,31 +10,6 @@ locals {
   instance_types = (length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types)
   max_size       = floor(var.group_size / length(var.cluster_config.private_subnet_ids))
   name_prefix    = "eks-node-${var.cluster_config.name}-${replace(var.instance_family, "_", "-")}-${var.instance_size}-${replace(var.instance_lifecycle, "_", "-")}"
-  user_data      = <<-YAML
-  ## template: jinja
-  #cloud-config
-  fqdn: eks-node-${var.cluster_config.name}-{{ v1.instance_id }}
-  fs_setup:
-  # Create a filesystem on an attached EBS volume. Only one of them should succeed.
-  - device: /dev/nvme0n1
-    filesystem: ext4
-    label: docker-vol
-    partition: none
-  - device: /dev/nvme1n1
-    filesystem: ext4
-    label: docker-vol
-    partition: none
-  - device: /dev/xvdf
-    filesystem: ext4
-    label: docker-vol
-    partition: none
-  mounts:
-  - [/dev/disk/by-label/docker-vol, /var/lib/docker, ext4, "defaults,noatime", 0, 0]
-  runcmd:
-  - [aws, --region={{ v1.region }}, ec2, create-tags, --resources={{ v1.instance_id }}, "--tags=Key=Name,Value=eks-node-${var.cluster_config.name}-{{ v1.instance_id }}"]
-  - [systemctl, restart, docker]
-  - [/etc/eks/bootstrap.sh, ${var.cluster_config.name}]
-  YAML
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -49,11 +24,37 @@ data "aws_ami" "image" {
   }
 }
 
+data "template_file" "cloud_config" {
+  template = file("${path.module}/cloud_config.tpl")
+  vars = {
+    cluster_name = var.cluster_config.name
+  }
+}
+
+data "template_cloudinit_config" "config" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/jinja2"
+    content      = data.template_file.cloud_config.rendered
+  }
+
+  dynamic "part" {
+    for_each = var.cloud_config_extra
+    content {
+      content_type = "text/jinja2"
+      content      = part.value
+      merge_type   = "list(append)+dict(recurse_list)+str()"
+    }
+  }
+}
+
 resource "aws_launch_template" "config" {
   image_id               = data.aws_ami.image.id
   name                   = local.name_prefix
   vpc_security_group_ids = [var.cluster_config.node_security_group]
-  user_data              = base64encode(local.user_data)
+  user_data              = data.template_cloudinit_config.config.rendered
 
   instance_type = local.instance_types.0
 
