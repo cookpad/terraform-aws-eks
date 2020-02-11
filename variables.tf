@@ -22,9 +22,15 @@ variable "vpc_id" {
   type = string
 }
 
-variable "subnet_ids" {
+variable "public_subnet_ids" {
   type        = list(string)
-  description = "Subnet ids for EKS"
+  default     = []
+  description = "Public subnets, to be used for external load balancers."
+}
+
+variable "private_subnet_ids" {
+  type        = list(string)
+  description = "Private subnets, to be used by pods and internal load balancers."
 }
 
 variable "endpoint_public_access" {

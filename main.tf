@@ -93,7 +93,7 @@ resource "aws_eks_cluster" "control_plane" {
     endpoint_private_access = true
     endpoint_public_access  = var.endpoint_public_access
     security_group_ids      = [aws_security_group.control_plane.id]
-    subnet_ids              = var.subnet_ids
+    subnet_ids              = concat(var.public_subnet_ids, var.private_subnet_ids)
   }
 
   depends_on = [aws_cloudwatch_log_group.control_plane]

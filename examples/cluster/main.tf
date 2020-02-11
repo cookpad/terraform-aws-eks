@@ -17,10 +17,10 @@ data "aws_subnet_ids" "default" {
 }
 
 module "eks_cluster" {
-  source     = "../../."
-  name       = var.cluster_name
-  vpc_id     = data.aws_vpc.default.id
-  subnet_ids = data.aws_subnet_ids.default.ids
+  source             = "../../."
+  name               = var.cluster_name
+  vpc_id             = data.aws_vpc.default.id
+  private_subnet_ids = data.aws_subnet_ids.default.ids
 
   # So we can access the k8s API from CI/dev
   endpoint_public_access = true
