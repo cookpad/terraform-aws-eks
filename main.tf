@@ -76,14 +76,13 @@ resource "aws_security_group_rule" "cluster-ingress-node-https" {
   EKS control plane
 */
 
-data "aws_iam_role" "eks_service_role" {
-  name = var.eks_service_role
+data "aws_iam_role" "service_role" {
+  name = var.iam_config.service_role
 }
-
 
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
-  role_arn = data.aws_iam_role.eks_service_role.arn
+  role_arn = data.aws_iam_role.service_role.arn
 
   version = var.k8s_version
 
@@ -126,10 +125,9 @@ provider "kubernetes" {
   load_config_file       = false
 }
 
-data "aws_iam_role" "node" {
-  name = var.node_iam_role
+data "aws_iam_role" "node_role" {
+  name = var.iam_config.node_role
 }
-
 
 resource "kubernetes_config_map" "aws-auth" {
   provider = kubernetes
@@ -143,7 +141,7 @@ resource "kubernetes_config_map" "aws-auth" {
     mapRoles = yamlencode(
       [
         {
-          "rolearn" : data.aws_iam_role.node.arn
+          "rolearn" : data.aws_iam_role.node_role.arn
           "username" : "system:node:{{EC2PrivateDNSName}}"
           "groups" : [
             "system:bootstrappers",

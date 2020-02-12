@@ -59,7 +59,7 @@ resource "aws_launch_template" "config" {
   instance_type = local.instance_types.0
 
   iam_instance_profile {
-    name = var.cluster_config.node_iam_role
+    name = var.cluster_config.node_instance_profile
   }
 
   block_device_mappings {
