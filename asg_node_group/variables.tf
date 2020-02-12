@@ -63,6 +63,12 @@ variable "spot_instance_pools" {
   description = "Number of Spot pools per availability zone to allocate capacity. EC2 Auto Scaling selects the cheapest Spot pools and evenly allocates Spot capacity across the number of Spot pools that you specify."
 }
 
+variable "cloud_config_extra" {
+  type        = list(string)
+  default     = []
+  description = "Provide additional cloud-config(s), will be merged with the default config"
+}
+
 variable "custom_instance_types" {
   type        = list(string)
   description = <<EOF
