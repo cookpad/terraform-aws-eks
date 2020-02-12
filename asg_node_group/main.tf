@@ -82,18 +82,13 @@ resource "aws_launch_template" "config" {
   key_name = "development"
 }
 
-data "aws_subnet" "nodes" {
-  for_each = var.cluster_config.private_subnet_ids
-  id       = each.value
-}
-
 resource "aws_autoscaling_group" "nodes" {
-  for_each = data.aws_subnet.nodes
+  for_each = var.cluster_config.private_subnet_ids
 
-  name                = "${local.name_prefix}-${each.value.availability_zone}"
+  name                = "${local.name_prefix}-${each.key}"
   min_size            = var.asg_min_size
   max_size            = local.max_size
-  vpc_zone_identifier = [each.value.id]
+  vpc_zone_identifier = [each.value]
 
   mixed_instances_policy {
     launch_template {

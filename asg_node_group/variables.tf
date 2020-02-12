@@ -1,10 +1,10 @@
 variable "cluster_config" {
   type = object({
-    vpc_id              = string
-    k8s_version         = string
     name                = string
+    k8s_version         = string
+    vpc_id              = string
+    private_subnet_ids  = map(string)
     node_security_group = string
-    private_subnet_ids  = set(string)
     node_iam_role       = string
   })
 }
