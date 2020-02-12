@@ -5,7 +5,7 @@
 resource "aws_security_group" "control_plane" {
   name        = "eks-control-plane-${var.name}"
   description = "Cluster communication with worker nodes"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_config.vpc_id
 
   egress {
     from_port   = 0
@@ -27,7 +27,7 @@ resource "aws_security_group" "control_plane" {
 resource "aws_security_group" "node" {
   name        = "eks-node-${var.name}"
   description = "Security group for all nodes in the cluster"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_config.vpc_id
 
   egress {
     from_port   = 0
@@ -93,7 +93,7 @@ resource "aws_eks_cluster" "control_plane" {
     endpoint_private_access = true
     endpoint_public_access  = var.endpoint_public_access
     security_group_ids      = [aws_security_group.control_plane.id]
-    subnet_ids              = concat(var.public_subnet_ids, var.private_subnet_ids)
+    subnet_ids              = concat(values(var.vpc_config.public_subnet_ids), values(var.vpc_config.private_subnet_ids))
   }
 
   depends_on = [aws_cloudwatch_log_group.control_plane]

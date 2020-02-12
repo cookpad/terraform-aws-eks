@@ -2,13 +2,13 @@ output "kubeconfig" {
   value = data.template_file.kubeconfig.rendered
 }
 
-output "cluster_config" {
+output "config" {
   value = {
-    vpc_id              = var.vpc_id
-    k8s_version         = aws_eks_cluster.control_plane.version
     name                = var.name
+    k8s_version         = aws_eks_cluster.control_plane.version
+    vpc_id              = var.vpc_config.vpc_id
+    private_subnet_ids  = var.vpc_config.private_subnet_ids
     node_security_group = aws_security_group.node.id
-    private_subnet_ids  = var.private_subnet_ids
     node_iam_role       = var.node_iam_role
   }
 }

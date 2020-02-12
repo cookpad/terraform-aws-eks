@@ -2,6 +2,14 @@ variable "name" {
   type = string
 }
 
+variable "vpc_config" {
+  type = object({
+    vpc_id             = string
+    public_subnet_ids  = map(string)
+    private_subnet_ids = map(string)
+  })
+}
+
 variable "eks_service_role" {
   type        = string
   default     = "eksServiceRole"
@@ -16,21 +24,6 @@ variable "node_iam_role" {
 
 variable "k8s_version" {
   default = "1.14"
-}
-
-variable "vpc_id" {
-  type = string
-}
-
-variable "public_subnet_ids" {
-  type        = list(string)
-  default     = []
-  description = "Public subnets, to be used for external load balancers."
-}
-
-variable "private_subnet_ids" {
-  type        = list(string)
-  description = "Private subnets, to be used by pods and internal load balancers."
 }
 
 variable "endpoint_public_access" {
