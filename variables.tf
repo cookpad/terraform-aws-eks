@@ -42,3 +42,8 @@ variable "iam_config" {
   description = "The IAM roles used by the cluster, If you use the included IAM module you can provide it's config output variable."
 }
 
+variable "oidc_root_ca_thumbprints" {
+  type        = list(string)
+  default     = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+  description = "Thumbprint of Root CA for EKS OpenID Connect (OIDC) identity provider, Valid until 2037 🤞"
+}

@@ -12,3 +12,11 @@ output "config" {
     node_instance_profile = var.iam_config.node_role
   }
 }
+
+output "odic_config" {
+  value = {
+    url       = aws_iam_openid_connect_provider.cluster_oidc.url
+    arn       = aws_iam_openid_connect_provider.cluster_oidc.arn
+    condition = "${replace(aws_iam_openid_connect_provider.cluster_oidc.url, "https://", "")}:sub"
+  }
+}

@@ -104,6 +104,12 @@ resource "aws_eks_cluster" "control_plane" {
   }
 }
 
+resource "aws_iam_openid_connect_provider" "cluster_oidc" {
+  url             = aws_eks_cluster.control_plane.identity.0.oidc.0.issuer
+  thumbprint_list = var.oidc_root_ca_thumbprints
+  client_id_list  = ["sts.amazonaws.com"]
+}
+
 resource "aws_cloudwatch_log_group" "control_plane" {
   name              = "/aws/eks/${var.name}/cluster"
   retention_in_days = 7
