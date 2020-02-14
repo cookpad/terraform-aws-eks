@@ -7,6 +7,6 @@ module "vpc" {
   source = "../../vpc"
 
   name               = var.vpc_name
-  cidr_block         = "10.0.0.0/18"
+  cidr_block         = var.cidr_block
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }

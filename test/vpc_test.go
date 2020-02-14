@@ -26,8 +26,10 @@ func TestTerraformAwsEksVPC(t *testing.T) {
 	test_structure.RunTestStage(t, "deploy_terraform", func() {
 		uniqueId := random.UniqueId()
 		vpcName := fmt.Sprintf("terraform-aws-eks-vpc-testing-%s", uniqueId)
+		vpcCidr := aws.GetRandomPrivateCidrBlock(18)
 		deployTerraform(t, workingDir, map[string]interface{}{
-			"vpc_name": vpcName,
+			"vpc_name":   vpcName,
+			"cidr_block": vpcCidr,
 		})
 	})
 
