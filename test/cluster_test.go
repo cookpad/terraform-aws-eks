@@ -21,17 +21,17 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 
 	workingDir := "../examples/cluster"
 
+	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
+	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
+		cleanupTerraform(t, workingDir)
+	})
+
 	test_structure.RunTestStage(t, "deploy_terraform", func() {
 		uniqueId := random.UniqueId()
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
 		deployTerraform(t, workingDir, map[string]interface{}{
 			"cluster_name": clusterName,
 		})
-	})
-
-	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
-	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
-		cleanupTerraform(t, workingDir)
 	})
 
 	test_structure.RunTestStage(t, "validate_cluster", func() {
