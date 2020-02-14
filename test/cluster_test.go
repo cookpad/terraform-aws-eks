@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
@@ -29,8 +30,10 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 	test_structure.RunTestStage(t, "deploy_terraform", func() {
 		uniqueId := random.UniqueId()
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
+		vpcCidr := aws.GetRandomPrivateCidrBlock(18)
 		deployTerraform(t, workingDir, map[string]interface{}{
 			"cluster_name": clusterName,
+			"cidr_block":   vpcCidr,
 		})
 	})
 

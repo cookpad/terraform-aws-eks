@@ -6,8 +6,8 @@ provider "aws" {
 module "vpc" {
   source = "../../vpc"
 
-  name               = "${var.cluster_name}"
-  cidr_block         = "10.0.0.0/18"
+  name               = var.cluster_name
+  cidr_block         = var.cidr_block
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 
