@@ -4,4 +4,4 @@
 tfenv install || true
 
 cd test
-go test -v -timeout 30m
+go test -v -timeout 45m "$@"
