@@ -1,6 +1,6 @@
-variable "cluster_name" {
+variable "vpc_name" {
   type    = string
-  default = "test-cluster"
+  default = "test-vpc"
 }
 
 variable "cidr_block" {
