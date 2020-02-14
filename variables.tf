@@ -24,6 +24,8 @@ variable "vpc_config" {
     public_subnet_ids  = map(string)
     private_subnet_ids = map(string)
   })
+
+  description = "The network configuration used by the cluster, If you use the included VPC module you can provide it's config output variable"
 }
 
 variable "iam_config" {
