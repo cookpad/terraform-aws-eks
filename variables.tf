@@ -31,5 +31,12 @@ variable "iam_config" {
     service_role = string
     node_role    = string
   })
+
+  default = {
+    service_role = "eksServiceRole"
+    node_role    = "EksNode"
+  }
+
+  description = "The IAM roles used by the cluster, If you use the included IAM module you can provide it's config output variable."
 }
 
