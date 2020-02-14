@@ -4,11 +4,29 @@ resource "aws_vpc" "network" {
   tags = {
     Name = var.name
   }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags: eks adds the kubernetes.io/cluster/${cluster_name} tag
+      tags,
+    ]
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+      for ID in $(aws ec2 describe-security-groups --region ${split(":", self.arn)[3]} --filters 'Name=vpc-id,Values=${self.id}' --query 'SecurityGroups[?!contains(GroupName, `default`)].GroupId' --output text)
+      do
+        aws ec2 delete-security-group --region ${split(":", self.arn)[3]} --group-id $ID
+      done
+    EOF
+  }
 }
 
 # Internet gateway
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.network.id
+
   tags = {
     Name = var.name
   }
@@ -18,6 +36,7 @@ resource "aws_internet_gateway" "gateway" {
 resource "aws_eip" "nat_gateway" {
   vpc        = true
   depends_on = [aws_internet_gateway.gateway]
+
   tags = {
     Name = "${var.name}-nat-gateway"
   }
@@ -26,6 +45,7 @@ resource "aws_eip" "nat_gateway" {
 resource "aws_nat_gateway" "nat_gateway" {
   allocation_id = aws_eip.nat_gateway.id
   subnet_id     = aws_subnet.public[var.availability_zones[0]].id
+
   tags = {
     Name = var.name
   }
