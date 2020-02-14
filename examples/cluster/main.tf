@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "../../vpc"
+  source = "../../modules/vpc"
 
   name               = var.cluster_name
   cidr_block         = var.cidr_block
@@ -12,14 +12,14 @@ module "vpc" {
 }
 
 module "iam" {
-  source = "../../iam"
+  source = "../../modules/iam"
 
   eks_service_role_name = "eksServiceRole-${var.cluster_name}"
   eks_node_role_name    = "EKSNode-${var.cluster_name}"
 }
 
 module "eks_cluster" {
-  source = "../../."
+  source = "../../modules/cluster"
   name   = var.cluster_name
 
   vpc_config = module.vpc.config
@@ -30,7 +30,7 @@ module "eks_cluster" {
 }
 
 module "eks_node_group" {
-  source = "../../asg_node_group"
+  source = "../../modules/asg_node_group"
 
   cluster_config = module.eks_cluster.config
   asg_min_size   = 1
