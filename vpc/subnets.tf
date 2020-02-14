@@ -9,10 +9,18 @@ resource "aws_subnet" "public" {
   cidr_block              = cidrsubnet(var.cidr_block, 8, each.value)
   vpc_id                  = aws_vpc.network.id
   map_public_ip_on_launch = true
+
   tags = {
     Name                             = "${var.name}-public-${each.key}"
     "kubernetes.io/role/elb"         = "1"
     "kubernetes.io/role/alb-ingress" = "1"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, eks adds the kubernetes.io/cluster/${cluster_name} tag
+      tags,
+    ]
   }
 }
 
@@ -30,10 +38,18 @@ resource "aws_subnet" "private" {
   cidr_block              = cidrsubnet(var.cidr_block, 3, each.value + 1)
   vpc_id                  = aws_vpc.network.id
   map_public_ip_on_launch = false
+
   tags = {
     Name                              = "${var.name}-private-${each.key}"
     "kubernetes.io/role/internal-elb" = "1"
     "kubernetes.io/role/alb-ingress"  = "1"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, eks adds the kubernetes.io/cluster/${cluster_name} tag
+      tags,
+    ]
   }
 }
 
