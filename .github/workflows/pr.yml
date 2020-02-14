@@ -29,7 +29,7 @@ jobs:
           tf_actions_working_dir: 'examples/cluster'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  test:
+  vpc-test:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
@@ -40,3 +40,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        with:
+          args: "-run TestTerraformAwsEksVPC"
+  cluster-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@master
+      - name: 'Terratest'
+        uses: ./.github/actions/terratest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        with:
+          args: "-run TestTerraformAwsEksCluster"
