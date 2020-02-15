@@ -1,3 +1,3 @@
 output "kubeconfig" {
-  value = module.eks_cluster.kubeconfig
+  value = data.template_file.kubeconfig.rendered
 }

@@ -1,0 +1,15 @@
+output "vpc_config" {
+  value = module.vpc.config
+}
+
+output "iam_config" {
+  value = module.iam.config
+}
+
+output "cluster_config" {
+  value = module.cluster.config
+}
+
+output "odic_config" {
+  value = module.cluster.odic_config
+}
