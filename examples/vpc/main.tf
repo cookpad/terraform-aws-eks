@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "../../vpc"
+  source = "../../modules/vpc"
 
   name               = var.vpc_name
   cidr_block         = var.cidr_block
