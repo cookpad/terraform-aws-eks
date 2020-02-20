@@ -1,8 +1,9 @@
 locals {
   preset_instance_families = {
-    memory_optimized  = ["r5", "r5n", "r5a", "r4"]
-    general_purpose   = ["m5", "m5n", "m5a", "t3", "m4"]
-    compute_optimized = ["c5", "c5n", "c4"]
+    memory_optimized  = ["r5", "r5d", "r5n", "r5dn", "r5a", "r5ad"]
+    general_purpose   = ["m5", "m5d", "m5n", "m5dn", "m5a", "m5ad"]
+    compute_optimized = ["c5", "c5n", "c5d"]
+    burstable         = ["t3", "t3a"]
   }
   preset_instance_types = [
     for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"
@@ -110,7 +111,7 @@ resource "aws_autoscaling_group" "nodes" {
       on_demand_base_capacity                  = 0
       on_demand_percentage_above_base_capacity = (var.instance_lifecycle == "on_demand" ? 100 : 0)
       spot_allocation_strategy                 = var.spot_allocation_strategy
-      spot_instance_pools                      = var.spot_instance_pools
+      spot_instance_pools                      = max(floor(length(local.instance_types)/2),2)
     }
   }
 
