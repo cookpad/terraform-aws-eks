@@ -124,7 +124,7 @@ data "aws_eks_cluster_auth" "control_plane" {
 }
 
 provider "kubernetes" {
-  version                = "1.10.0"
+  version                = "1.11.0"
   host                   = aws_eks_cluster.control_plane.endpoint
   cluster_ca_certificate = base64decode(aws_eks_cluster.control_plane.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.control_plane.token

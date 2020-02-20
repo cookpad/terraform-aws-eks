@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -13,8 +14,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-
-	k8s_core "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestTerraformAwsEksCluster(t *testing.T) {
@@ -38,56 +38,86 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 	})
 
 	test_structure.RunTestStage(t, "validate_cluster", func() {
-		validateCluster(t, workingDir)
-	})
-}
-
-func validateCluster(t *testing.T, workingDir string) {
-	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-	kubeconfig, err := writeKubeconfig(terraform.Output(t, terraformOptions, "kubeconfig"))
-	if err != nil {
-		t.Error("Error writing kubeconfig file:", err)
-	}
-	defer os.Remove(kubeconfig)
-
-	k8sOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
-
-	maxRetries := 40
-	sleepBetweenRetries := 10 * time.Second
-
-	retry.DoWithRetry(t, "Check that access to the k8s api works", maxRetries, sleepBetweenRetries, func() (string, error) {
-		// Try an operation on the API to check it works
-		_, err := k8s.GetServiceAccountE(t, k8sOptions, "default")
-		return "", err
-	})
-
-	retry.DoWithRetry(t, "wait for nodes to be up", maxRetries, sleepBetweenRetries, func() (string, error) {
-		nodes, err := k8s.GetNodesE(t, k8sOptions)
-
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		kubeconfig, err := writeKubeconfig(terraform.Output(t, terraformOptions, "kubeconfig"))
 		if err != nil {
-			return "", err
+			t.Error("Error writing kubeconfig file:", err)
 		}
-
-		// Wait for at least 3 nodes to start
-		if len(nodes) < 3 {
-			return "", fmt.Errorf("less than 3 nodes started")
-		}
-
-		// Wait for the nodes to be ready
-		for _, node := range nodes {
-			for _, condition := range node.Status.Conditions {
-				if condition.Type == k8s_core.NodeReady {
-					if condition.Status != k8s_core.ConditionTrue {
-						return "", fmt.Errorf("A node: %s is not ready yet", node.Name)
-					}
-				}
-			}
-		}
-
-		return "", err
+		defer os.Remove(kubeconfig)
+		validateCluster(t, kubeconfig)
+		validateClusterAutoscaler(t, kubeconfig)
 	})
-
 }
+
+func validateCluster(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
+	waitForCluster(t, kubectlOptions)
+	waitForNodes(t, kubectlOptions, 3)
+}
+
+func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
+	filters := metav1.ListOptions{
+		LabelSelector: "app=cluster-autoscaler",
+	}
+
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
+
+	// Check that the autoscaler pods are running
+	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 2, 1, 10*time.Second)
+	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
+		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
+	}
+
+	// Generate some example workload
+	namespace := strings.ToLower(random.UniqueId())
+	kubectlOptions = k8s.NewKubectlOptions("", kubeconfig, namespace)
+	workload := fmt.Sprintf(EXAMPLE_WORKLOAD, namespace, namespace)
+	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
+	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
+
+	// Check the cluster scales up
+	waitForNodes(t, kubectlOptions, 6)
+
+	// Check that the example workload pods can all run
+	filters = metav1.ListOptions{
+		LabelSelector: "app=nginx",
+	}
+	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 6, 1, 10*time.Second)
+	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
+		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
+	}
+}
+
+const EXAMPLE_WORKLOAD = `---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: %s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: %s
+  labels:
+    app: nginx
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        resources:
+          requests:
+            cpu: "1100m"
+`
 
 func writeKubeconfig(config string) (string, error) {
 	file, err := ioutil.TempFile(os.TempDir(), "kubeconfig-")
@@ -102,4 +132,37 @@ func writeKubeconfig(config string) (string, error) {
 	}
 
 	return file.Name(), nil
+}
+
+func waitForCluster(t *testing.T, kubectlOptions *k8s.KubectlOptions) {
+	maxRetries := 40
+	sleepBetweenRetries := 10 * time.Second
+	retry.DoWithRetry(t, "Check that access to the k8s api works", maxRetries, sleepBetweenRetries, func() (string, error) {
+		// Try an operation on the API to check it works
+		_, err := k8s.GetServiceAccountE(t, kubectlOptions, "default")
+		return "", err
+	})
+
+}
+
+func waitForNodes(t *testing.T, kubectlOptions *k8s.KubectlOptions, numNodes int) {
+	maxRetries := 40
+	sleepBetweenRetries := 10 * time.Second
+	retry.DoWithRetry(t, "wait for nodes to launch", maxRetries, sleepBetweenRetries, func() (string, error) {
+		nodes, err := k8s.GetNodesE(t, kubectlOptions)
+
+		if err != nil {
+			return "", err
+		}
+
+		// Wait for at least n nodes to start
+		if len(nodes) < numNodes {
+			return "", fmt.Errorf("less than %d nodes started", numNodes)
+		}
+
+		return "", err
+	})
+
+	// Wait for the nodes to be ready
+	k8s.WaitUntilAllNodesReady(t, kubectlOptions, maxRetries, sleepBetweenRetries)
 }

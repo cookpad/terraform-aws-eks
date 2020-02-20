@@ -111,7 +111,7 @@ resource "aws_autoscaling_group" "nodes" {
       on_demand_base_capacity                  = 0
       on_demand_percentage_above_base_capacity = (var.instance_lifecycle == "on_demand" ? 100 : 0)
       spot_allocation_strategy                 = var.spot_allocation_strategy
-      spot_instance_pools                      = max(floor(length(local.instance_types)/2),2)
+      spot_instance_pools                      = max(floor(length(local.instance_types) / 2), 2)
     }
   }
 
