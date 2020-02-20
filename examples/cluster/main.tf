@@ -1,6 +1,6 @@
 provider "aws" {
   region  = "us-east-1"
-  version = "~> 2.47"
+  version = "2.49.0"
 }
 
 module "eks" {
