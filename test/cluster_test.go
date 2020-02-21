@@ -15,6 +15,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -47,6 +48,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer os.Remove(kubeconfig)
 		validateCluster(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
+		validateNodeTaints(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
 	})
 }
@@ -62,6 +64,16 @@ func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
 	for _, node := range k8s.GetNodes(t, kubectlOptions) {
 		assert.Equal(t, "true", node.Labels["node-role.kubernetes.io/spot-worker"])
 		assert.Equal(t, clusterName, node.Labels["cookpad.com/terraform-aws-eks-test-environment"])
+	}
+}
+
+func validateNodeTaints(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
+	for _, node := range k8s.GetNodes(t, kubectlOptions) {
+		taint := node.Spec.Taints[0]
+		assert.Equal(t, "terraform-aws-eks", taint.Key)
+		assert.Equal(t, "test", taint.Value)
+		assert.Equal(t, corev1.TaintEffectPreferNoSchedule, taint.Effect)
 	}
 }
 

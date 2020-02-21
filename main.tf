@@ -29,4 +29,5 @@ module "node_group" {
   cluster_config = module.cluster.config
   asg_min_size   = 1
   labels         = var.node_labels
+  taints         = var.node_taints
 }

@@ -24,3 +24,9 @@ variable "node_labels" {
   default     = {}
   description = "labels that will be added to the kubernetes node"
 }
+
+variable "node_taints" {
+  type        = map(string)
+  default     = {}
+  description = "taints that will be added to the kubernetes node"
+}

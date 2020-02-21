@@ -16,6 +16,10 @@ module "eks" {
   node_labels = {
     "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
   }
+
+  node_taints = {
+    "terraform-aws-eks" = "test:PreferNoSchedule"
+  }
 }
 
 data "aws_eks_cluster_auth" "cluster" {

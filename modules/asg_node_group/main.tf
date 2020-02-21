@@ -32,6 +32,7 @@ data "template_file" "cloud_config" {
   vars = {
     cluster_name = var.cluster_config.name
     labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
+    taints       = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
   }
 }
 
@@ -140,6 +141,15 @@ resource "aws_autoscaling_group" "nodes" {
     for_each = local.labels
     content {
       key                 = "k8s.io/cluster-autoscaler/node-template/label/${tag.key}"
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
+
+  dynamic "tag" {
+    for_each = var.taints
+    content {
+      key                 = "k8s.io/cluster-autoscaler/node-template/taint/${tag.key}"
       value               = tag.value
       propagate_at_launch = true
     }

@@ -70,6 +70,12 @@ variable "labels" {
   # TODO: add custom validation rule once the feature is stable https://www.terraform.io/docs/configuration/variables.html#custom-validation-rules
 }
 
+variable "taints" {
+  type        = map(string)
+  default     = {}
+  description = "taints that will be added to the kubernetes node"
+}
+
 variable "custom_instance_types" {
   type        = list(string)
   description = <<EOF
