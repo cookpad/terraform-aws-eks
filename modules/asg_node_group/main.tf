@@ -1,8 +1,9 @@
 locals {
   preset_instance_families = {
-    memory_optimized  = ["r5", "r5n", "r5a", "r4"]
-    general_purpose   = ["m5", "m5n", "m5a", "t3", "m4"]
-    compute_optimized = ["c5", "c5n", "c4"]
+    memory_optimized  = ["r5", "r5d", "r5n", "r5dn", "r5a", "r5ad"]
+    general_purpose   = ["m5", "m5d", "m5n", "m5dn", "m5a", "m5ad"]
+    compute_optimized = ["c5", "c5n", "c5d"]
+    burstable         = ["t3", "t3a"]
   }
   preset_instance_types = [
     for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"
@@ -10,6 +11,8 @@ locals {
   instance_types = (length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types)
   max_size       = floor(var.group_size / length(var.cluster_config.private_subnet_ids))
   name_prefix    = "eks-node-${var.cluster_config.name}-${replace(var.instance_family, "_", "-")}-${var.instance_size}-${replace(var.instance_lifecycle, "_", "-")}"
+  node_role      = var.instance_lifecycle == "spot" ? "spot-worker" : "worker"
+  labels         = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -28,6 +31,8 @@ data "template_file" "cloud_config" {
   template = file("${path.module}/cloud_config.tpl")
   vars = {
     cluster_name = var.cluster_config.name
+    labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
+    taints       = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
   }
 }
 
@@ -41,7 +46,7 @@ data "template_cloudinit_config" "config" {
   }
 
   dynamic "part" {
-    for_each = var.cloud_config_extra
+    for_each = var.cloud_config
     content {
       content_type = "text/jinja2"
       content      = part.value
@@ -110,7 +115,7 @@ resource "aws_autoscaling_group" "nodes" {
       on_demand_base_capacity                  = 0
       on_demand_percentage_above_base_capacity = (var.instance_lifecycle == "on_demand" ? 100 : 0)
       spot_allocation_strategy                 = var.spot_allocation_strategy
-      spot_instance_pools                      = var.spot_instance_pools
+      spot_instance_pools                      = max(floor(length(local.instance_types) / 2), 2)
     }
   }
 
@@ -130,6 +135,24 @@ resource "aws_autoscaling_group" "nodes" {
     key                 = "Role"
     value               = "eks-node"
     propagate_at_launch = true
+  }
+
+  dynamic "tag" {
+    for_each = local.labels
+    content {
+      key                 = "k8s.io/cluster-autoscaler/node-template/label/${tag.key}"
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
+
+  dynamic "tag" {
+    for_each = var.taints
+    content {
+      key                 = "k8s.io/cluster-autoscaler/node-template/taint/${tag.key}"
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
 
   depends_on = [aws_launch_template.config]

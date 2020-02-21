@@ -57,16 +57,23 @@ variable "spot_allocation_strategy" {
   description = "How to allocate capacity across the Spot pools. Valid values: 'lowest-price' or 'capacity-optimized'."
 }
 
-variable "spot_instance_pools" {
-  type        = number
-  default     = 2
-  description = "Number of Spot pools per availability zone to allocate capacity. EC2 Auto Scaling selects the cheapest Spot pools and evenly allocates Spot capacity across the number of Spot pools that you specify."
-}
-
-variable "cloud_config_extra" {
+variable "cloud_config" {
   type        = list(string)
   default     = []
   description = "Provide additional cloud-config(s), will be merged with the default config"
+}
+
+variable "labels" {
+  type        = map(string)
+  default     = {}
+  description = "Labels that will be added to the kubernetes node. A qualified name must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]') with an optional DNS subdomain prefix and '/' (e.g. 'example.com/MyName')"
+  # TODO: add custom validation rule once the feature is stable https://www.terraform.io/docs/configuration/variables.html#custom-validation-rules
+}
+
+variable "taints" {
+  type        = map(string)
+  default     = {}
+  description = "taints that will be added to the kubernetes node"
 }
 
 variable "custom_instance_types" {

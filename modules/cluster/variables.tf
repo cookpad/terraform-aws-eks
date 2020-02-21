@@ -47,3 +47,15 @@ variable "oidc_root_ca_thumbprints" {
   default     = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
   description = "Thumbprint of Root CA for EKS OpenID Connect (OIDC) identity provider, Valid until 2037 🤞"
 }
+
+variable "cluster_autoscaler" {
+  type        = bool
+  default     = true
+  description = "Should the cluster autoscaler be deployed"
+}
+
+variable "cluster_autoscaler_iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "The IAM role for the cluster_autoscaler, if omitted then an IAM role will be created"
+}

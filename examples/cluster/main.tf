@@ -1,6 +1,6 @@
 provider "aws" {
   region  = "us-east-1"
-  version = "~> 2.47"
+  version = "2.49.0"
 }
 
 module "eks" {
@@ -12,6 +12,18 @@ module "eks" {
 
   # So we can access the k8s API from CI/dev
   endpoint_public_access = true
+
+  node_labels = {
+    "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
+  }
+
+  node_taints = {
+    "terraform-aws-eks" = "test:PreferNoSchedule"
+  }
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = var.cluster_name
 }
 
 /*
@@ -29,14 +41,7 @@ clusters:
 users:
 - name: $${cluster_name}
   user:
-    exec:
-      apiVersion: client.authentication.k8s.io/v1alpha1
-      command: aws
-      args:
-      - "eks"
-      - "get-token"
-      - "--cluster-name"
-      - "$${cluster_name}"
+    token: $${token}
 contexts:
 - name: $${cluster_name}
   context:
@@ -50,5 +55,6 @@ YAML
     cluster_name = module.eks.cluster_config.name
     ca_data      = module.eks.cluster_config.ca_data
     endpoint     = module.eks.cluster_config.endpoint
+    token        = data.aws_eks_cluster_auth.cluster.token
   }
 }

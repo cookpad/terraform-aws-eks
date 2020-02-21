@@ -18,3 +18,15 @@ variable "endpoint_public_access" {
   description = "Indicates whether or not the EKS public API server endpoint is enabled."
   default     = false
 }
+
+variable "node_labels" {
+  type        = map(string)
+  default     = {}
+  description = "labels that will be added to the kubernetes node"
+}
+
+variable "node_taints" {
+  type        = map(string)
+  default     = {}
+  description = "taints that will be added to the kubernetes node"
+}
