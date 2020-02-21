@@ -11,6 +11,8 @@ locals {
   instance_types = (length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types)
   max_size       = floor(var.group_size / length(var.cluster_config.private_subnet_ids))
   name_prefix    = "eks-node-${var.cluster_config.name}-${replace(var.instance_family, "_", "-")}-${var.instance_size}-${replace(var.instance_lifecycle, "_", "-")}"
+  node_role      = var.instance_lifecycle == "spot" ? "spot-worker" : "worker"
+  labels         = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -29,6 +31,7 @@ data "template_file" "cloud_config" {
   template = file("${path.module}/cloud_config.tpl")
   vars = {
     cluster_name = var.cluster_config.name
+    labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
   }
 }
 
@@ -131,6 +134,15 @@ resource "aws_autoscaling_group" "nodes" {
     key                 = "Role"
     value               = "eks-node"
     propagate_at_launch = true
+  }
+
+  dynamic "tag" {
+    for_each = local.labels
+    content {
+      key                 = "k8s.io/cluster-autoscaler/node-template/label/${tag.key}"
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
 
   depends_on = [aws_launch_template.config]

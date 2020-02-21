@@ -12,6 +12,10 @@ module "eks" {
 
   # So we can access the k8s API from CI/dev
   endpoint_public_access = true
+
+  node_labels = {
+    "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
+  }
 }
 
 data "aws_eks_cluster_auth" "cluster" {

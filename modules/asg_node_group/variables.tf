@@ -63,6 +63,13 @@ variable "cloud_config_extra" {
   description = "Provide additional cloud-config(s), will be merged with the default config"
 }
 
+variable "labels" {
+  type        = map(string)
+  default     = {}
+  description = "Labels that will be added to the kubernetes node. A qualified name must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]') with an optional DNS subdomain prefix and '/' (e.g. 'example.com/MyName')"
+  # TODO: add custom validation rule once the feature is stable https://www.terraform.io/docs/configuration/variables.html#custom-validation-rules
+}
+
 variable "custom_instance_types" {
   type        = list(string)
   description = <<EOF

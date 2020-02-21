@@ -14,6 +14,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -37,7 +38,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		})
 	})
 
-	test_structure.RunTestStage(t, "validate_cluster", func() {
+	test_structure.RunTestStage(t, "validate", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 		kubeconfig, err := writeKubeconfig(terraform.Output(t, terraformOptions, "kubeconfig"))
 		if err != nil {
@@ -45,6 +46,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		}
 		defer os.Remove(kubeconfig)
 		validateCluster(t, kubeconfig)
+		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
 		validateClusterAutoscaler(t, kubeconfig)
 	})
 }
@@ -53,6 +55,14 @@ func validateCluster(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
 	waitForCluster(t, kubectlOptions)
 	waitForNodes(t, kubectlOptions, 3)
+}
+
+func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
+	for _, node := range k8s.GetNodes(t, kubectlOptions) {
+		assert.Equal(t, "true", node.Labels["node-role.kubernetes.io/spot-worker"])
+		assert.Equal(t, clusterName, node.Labels["cookpad.com/terraform-aws-eks-test-environment"])
+	}
 }
 
 func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
