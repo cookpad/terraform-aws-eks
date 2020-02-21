@@ -46,7 +46,7 @@ data "template_cloudinit_config" "config" {
   }
 
   dynamic "part" {
-    for_each = var.cloud_config_extra
+    for_each = var.cloud_config
     content {
       content_type = "text/jinja2"
       content      = part.value

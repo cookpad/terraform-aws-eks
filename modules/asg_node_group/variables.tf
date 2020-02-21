@@ -57,7 +57,7 @@ variable "spot_allocation_strategy" {
   description = "How to allocate capacity across the Spot pools. Valid values: 'lowest-price' or 'capacity-optimized'."
 }
 
-variable "cloud_config_extra" {
+variable "cloud_config" {
   type        = list(string)
   default     = []
   description = "Provide additional cloud-config(s), will be merged with the default config"
