@@ -13,7 +13,7 @@ locals {
   node_role      = length(var.node_role) > 0 ? var.node_role : (var.instance_lifecycle == "spot" ? "spot-worker" : "worker")
   labels         = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
   asg_subnets    = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
-  max_size       = floor(var.group_size / length(local.asg_subnets))
+  max_size       = floor(var.max_size / length(local.asg_subnets))
 }
 
 data "aws_ssm_parameter" "image_id" {

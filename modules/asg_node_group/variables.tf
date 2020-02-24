@@ -27,7 +27,7 @@ variable "docker_volume_size" {
   description = "Volume size for the docker volume. Value in GiB."
 }
 
-variable "group_size" {
+variable "max_size" {
   type        = number
   default     = 12
   description = "The maximum number of instances that will be launched by this group"
