@@ -92,7 +92,7 @@ resource "aws_autoscaling_group" "nodes" {
   for_each = var.cluster_config.private_subnet_ids
 
   name                = "${local.name_prefix}-${each.key}"
-  min_size            = var.asg_min_size
+  min_size            = var.min_size
   max_size            = local.max_size
   vpc_zone_identifier = [each.value]
 

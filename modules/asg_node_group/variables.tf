@@ -27,7 +27,7 @@ variable "group_size" {
   description = "The maximum number of instances that will be launched by this group"
 }
 
-variable "asg_min_size" {
+variable "min_size" {
   type        = number
   default     = 0
   description = "The minimum number of instances in each ASG, should only be needed if not using cluster autoscaler or bootstapping"
