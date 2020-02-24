@@ -9,6 +9,12 @@ variable "cluster_config" {
   })
 }
 
+variable "zone_awareness" {
+  type        = bool
+  default     = true
+  description = "Should the cluster autoscaler be aware of the AZ it is launching nodes into, if true then one ASG is created per AZ. If false a single AZ spanning all the zones will be created, applications making use of EBS volumes may not work as expected"
+}
+
 variable "root_volume_size" {
   type        = number
   default     = 20
