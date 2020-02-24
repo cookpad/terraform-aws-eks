@@ -8,7 +8,7 @@ locals {
   preset_instance_types = [
     for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"
   ]
-  instance_types = (length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types)
+  instance_types = length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types
   name_prefix    = "eks-node-${var.cluster_config.name}-${replace(var.instance_family, "_", "-")}-${var.instance_size}-${replace(var.instance_lifecycle, "_", "-")}"
   node_role      = var.instance_lifecycle == "spot" ? "spot-worker" : "worker"
   labels         = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
