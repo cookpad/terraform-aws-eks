@@ -3,6 +3,7 @@ module "critical_addons_nodes" {
 
   cluster_config = local.config
   min_size       = 2
+  max_size       = 3
   zone_awareness = false
   node_role      = "critical-addons"
   taints = {
