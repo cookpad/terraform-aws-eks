@@ -27,7 +27,6 @@ module "node_group" {
   source = "./modules/asg_node_group"
 
   cluster_config = module.cluster.config
-  min_size       = 1
   labels         = var.node_labels
   taints         = var.node_taints
 }

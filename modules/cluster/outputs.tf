@@ -1,5 +1,5 @@
-output "config" {
-  value = {
+locals {
+  config = {
     name                  = var.name
     k8s_version           = aws_eks_cluster.control_plane.version
     endpoint              = aws_eks_cluster.control_plane.endpoint
@@ -9,6 +9,10 @@ output "config" {
     node_security_group   = aws_security_group.node.id
     node_instance_profile = var.iam_config.node_role
   }
+}
+
+output "config" {
+  value = local.config
 }
 
 output "odic_config" {
