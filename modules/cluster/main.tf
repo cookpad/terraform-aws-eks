@@ -23,7 +23,7 @@ resource "aws_security_group" "control_plane" {
     command = <<EOF
       for ID in $(aws ec2 describe-network-interfaces --region ${split(":", self.arn)[3]} --filters 'Name=group-id,Values=${self.id}' 'Name=status,Values=available' --query 'NetworkInterfaces[*].NetworkInterfaceId' --output text)
       do
-        aws ec2 delete-security-group --region ${split(":", self.arn)[3]} --network-interface-id $ID
+        aws ec2 delete-network-interface --region ${split(":", self.arn)[3]} --network-interface-id $ID
       done
     EOF
   }
