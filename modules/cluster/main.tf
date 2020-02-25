@@ -140,3 +140,14 @@ module "aws_auth" {
     aws-auth-cm = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
   }
 }
+
+module "metrics_server" {
+  source = "./kubectl"
+  config = local.config
+  apply  = var.metrics_server
+  manifests = {
+    for manifest in fileset(path.module, "metrics_server/*.yaml") :
+    manifest => file("${path.module}/${manifest}")
+  }
+}
+}

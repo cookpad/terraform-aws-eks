@@ -59,3 +59,9 @@ variable "cluster_autoscaler_iam_role_arn" {
   default     = ""
   description = "The IAM role for the cluster_autoscaler, if omitted then an IAM role will be created"
 }
+
+variable "metrics_server" {
+  type        = bool
+  default     = true
+  description = "Should the metrics server be deployed"
+}
