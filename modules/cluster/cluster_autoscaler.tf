@@ -300,6 +300,11 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
           image_pull_policy = "Always"
         }
 
+        toleration {
+          key      = "CriticalAddonsOnly"
+          operator = "Exists"
+        }
+
         volume {
           name = "ssl-certs"
           host_path {

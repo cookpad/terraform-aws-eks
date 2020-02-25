@@ -9,6 +9,12 @@ variable "cluster_config" {
   })
 }
 
+variable "zone_awareness" {
+  type        = bool
+  default     = true
+  description = "Should the cluster autoscaler be aware of the AZ it is launching nodes into, if true then one ASG is created per AZ. If false a single AZ spanning all the zones will be created, applications making use of EBS volumes may not work as expected"
+}
+
 variable "root_volume_size" {
   type        = number
   default     = 20
@@ -21,13 +27,13 @@ variable "docker_volume_size" {
   description = "Volume size for the docker volume. Value in GiB."
 }
 
-variable "group_size" {
+variable "max_size" {
   type        = number
-  default     = 6
+  default     = 12
   description = "The maximum number of instances that will be launched by this group"
 }
 
-variable "asg_min_size" {
+variable "min_size" {
   type        = number
   default     = 0
   description = "The minimum number of instances in each ASG, should only be needed if not using cluster autoscaler or bootstapping"
@@ -61,6 +67,12 @@ variable "cloud_config" {
   type        = list(string)
   default     = []
   description = "Provide additional cloud-config(s), will be merged with the default config"
+}
+
+variable "node_role" {
+  type        = string
+  default     = ""
+  description = "Set a custom node role, for nodes in this group, defaults to worker or spot-worker if not set"
 }
 
 variable "labels" {

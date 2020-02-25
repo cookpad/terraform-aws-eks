@@ -8,11 +8,12 @@ locals {
   preset_instance_types = [
     for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"
   ]
-  instance_types = (length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types)
-  max_size       = floor(var.group_size / length(var.cluster_config.private_subnet_ids))
-  name_prefix    = "eks-node-${var.cluster_config.name}-${replace(var.instance_family, "_", "-")}-${var.instance_size}-${replace(var.instance_lifecycle, "_", "-")}"
-  node_role      = var.instance_lifecycle == "spot" ? "spot-worker" : "worker"
+  instance_types = length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types
+  name_prefix    = replace(join("-", ["eks-node", var.cluster_config.name, local.node_role, var.instance_family, var.instance_size, var.instance_lifecycle]), "_", "-")
+  node_role      = length(var.node_role) > 0 ? var.node_role : (var.instance_lifecycle == "spot" ? "spot-worker" : "worker")
   labels         = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
+  asg_subnets    = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
+  max_size       = floor(var.max_size / length(local.asg_subnets))
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -89,12 +90,12 @@ resource "aws_launch_template" "config" {
 }
 
 resource "aws_autoscaling_group" "nodes" {
-  for_each = var.cluster_config.private_subnet_ids
+  for_each = local.asg_subnets
 
   name                = "${local.name_prefix}-${each.key}"
-  min_size            = var.asg_min_size
+  min_size            = var.min_size
   max_size            = local.max_size
-  vpc_zone_identifier = [each.value]
+  vpc_zone_identifier = each.value
 
   mixed_instances_policy {
     launch_template {
