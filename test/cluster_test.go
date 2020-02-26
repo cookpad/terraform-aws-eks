@@ -85,7 +85,7 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
 
 	// Check that the autoscaler pods are running
-	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 2, 1, 10*time.Second)
+	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 1, 1, 10*time.Second)
 	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
 		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
 	}

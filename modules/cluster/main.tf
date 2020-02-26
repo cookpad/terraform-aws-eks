@@ -129,42 +129,12 @@ resource "aws_cloudwatch_log_group" "control_plane" {
   Allow nodes to join the cluster
 */
 
-data "aws_eks_cluster_auth" "control_plane" {
-  name = var.name
-}
-
-provider "kubernetes" {
-  version                = "1.10.0"
-  host                   = aws_eks_cluster.control_plane.endpoint
-  cluster_ca_certificate = base64decode(aws_eks_cluster.control_plane.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.control_plane.token
-  load_config_file       = false
-}
-
 data "aws_iam_role" "node_role" {
   name = var.iam_config.node_role
 }
 
-resource "kubernetes_config_map" "aws-auth" {
-  provider = kubernetes
-
-  metadata {
-    name      = "aws-auth"
-    namespace = "kube-system"
-  }
-
-  data = {
-    mapRoles = yamlencode(
-      [
-        {
-          "rolearn" : data.aws_iam_role.node_role.arn
-          "username" : "system:node:{{EC2PrivateDNSName}}"
-          "groups" : [
-            "system:bootstrappers",
-            "system:nodes",
-          ],
-        },
-      ],
-    )
-  }
+module "aws_auth" {
+  source   = "./kubectl"
+  config   = local.config
+  manifest = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
 }
