@@ -52,11 +52,14 @@ resource "aws_iam_role_policy" "cluster_autoscaler" {
 module "cluster_autoscaler" {
   source = "./kubectl"
   config = local.config
-  manifest = templatefile(
-    "${path.module}/cluster_autoscaler.yaml.tmpl",
-    {
-      cluster_name = var.name,
-      iam_role_arn = local.cluster_autoscaler_iam_role_arn,
-    }
-  )
+  apply  = var.cluster_autoscaler
+  manifests = {
+    cluster_autoscaler = templatefile(
+      "${path.module}/cluster_autoscaler.yaml.tmpl",
+      {
+        cluster_name = var.name,
+        iam_role_arn = local.cluster_autoscaler_iam_role_arn,
+      }
+    )
+  }
 }

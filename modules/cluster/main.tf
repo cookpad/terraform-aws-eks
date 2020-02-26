@@ -134,7 +134,9 @@ data "aws_iam_role" "node_role" {
 }
 
 module "aws_auth" {
-  source   = "./kubectl"
-  config   = local.config
-  manifest = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
+  source = "./kubectl"
+  config = local.config
+  manifests = {
+    aws-auth-cm = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
+  }
 }

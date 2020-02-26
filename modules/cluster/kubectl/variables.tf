@@ -7,13 +7,20 @@ variable "config" {
   description = "cluster config"
 }
 
-variable "manifest" {
-  type        = string
-  description = "the kubernetes manifest to apply"
+variable "manifests" {
+  type        = map(string)
+  description = "the kubernetes manifests to apply"
+  default     = {}
 }
 
 variable "kubectl" {
   type        = string
   description = "The kubectl binary to use"
   default     = "kubectl"
+}
+
+variable "apply" {
+  type        = bool
+  description = "Do nothing if false"
+  default     = true
 }
