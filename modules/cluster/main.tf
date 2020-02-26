@@ -150,4 +150,12 @@ module "metrics_server" {
     manifest => file("${path.module}/${manifest}")
   }
 }
+
+module "aws_node_termination_handler" {
+  source = "./kubectl"
+  config = local.config
+  apply  = var.aws_node_termination_handler
+  manifests = {
+    aws_node_termination_handler = file("${path.module}/aws_node_termination_handler.yaml")
+  }
 }

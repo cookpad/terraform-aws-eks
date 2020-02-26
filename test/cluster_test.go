@@ -152,6 +152,20 @@ spec:
             cpu: "1100m"
 `
 
+func validateNodeTerminationHandler(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
+	nodes := k8s.GetNodes(t, kubectlOptions)
+	filters := metav1.ListOptions{
+		LabelSelector: "k8s-app=aws-node-termination-handler",
+	}
+
+	// Check that the handler is running on all the nodes
+	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, len(nodes), 6, 10*time.Second)
+	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
+		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
+	}
+}
+
 func writeKubeconfig(config string) (string, error) {
 	file, err := ioutil.TempFile(os.TempDir(), "kubeconfig-")
 	if err != nil {
