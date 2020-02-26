@@ -141,6 +141,14 @@ module "aws_auth" {
   }
 }
 
+module "storage_classes" {
+  source = "./kubectl"
+  config = local.config
+  manifests = {
+    storage_classes = file("${path.module}/storage_classes.yaml")
+  }
+}
+
 module "metrics_server" {
   source = "./kubectl"
   config = local.config

@@ -1,0 +1,33 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: high-iops-ssd
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: io1
+  iopsPerGB: "50"
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: medium-iops-ssd
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: io1
+  iopsPerGB: "25"
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: throughput
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: st1
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: cold-storage
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: sc1
