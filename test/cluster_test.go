@@ -72,7 +72,7 @@ func validateCluster(t *testing.T, kubeconfig string) {
 
 func validateMetricsServer(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
-	maxRetries := 10
+	maxRetries := 20
 	sleepBetweenRetries := 6 * time.Second
 	logger.Log(t, retry.DoWithRetry(t, "wait for kubectl top pods to work", maxRetries, sleepBetweenRetries, func() (string, error) {
 		return k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "top", "pods")
