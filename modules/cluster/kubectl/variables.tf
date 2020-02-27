@@ -17,3 +17,9 @@ variable "kubectl" {
   description = "The kubectl binary to use"
   default     = "kubectl"
 }
+
+variable "apply" {
+  type        = bool
+  description = "Do nothing if false"
+  default     = true
+}
