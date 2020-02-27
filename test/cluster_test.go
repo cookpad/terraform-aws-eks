@@ -90,12 +90,12 @@ func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
 
 func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	filters := metav1.ListOptions{
-		LabelSelector: "app=cluster-autoscaler",
+		LabelSelector: "app.kubernetes.io/name=aws-cluster-autoscaler",
 	}
 
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
 
-	// Check that the autoscaler pods are running
+	// Check that the autoscaler pod is running
 	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 1, 1, 10*time.Second)
 	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
 		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)

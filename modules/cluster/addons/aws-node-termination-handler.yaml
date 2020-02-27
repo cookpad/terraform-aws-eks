@@ -7,6 +7,7 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
+    helm.sh/chart: aws-node-termination-handler-0.5.1
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
     app.kubernetes.io/version: "1.2.0"
@@ -74,7 +75,7 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.5.0
+    helm.sh/chart: aws-node-termination-handler-0.5.1
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
     app.kubernetes.io/version: "1.2.0"
@@ -114,9 +115,6 @@ spec:
                       - amd64
       serviceAccountName: aws-node-termination-handler
       hostNetwork: true
-      tolerations:
-        - key: CriticalAddonsOnly
-          operator: Exists
       containers:
         - name: aws-node-termination-handler
           image: amazon/aws-node-termination-handler:v1.2.0
@@ -144,13 +142,15 @@ spec:
           - name: DELETE_LOCAL_DATA
             value: "true"
           - name: IGNORE_DAEMON_SETS
-            value: "true"
+            value: ""
+          - name: GRACE_PERIOD
+            value: ""
           - name: POD_TERMINATION_GRACE_PERIOD
-            value: "30"
+            value: ""
           - name: INSTANCE_METADATA_URL
             value: ""
           - name: NODE_TERMINATION_GRACE_PERIOD
-            value: "90"
+            value: ""
           - name: WEBHOOK_URL
             value: ""
           - name: WEBHOOK_HEADERS
@@ -170,5 +170,6 @@ spec:
             requests:
               cpu: 50m
               memory: 64Mi
-          securityContext:
-            privileged: true
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists

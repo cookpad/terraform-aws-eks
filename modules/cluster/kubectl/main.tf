@@ -6,9 +6,10 @@ locals {
       ca_data      = var.config.ca_data
       endpoint     = var.config.endpoint
       token        = data.aws_eks_cluster_auth.auth.token
+      namespace    = var.namespace
     }
   )
-  kubeconfig_path = "${path.module}/${sha1(local.kubeconfig)}.kubeconfig"
+  kubeconfig_path = "${path.module}/${sha1(local.kubeconfig)}.${sha1(var.manifest)}.kubeconfig"
 }
 
 data "aws_eks_cluster_auth" "auth" {
@@ -16,23 +17,24 @@ data "aws_eks_cluster_auth" "auth" {
 }
 
 resource "null_resource" "apply" {
-  for_each = var.apply ? var.manifests : {}
+  count = var.apply ? 1 : 0
 
   triggers = {
-    manifest_sha1 = sha1(each.value)
+    manifest_sha1 = sha1(var.manifest)
+    namespace    = var.namespace
   }
 
   provisioner "local-exec" {
     command = <<EOT
-cat <<EOF > ${local.kubeconfig_path}.${sha1(each.value)}
+cat <<EOF > ${local.kubeconfig_path}
 ${local.kubeconfig}
 EOF
 
-${var.kubectl} --kubeconfig=${local.kubeconfig_path}.${sha1(each.value)} apply -f -<<EOF
-${each.value}
+${var.kubectl} --kubeconfig=${local.kubeconfig_path} apply -f -<<EOF
+${var.manifest}
 EOF
 
-rm ${local.kubeconfig_path}.${sha1(each.value)}
+rm ${local.kubeconfig_path}
 EOT
   }
 }

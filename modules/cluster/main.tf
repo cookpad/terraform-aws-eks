@@ -136,34 +136,11 @@ data "aws_iam_role" "node_role" {
 module "aws_auth" {
   source = "./kubectl"
   config = local.config
-  manifests = {
-    aws-auth-cm = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
-  }
+  manifest = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
 }
 
 module "storage_classes" {
   source = "./kubectl"
   config = local.config
-  manifests = {
-    storage_classes = file("${path.module}/storage_classes.yaml")
-  }
-}
-
-module "metrics_server" {
-  source = "./kubectl"
-  config = local.config
-  apply  = var.metrics_server
-  manifests = {
-    for manifest in fileset(path.module, "metrics_server/*.yaml") :
-    manifest => file("${path.module}/${manifest}")
-  }
-}
-
-module "aws_node_termination_handler" {
-  source = "./kubectl"
-  config = local.config
-  apply  = var.aws_node_termination_handler
-  manifests = {
-    aws_node_termination_handler = file("${path.module}/aws_node_termination_handler.yaml")
-  }
+  manifest = file("${path.module}/storage_classes.yaml")
 }
