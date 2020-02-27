@@ -79,7 +79,7 @@ func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
 
 func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	filters := metav1.ListOptions{
-		LabelSelector: "app=cluster-autoscaler",
+		LabelSelector: "app.kubernetes.io/name=aws-cluster-autoscaler",
 	}
 
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")

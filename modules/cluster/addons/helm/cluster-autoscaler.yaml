@@ -1,0 +1,30 @@
+tolerations:
+- key: CriticalAddonsOnly
+  operator: Exists
+awsRegion: ${aws_region}
+autoDiscovery:
+  clusterName: ${cluster_name}
+replicaCount: 1
+rbac:
+  create: true
+  pspEnabled: true
+  serviceAccountAnnotations:
+    eks.amazonaws.com/role-arn: ${iam_role_arn}
+extraArgs:
+  v: 4
+  stderrthreshold: info
+  logtostderr: true
+  leader-elect: true
+  skip-nodes-with-local-storage: false
+  expander: least-waste
+  balance-similar-node-groups: true
+image:
+  tag: v1.14.7
+fullnameOverride: cluster-autoscaler
+resources:
+  limits:
+    cpu: 100m
+    memory: 300Mi
+  requests:
+    cpu: 100m
+    memory: 300Mi

@@ -7,6 +7,12 @@ variable "config" {
   description = "cluster config"
 }
 
+variable "namespace" {
+  type        = string
+  default     = "kube-system"
+  description = "the kubernetes namespace to set in the kubectl context"
+}
+
 variable "manifest" {
   type        = string
   description = "the kubernetes manifest to apply"

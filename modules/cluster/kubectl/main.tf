@@ -6,6 +6,7 @@ locals {
       ca_data      = var.config.ca_data
       endpoint     = var.config.endpoint
       token        = data.aws_eks_cluster_auth.auth.token
+      namespace    = var.namespace
     }
   )
   kubeconfig_path = "${path.module}/${sha1(local.kubeconfig)}.${sha1(var.manifest)}.kubeconfig"
