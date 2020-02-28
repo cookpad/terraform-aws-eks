@@ -26,3 +26,17 @@ module "cluster_autoscaler" {
     }
   )
 }
+
+module "metrics_server" {
+  source   = "./kubectl"
+  config   = local.config
+  apply    = var.metrics_server
+  manifest = file("${path.module}/addons/metrics-server.yaml")
+}
+
+module "pod_nanny" {
+  source   = "./kubectl"
+  config   = local.config
+  apply    = var.metrics_server
+  manifest = file("${path.module}/addons/pod-nanny.yaml")
+}

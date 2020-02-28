@@ -13,3 +13,4 @@ helm_template() {
 }
 
 helm_template stable cluster-autoscaler 6.6.1
+helm_template stable metrics-server 2.10.0

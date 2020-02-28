@@ -48,6 +48,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		}
 		defer os.Remove(kubeconfig)
 		validateCluster(t, kubeconfig)
+		validateMetricsServer(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
 	})
@@ -66,6 +67,15 @@ func validateCluster(t *testing.T, kubeconfig string) {
 		assert.Equal(t, "true", taint.Value)
 		assert.Equal(t, corev1.TaintEffectNoSchedule, taint.Effect)
 	}
+}
+
+func validateMetricsServer(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
+	maxRetries := 20
+	sleepBetweenRetries := 6 * time.Second
+	retry.DoWithRetry(t, "wait for kubectl top pods to work", maxRetries, sleepBetweenRetries, func() (string, error) {
+		return k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "top", "pods")
+	})
 }
 
 func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
