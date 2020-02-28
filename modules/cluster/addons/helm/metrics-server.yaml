@@ -1,0 +1,35 @@
+tolerations:
+- key: CriticalAddonsOnly
+  operator: Exists
+extraContainers:
+- name: metrics-server-nanny
+  image: k8s.gcr.io/addon-resizer:1.8.8
+  resources:
+    limits:
+      cpu: 100m
+      memory: 300Mi
+    requests:
+      cpu: 5m
+      memory: 50Mi
+  env:
+    - name: MY_POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: MY_POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+  command:
+    - /pod_nanny
+    - --cpu=40m
+    - --extra-cpu=0.5m
+    - --memory=40Mi
+    - --extra-memory=4Mi
+    - --threshold=5
+    - --deployment=metrics-server
+    - --container=metrics-server
+    - --poll-period=300000
+    - --estimator=exponential
+    - --minClusterSize=3
+

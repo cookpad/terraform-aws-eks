@@ -121,6 +121,12 @@ resource "aws_autoscaling_group" "nodes" {
   }
 
   tag {
+    key                 = "k8s.io/cluster-autoscaler/enabled"
+    value               = "true"
+    propagate_at_launch = false
+  }
+
+  tag {
     key                 = "k8s.io/cluster-autoscaler/${var.cluster_config.name}"
     value               = "owned"
     propagate_at_launch = false

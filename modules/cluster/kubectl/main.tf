@@ -6,6 +6,7 @@ locals {
       ca_data      = var.config.ca_data
       endpoint     = var.config.endpoint
       token        = data.aws_eks_cluster_auth.auth.token
+      namespace    = var.namespace
     }
   )
   kubeconfig_path = "${path.module}/${sha1(local.kubeconfig)}.${sha1(var.manifest)}.kubeconfig"
@@ -16,6 +17,8 @@ data "aws_eks_cluster_auth" "auth" {
 }
 
 resource "null_resource" "apply" {
+  count = var.apply ? 1 : 0
+
   triggers = {
     manifest_sha1 = sha1(var.manifest)
   }

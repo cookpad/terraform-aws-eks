@@ -1,0 +1,6 @@
+tolerations:
+- key: CriticalAddonsOnly
+  operator: Exists
+deleteLocalData: true
+enableSpotInterruptionDraining: true
+enableScheduledEventDraining: true

@@ -48,8 +48,11 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		}
 		defer os.Remove(kubeconfig)
 		validateCluster(t, kubeconfig)
+		validateMetricsServer(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
+		validateNodeTerminationHandler(t, kubeconfig)
+		validateNodeExporter(t, kubeconfig)
 	})
 }
 
@@ -68,6 +71,15 @@ func validateCluster(t *testing.T, kubeconfig string) {
 	}
 }
 
+func validateMetricsServer(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
+	maxRetries := 20
+	sleepBetweenRetries := 6 * time.Second
+	retry.DoWithRetry(t, "wait for kubectl top pods to work", maxRetries, sleepBetweenRetries, func() (string, error) {
+		return k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "top", "pods")
+	})
+}
+
 func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
 	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-role.kubernetes.io/spot-worker=true"})
@@ -79,7 +91,7 @@ func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
 
 func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	filters := metav1.ListOptions{
-		LabelSelector: "app=cluster-autoscaler",
+		LabelSelector: "app.kubernetes.io/name=aws-cluster-autoscaler",
 	}
 
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
@@ -140,6 +152,34 @@ spec:
           requests:
             cpu: "1100m"
 `
+
+func validateNodeTerminationHandler(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
+	nodes := k8s.GetNodes(t, kubectlOptions)
+	filters := metav1.ListOptions{
+		LabelSelector: "k8s-app=aws-node-termination-handler",
+	}
+
+	// Check that the handler is running on all the nodes
+	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, len(nodes), 6, 10*time.Second)
+	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
+		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
+	}
+}
+
+func validateNodeExporter(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
+	nodes := k8s.GetNodes(t, kubectlOptions)
+	filters := metav1.ListOptions{
+		LabelSelector: "app=prometheus-node-exporter",
+	}
+
+	// Check that the exporter is running on all the nodes
+	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, len(nodes), 6, 10*time.Second)
+	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
+		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
+	}
+}
 
 func writeKubeconfig(config string) (string, error) {
 	file, err := ioutil.TempFile(os.TempDir(), "kubeconfig-")

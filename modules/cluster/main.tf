@@ -139,3 +139,9 @@ module "aws_auth" {
   config   = local.config
   manifest = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
 }
+
+module "storage_classes" {
+  source   = "./kubectl"
+  config   = local.config
+  manifest = file("${path.module}/storage_classes.yaml")
+}

@@ -47,16 +47,3 @@ resource "aws_iam_role_policy" "cluster_autoscaler" {
   role   = aws_iam_role.cluster_autoscaler[0].id
   policy = data.aws_iam_policy_document.cluster_autoscaler_policy.json
 }
-
-
-module "cluster_autoscaler" {
-  source = "./kubectl"
-  config = local.config
-  manifest = templatefile(
-    "${path.module}/cluster_autoscaler.yaml.tmpl",
-    {
-      cluster_name = var.name,
-      iam_role_arn = local.cluster_autoscaler_iam_role_arn,
-    }
-  )
-}
