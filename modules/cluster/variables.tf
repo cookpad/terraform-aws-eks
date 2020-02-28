@@ -71,3 +71,9 @@ variable "aws_node_termination_handler" {
   default     = true
   description = "Should the AWS node termination handler be deployed"
 }
+
+variable "prometheus_node_exporter" {
+  type        = bool
+  default     = true
+  description = "Should the prometheus node exporter be deployed"
+}

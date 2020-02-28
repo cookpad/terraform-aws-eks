@@ -48,3 +48,9 @@ module "aws_node_termination_handler" {
   manifest = file("${path.module}/addons/aws-node-termination-handler.yaml")
 }
 
+module "prometheus_node_exporter" {
+  source   = "./kubectl"
+  config   = local.config
+  apply    = var.prometheus_node_exporter
+  manifest = file("${path.module}/addons/prometheus-node-exporter.yaml")
+}

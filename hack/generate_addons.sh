@@ -16,3 +16,4 @@ helm_template() {
 helm_template eks aws-node-termination-handler 0.5.1
 helm_template stable cluster-autoscaler 6.6.1
 helm_template stable metrics-server 2.10.0
+helm_template stable prometheus-node-exporter 1.9.0
