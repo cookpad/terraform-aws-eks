@@ -17,21 +17,11 @@ resource "aws_security_group" "control_plane" {
   tags = {
     Name = "eks-control-plane-${var.name}"
   }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<EOF
-      for ID in $(aws ec2 describe-network-interfaces --region ${split(":", self.arn)[3]} --filters 'Name=group-id,Values=${self.id}' 'Name=status,Values=available' --query 'NetworkInterfaces[*].NetworkInterfaceId' --output text)
-      do
-        aws ec2 delete-network-interface --region ${split(":", self.arn)[3]} --network-interface-id $ID
-      done
-    EOF
-  }
 }
 
 /*
   Nodes Security Group
-  And rules to control comunication between nodes and cluster.
+  And rules to control communication between nodes and cluster.
 */
 
 resource "aws_security_group" "node" {
@@ -49,6 +39,17 @@ resource "aws_security_group" "node" {
   tags = {
     "Name"                              = "eks-node-${var.name}"
     "kubernetes.io/cluster/${var.name}" = "owned"
+  }
+
+  # Remove any stale eni's created by vpc-cni-k8s, so we can remove the node security group
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+      for ID in $(aws ec2 describe-network-interfaces --region ${split(":", self.arn)[3]} --filters 'Name=group-id,Values=${self.id}' 'Name=status,Values=available' 'Name=tag-key,Values=node.k8s.amazonaws.com/instance_id' --query 'NetworkInterfaces[*].NetworkInterfaceId' --output text)
+      do
+        aws ec2 delete-network-interface --region ${split(":", self.arn)[3]} --network-interface-id $ID
+      done
+    EOF
   }
 }
 
