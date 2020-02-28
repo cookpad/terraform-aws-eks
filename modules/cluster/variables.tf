@@ -65,3 +65,9 @@ variable "metrics_server" {
   default     = true
   description = "Should the metrics server be deployed"
 }
+
+variable "aws_node_termination_handler" {
+  type        = bool
+  default     = true
+  description = "Should the AWS node termination handler be deployed"
+}

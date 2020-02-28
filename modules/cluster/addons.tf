@@ -40,3 +40,11 @@ module "pod_nanny" {
   apply    = var.metrics_server
   manifest = file("${path.module}/addons/pod-nanny.yaml")
 }
+
+module "aws_node_termination_handler" {
+  source   = "./kubectl"
+  config   = local.config
+  apply    = var.aws_node_termination_handler
+  manifest = file("${path.module}/addons/aws-node-termination-handler.yaml")
+}
+
