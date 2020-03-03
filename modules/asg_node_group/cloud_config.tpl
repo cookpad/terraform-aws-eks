@@ -2,16 +2,8 @@
 #cloud-config
 fqdn: eks-node-${cluster_name}-{{ v1.instance_id }}
 fs_setup:
-# Create a filesystem on an attached EBS volume. Only one of them should succeed.
-- device: /dev/nvme0n1
-  filesystem: ext4
-  label: docker-vol
-  partition: none
-- device: /dev/nvme1n1
-  filesystem: ext4
-  label: docker-vol
-  partition: none
-- device: /dev/xvdf
+# Create a filesystem on the attached EBS volume
+- device: ${docker_volume_device}
   filesystem: ext4
   label: docker-vol
   partition: none

@@ -31,9 +31,10 @@ data "aws_ami" "image" {
 data "template_file" "cloud_config" {
   template = file("${path.module}/cloud_config.tpl")
   vars = {
-    cluster_name = var.cluster_config.name
-    labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
-    taints       = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
+    cluster_name         = var.cluster_config.name
+    docker_volume_device = var.docker_volume_device
+    labels               = join(",", [for label, value in local.labels : "${label}=${value}"])
+    taints               = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
   }
 }
 
@@ -69,7 +70,7 @@ resource "aws_launch_template" "config" {
   }
 
   block_device_mappings {
-    device_name = "/dev/sda1"
+    device_name = var.root_volume_device
 
     ebs {
       volume_size = var.root_volume_size
@@ -78,7 +79,7 @@ resource "aws_launch_template" "config" {
   }
 
   block_device_mappings {
-    device_name = "/dev/sdf"
+    device_name = var.docker_volume_device
 
     ebs {
       volume_size = var.docker_volume_size
