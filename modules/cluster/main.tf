@@ -134,10 +134,27 @@ data "aws_iam_role" "node_role" {
   name = var.iam_config.node_role
 }
 
+locals {
+  aws_auth_role_map = concat(
+    [{
+      rolearn  = data.aws_iam_role.node_role.arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups   = ["system:bootstrappers", "system:nodes"]
+    }],
+    var.aws_auth_role_map,
+  )
+}
+
 module "aws_auth" {
-  source   = "./kubectl"
-  config   = local.config
-  manifest = templatefile("${path.module}/aws-auth-cm.yaml.tmpl", { role_arn = data.aws_iam_role.node_role.arn })
+  source = "./kubectl"
+  config = local.config
+  manifest = templatefile(
+    "${path.module}/aws-auth-cm.yaml.tmpl",
+    {
+      role_map = jsonencode(local.aws_auth_role_map)
+      user_map = jsonencode(var.aws_auth_user_map)
+    }
+  )
 }
 
 module "storage_classes" {
