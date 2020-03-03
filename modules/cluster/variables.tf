@@ -77,3 +77,23 @@ variable "prometheus_node_exporter" {
   default     = true
   description = "Should the prometheus node exporter be deployed"
 }
+
+variable "aws_auth_role_map" {
+  type = list(object({
+    rolearn  = string
+    username = string
+    groups   = list(string)
+  }))
+  default     = []
+  description = "A list of mappings from aws role arns to kubernetes users, and their groups"
+}
+
+variable "aws_auth_user_map" {
+  type = list(object({
+    userarn  = string
+    username = string
+    groups   = list(string)
+  }))
+  default     = []
+  description = "A list of mappings from aws user arns to kubernetes users, and their groups"
+}

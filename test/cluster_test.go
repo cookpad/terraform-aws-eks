@@ -16,6 +16,7 @@ import (
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	authv1 "k8s.io/api/authorization/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -53,6 +54,11 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateNodeExporter(t, kubeconfig)
+		admin_kubeconfig, err := writeKubeconfig(terraform.Output(t, terraformOptions, "test_role_kubeconfig"))
+		if err != nil {
+			t.Error("Error writing kubeconfig file:", err)
+		}
+		validateAdminRole(t, admin_kubeconfig)
 	})
 }
 
@@ -179,6 +185,16 @@ func validateNodeExporter(t *testing.T, kubeconfig string) {
 	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
 		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
 	}
+}
+
+func validateAdminRole(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
+	k8s.CanIDo(t, kubectlOptions, authv1.ResourceAttributes{
+		Namespace: "*",
+		Verb:      "*",
+		Group:     "*",
+		Version:   "*",
+	})
 }
 
 func writeKubeconfig(config string) (string, error) {
