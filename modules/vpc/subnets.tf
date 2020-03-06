@@ -6,7 +6,7 @@ resource "aws_subnet" "public" {
   for_each = local.az_subnet_numbers
 
   availability_zone       = each.key
-  cidr_block              = cidrsubnet(var.cidr_block, 8, each.value)
+  cidr_block              = cidrsubnet(var.cidr_block, 6, each.value)
   vpc_id                  = aws_vpc.network.id
   map_public_ip_on_launch = true
 
