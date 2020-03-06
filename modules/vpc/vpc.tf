@@ -11,16 +11,6 @@ resource "aws_vpc" "network" {
       tags,
     ]
   }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<EOF
-      for ID in $(aws ec2 describe-security-groups --region ${split(":", self.arn)[3]} --filters 'Name=vpc-id,Values=${self.id}' --query 'SecurityGroups[?!contains(GroupName, `default`)].GroupId' --output text)
-      do
-        aws ec2 delete-security-group --region ${split(":", self.arn)[3]} --group-id $ID
-      done
-    EOF
-  }
 }
 
 # Internet gateway
