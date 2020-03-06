@@ -1,6 +1,6 @@
 # VPC Module
 
-This module provisions a AWS VPC network that can be used to run EKS clusters.
+This module provisions an AWS VPC network that can be used to run EKS clusters.
 
 # Usage
 
@@ -34,7 +34,7 @@ In this example the following subnets would be created:
 | `us-east-1b` | `10.0.8.0/22` | `10.0.96.0/19` |
 
 This module outputs a [config object](./outputs.tf) that may be used to configure
-the cluster modules `vpc_config` variable.
+the cluster module's `vpc_config` variable.
 
 e.g:
 ```hcl
@@ -64,7 +64,7 @@ nodes running in all subnets.
 
 # Restrictions
 
-In order to run a EKS cluster you must create subnets in at least 3 availability
+In order to run an EKS cluster you must create subnets in at least 3 availability
 zones.
 
 Because of the way this module subdivides `cidr_block` it can only accommodate
