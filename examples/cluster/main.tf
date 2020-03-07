@@ -31,10 +31,6 @@ module "eks" {
   ]
 }
 
-data "aws_eks_cluster_auth" "cluster" {
-  name = var.cluster_name
-}
-
 /*
   Template a kubeconfig, for testing etc.
 */
@@ -50,7 +46,16 @@ clusters:
 users:
 - name: $${cluster_name}
   user:
-    token: $${token}
+    exec:
+      apiVersion: client.authentication.k8s.io/v1alpha1
+      command: aws
+      args:
+      - --region
+      - us-east-1
+      - eks
+      - get-token
+      - --cluster-name
+      - $${cluster_name}
 contexts:
 - name: $${cluster_name}
   context:
@@ -64,7 +69,6 @@ YAML
     cluster_name = module.eks.cluster_config.name
     ca_data      = module.eks.cluster_config.ca_data
     endpoint     = module.eks.cluster_config.endpoint
-    token        = data.aws_eks_cluster_auth.cluster.token
   }
 }
 

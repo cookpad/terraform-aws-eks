@@ -66,7 +66,7 @@ func validateCluster(t *testing.T, kubeconfig string) {
 	waitForNodes(t, kubectlOptions, 2)
 	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-role.kubernetes.io/critical-addons=true"})
 	require.NoError(t, err)
-	assert.GreaterOrEqual(t, 2, len(nodes))
+	assert.GreaterOrEqual(t, len(nodes), 2)
 	for _, node := range nodes {
 		taint := node.Spec.Taints[0]
 		assert.Equal(t, "CriticalAddonsOnly", taint.Key)
@@ -118,11 +118,11 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 
 	// Check that the example workload pods can all run
 	filters = metav1.ListOptions{
-		LabelSelector: "app=nginx",
+		LabelSelector: "app=test-workload",
 	}
 	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 6, 1, 10*time.Second)
 	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
-		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
+		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 12, 10*time.Second)
 	}
 }
 
@@ -135,23 +135,23 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: test-workload-deployment
   namespace: %s
   labels:
-    app: nginx
+    app: test-workload
 spec:
   replicas: 6
   selector:
     matchLabels:
-      app: nginx
+      app: test-workload
   template:
     metadata:
       labels:
-        app: nginx
+        app: test-workload
     spec:
       containers:
-      - name: nginx
-        image: nginx:1.7.9
+      - name: workload
+        image: 602401143452.dkr.ecr.us-east-1.amazonaws.com/eks/pause-amd64:3.1
         resources:
           requests:
             cpu: "1100m"

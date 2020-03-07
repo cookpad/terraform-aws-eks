@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -46,14 +45,5 @@ func TestTerraformAwsEksVPC(t *testing.T) {
 		for _, subnetId := range terraform.OutputList(t, terraformOptions, "private_subnet_ids") {
 			assert.False(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
 		}
-
-		// Create a security group not managed by terraform (like eks does) to check that cleanup is successful
-		sgName := fmt.Sprintf("terraform-aws-eks-vpc-testing-sg-%s", random.UniqueId())
-		sgInput := ec2.CreateSecurityGroupInput{
-			GroupName:   &sgName,
-			Description: &sgName,
-			VpcId:       &vpcId,
-		}
-		aws.NewEc2Client(t, awsRegion).CreateSecurityGroup(&sgInput)
 	})
 }
