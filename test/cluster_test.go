@@ -66,7 +66,7 @@ func validateCluster(t *testing.T, kubeconfig string) {
 	waitForNodes(t, kubectlOptions, 2)
 	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-role.kubernetes.io/critical-addons=true"})
 	require.NoError(t, err)
-	assert.GreaterOrEqual(t, 2, len(nodes))
+	assert.GreaterOrEqual(t, len(nodes), 2)
 	for _, node := range nodes {
 		taint := node.Spec.Taints[0]
 		assert.Equal(t, "CriticalAddonsOnly", taint.Key)
