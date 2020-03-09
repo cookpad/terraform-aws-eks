@@ -3,24 +3,31 @@ provider "aws" {
   version = "2.52.0"
 }
 
+module "vpc" {
+  source = "../../modules/vpc"
 
-module "eks" {
-  source = "../../."
-
-  cluster_name       = var.cluster_name
+  name               = var.cluster_name
   cidr_block         = var.cidr_block
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+module "iam" {
+  source = "../../modules/iam"
+
+  eks_service_role_name = "eksServiceRole-${var.cluster_name}"
+  eks_node_role_name    = "EKSNode-${var.cluster_name}"
+}
+
+module "cluster" {
+  source = "../../modules/cluster"
+
+  name                   = var.cluster_name
 
   # So we can access the k8s API from CI/dev
   endpoint_public_access = true
 
-  node_labels = {
-    "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
-  }
-
-  node_taints = {
-    "terraform-aws-eks" = "test:PreferNoSchedule"
-  }
+  vpc_config = module.vpc.config
+  iam_config = module.iam.config
 
   aws_auth_role_map = [
     {
@@ -31,23 +38,16 @@ module "eks" {
   ]
 }
 
-data "aws_caller_identity" "current" {}
+module "node_group" {
+  source = "../../modules/asg_node_group"
 
-resource "aws_iam_role" "test_role" {
-  name_prefix        = "TerraformAWSEKS"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "AWS": "${data.aws_caller_identity.current.arn}"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
+  cluster_config = module.cluster.config
+
+  labels = {
+    "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
+  }
+
+  taints = {
+    "terraform-aws-eks" = "test:PreferNoSchedule"
+  }
 }
