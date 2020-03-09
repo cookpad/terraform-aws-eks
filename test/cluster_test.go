@@ -12,6 +12,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
+	"github.com/gruntwork-io/terratest/modules/shell"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
@@ -43,8 +44,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 
 	test_structure.RunTestStage(t, "validate", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-		kubeconfig, err := writeKubeconfig(terraform.Output(t, terraformOptions, "kubeconfig"))
-		require.NoError(t, err)
+		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
 		defer os.Remove(kubeconfig)
 		validateCluster(t, kubeconfig)
 		validateMetricsServer(t, kubeconfig)
@@ -52,10 +52,8 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateNodeExporter(t, kubeconfig)
-		admin_kubeconfig, err := writeKubeconfig(terraform.Output(t, terraformOptions, "test_role_kubeconfig"))
-		if err != nil {
-			t.Error("Error writing kubeconfig file:", err)
-		}
+		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
+		defer os.Remove(admin_kubeconfig)
 		validateAdminRole(t, admin_kubeconfig)
 	})
 }
@@ -195,19 +193,24 @@ func validateAdminRole(t *testing.T, kubeconfig string) {
 	})
 }
 
-func writeKubeconfig(config string) (string, error) {
+func writeKubeconfig(t *testing.T, opts ...string) string {
 	file, err := ioutil.TempFile(os.TempDir(), "kubeconfig-")
-	if err != nil {
-		return "", err
+	require.NoError(t, err)
+	args := []string{
+		"eks",
+		"update-kubeconfig",
+		"--name", opts[0],
+		"--kubeconfig", file.Name(),
+		"--region", "us-east-1",
 	}
-	if _, err = file.Write([]byte(config)); err != nil {
-		return "", err
+	if len(opts) > 1 {
+		opts = append(args, "--role-arn", opts[1])
 	}
-	if err = file.Close(); err != nil {
-		return "", err
-	}
-
-	return file.Name(), nil
+	shell.RunCommand(t, shell.Command{
+		Command: "aws",
+		Args:    args,
+	})
+	return file.Name()
 }
 
 func waitForCluster(t *testing.T, kubectlOptions *k8s.KubectlOptions) {
