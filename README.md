@@ -15,7 +15,25 @@ pool of worker nodes.
 This could be useful if you quickly want to launch a Kubernetes cluster with
 minimal extra configuration, for example for testing and development purposes.
 
-However for more advanced uses, we recommend that you construct and configure
+
+```hcl
+provider "aws" {
+  region  = "us-east-1"
+  version = "~> 2.52"
+}
+
+
+module "eks" {
+  source = "cookpad/eks/aws"
+
+  cluster_name       = "hal-9000"
+  cidr_block         = "10.4.0.0/16"
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+```
+[see example](./examples/eks)
+
+For more advanced uses, we recommend that you construct and configure
 your clusters using the modules contained within the [`modules`](./modules) folder.
 
 This allows for much more flexibility, in order to for example:
