@@ -31,51 +31,6 @@ module "eks" {
   ]
 }
 
-/*
-  Template a kubeconfig, for testing etc.
-*/
-data "template_file" "kubeconfig" {
-  template = <<YAML
-apiVersion: v1
-kind: Config
-clusters:
-- name: $${cluster_name}
-  cluster:
-    certificate-authority-data: $${ca_data}
-    server: $${endpoint}
-users:
-- name: $${cluster_name}
-  user:
-    exec:
-      apiVersion: client.authentication.k8s.io/v1alpha1
-      command: aws
-      args:
-      - --region
-      - us-east-1
-      - eks
-      - get-token
-      - --cluster-name
-      - $${cluster_name}
-contexts:
-- name: $${cluster_name}
-  context:
-    cluster: $${cluster_name}
-    user: $${cluster_name}
-current-context: $${cluster_name}
-YAML
-
-
-  vars = {
-    cluster_name = module.eks.cluster_config.name
-    ca_data      = module.eks.cluster_config.ca_data
-    endpoint     = module.eks.cluster_config.endpoint
-  }
-}
-
-/*
-  Template a kubeconfig to test role mappings
-*/
-
 data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "test_role" {
@@ -95,45 +50,4 @@ resource "aws_iam_role" "test_role" {
   ]
 }
 EOF
-}
-
-data "template_file" "test_role_kubeconfig" {
-  template = <<YAML
-apiVersion: v1
-kind: Config
-clusters:
-- name: $${cluster_name}
-  cluster:
-    certificate-authority-data: $${ca_data}
-    server: $${endpoint}
-users:
-- name: $${cluster_name}
-  user:
-    exec:
-      apiVersion: client.authentication.k8s.io/v1alpha1
-      args:
-      - --region
-      - us-east-1
-      - eks
-      - get-token
-      - --cluster-name
-      - $${cluster_name}
-      - --role-arn
-      - $${role_arn}
-      command: aws
-contexts:
-- name: $${cluster_name}
-  context:
-    cluster: $${cluster_name}
-    user: $${cluster_name}
-current-context: $${cluster_name}
-YAML
-
-
-  vars = {
-    cluster_name = module.eks.cluster_config.name
-    ca_data      = module.eks.cluster_config.ca_data
-    endpoint     = module.eks.cluster_config.endpoint
-    role_arn     = aws_iam_role.test_role.arn
-  }
 }
