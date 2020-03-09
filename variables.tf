@@ -19,18 +19,6 @@ variable "endpoint_public_access" {
   default     = false
 }
 
-variable "node_labels" {
-  type        = map(string)
-  default     = {}
-  description = "labels that will be added to the kubernetes node"
-}
-
-variable "node_taints" {
-  type        = map(string)
-  default     = {}
-  description = "taints that will be added to the kubernetes node"
-}
-
 variable "aws_auth_role_map" {
   default     = []
   description = "A list of mappings from aws role arns to kubernetes users, and their groups"

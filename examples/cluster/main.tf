@@ -21,7 +21,7 @@ module "iam" {
 module "cluster" {
   source = "../../modules/cluster"
 
-  name                   = var.cluster_name
+  name = var.cluster_name
 
   # So we can access the k8s API from CI/dev
   endpoint_public_access = true
