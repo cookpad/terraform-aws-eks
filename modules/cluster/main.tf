@@ -106,10 +106,18 @@ resource "aws_eks_cluster" "control_plane" {
     subnet_ids              = concat(values(var.vpc_config.public_subnet_ids), values(var.vpc_config.private_subnet_ids))
   }
 
+  encryption_config {
+    resources = ["secrets"]
+
+    provider {
+      key_arn = local.kms_cmk_arn
+    }
+  }
+
   depends_on = [aws_cloudwatch_log_group.control_plane]
 
   provisioner "local-exec" {
-    # wait for api to be avalible for use by the kubernetes provider before continuing
+    # wait for api to be avalible for use before continuing
     command     = "until curl --output /dev/null --insecure --silent ${self.endpoint}/healthz; do sleep 1; done"
     working_dir = path.module
   }
@@ -161,4 +169,13 @@ module "storage_classes" {
   source   = "./kubectl"
   config   = local.config
   manifest = file("${path.module}/storage_classes.yaml")
+}
+
+locals {
+  kms_cmk_arn = length(var.kms_cmk_arn) > 0 ? var.kms_cmk_arn : aws_kms_key.cmk[0].arn
+}
+
+resource "aws_kms_key" "cmk" {
+  count       = length(var.kms_cmk_arn) > 0 ? 0 : 1
+  description = "eks secrets cmk: ${var.name}"
 }

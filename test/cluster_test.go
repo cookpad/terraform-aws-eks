@@ -47,6 +47,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
 		defer os.Remove(kubeconfig)
 		validateCluster(t, kubeconfig)
+		validateSecretsBehaviour(t, kubeconfig)
 		validateMetricsServer(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
@@ -72,6 +73,33 @@ func validateCluster(t *testing.T, kubeconfig string) {
 		assert.Equal(t, corev1.TaintEffectNoSchedule, taint.Effect)
 	}
 }
+
+func validateSecretsBehaviour(t *testing.T, kubeconfig string) {
+	namespace := strings.ToLower(random.UniqueId())
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
+	secretManifest := fmt.Sprintf(EXAMPLE_SECRET, namespace, namespace)
+	defer k8s.KubectlDeleteFromString(t, kubectlOptions, secretManifest)
+	k8s.KubectlApplyFromString(t, kubectlOptions, secretManifest)
+	secret := k8s.GetSecret(t, kubectlOptions, "keys-to-the-kingdom")
+	password := secret.Data["password"]
+	assert.Equal(t, "Open Sesame", string(password))
+}
+
+const EXAMPLE_SECRET = `---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: %s
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keys-to-the-kingdom
+  namespace: %s
+type: Opaque
+data:
+  password: T3BlbiBTZXNhbWU=
+`
 
 func validateMetricsServer(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")

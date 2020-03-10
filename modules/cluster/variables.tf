@@ -97,3 +97,9 @@ variable "aws_auth_user_map" {
   default     = []
   description = "A list of mappings from aws user arns to kubernetes users, and their groups"
 }
+
+variable "kms_cmk_arn" {
+  type        = string
+  default     = ""
+  description = "The ARN of the KMS (CMK) customer master key, to be used for Envelope Encryption of Kubernetes secrets, if not set a key will be generated"
+}
