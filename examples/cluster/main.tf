@@ -3,19 +3,34 @@ provider "aws" {
   version = "2.52.0"
 }
 
-module "vpc" {
-  source = "../../modules/vpc"
-
-  name               = var.cluster_name
-  cidr_block         = var.cidr_block
-  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+data "aws_vpc" "network" {
+  tags = {
+    Name = var.cluster_name
+  }
 }
 
-module "iam" {
-  source = "../../modules/iam"
+locals {
+  availability_zones = toset(["us-east-1a", "us-east-1b", "us-east-1c"])
+}
 
-  eks_service_role_name = "eksServiceRole-${var.cluster_name}"
-  eks_node_role_name    = "EKSNode-${var.cluster_name}"
+data "aws_subnet" "public" {
+  for_each = local.availability_zones
+
+  availability_zone = each.value
+  vpc_id            = data.aws_vpc.network.id
+  tags = {
+    Name = "${var.cluster_name}-public-${each.value}"
+  }
+}
+
+data "aws_subnet" "private" {
+  for_each = local.availability_zones
+
+  availability_zone = each.value
+  vpc_id            = data.aws_vpc.network.id
+  tags = {
+    Name = "${var.cluster_name}-private-${each.value}"
+  }
 }
 
 module "cluster" {
@@ -26,8 +41,24 @@ module "cluster" {
   # So we can access the k8s API from CI/dev
   endpoint_public_access = true
 
-  vpc_config = module.vpc.config
-  iam_config = module.iam.config
+  vpc_config = {
+    vpc_id = data.aws_vpc.network.id
+    public_subnet_ids = {
+      us-east-1a = data.aws_subnet.public["us-east-1a"].id
+      us-east-1b = data.aws_subnet.public["us-east-1b"].id
+      us-east-1c = data.aws_subnet.public["us-east-1c"].id
+    }
+    private_subnet_ids = {
+      us-east-1a = data.aws_subnet.private["us-east-1a"].id
+      us-east-1b = data.aws_subnet.private["us-east-1b"].id
+      us-east-1c = data.aws_subnet.private["us-east-1c"].id
+    }
+  }
+
+  iam_config = {
+    service_role = "eksServiceRole-${var.cluster_name}"
+    node_role    = "EKSNode-${var.cluster_name}"
+  }
 
   aws_auth_role_map = [
     {

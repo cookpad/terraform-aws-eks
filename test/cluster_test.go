@@ -19,20 +19,25 @@ import (
 func TestTerraformAwsEksCluster(t *testing.T) {
 	t.Parallel()
 
+	environmentDir := "../examples/cluster/environment"
 	workingDir := "../examples/cluster"
 
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
 	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
 		cleanupTerraform(t, workingDir)
+		cleanupTerraform(t, environmentDir)
 	})
 
 	test_structure.RunTestStage(t, "deploy_terraform", func() {
 		uniqueId := random.UniqueId()
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
 		vpcCidr := aws.GetRandomPrivateCidrBlock(18)
-		deployTerraform(t, workingDir, map[string]interface{}{
+		deployTerraform(t, environmentDir, map[string]interface{}{
 			"cluster_name": clusterName,
 			"cidr_block":   vpcCidr,
+		})
+		deployTerraform(t, workingDir, map[string]interface{}{
+			"cluster_name": clusterName,
 		})
 	})
 
