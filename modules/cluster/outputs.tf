@@ -1,6 +1,6 @@
 locals {
   config = {
-    name                  = var.name
+    name                  = aws_eks_cluster.control_plane.name
     k8s_version           = aws_eks_cluster.control_plane.version
     endpoint              = aws_eks_cluster.control_plane.endpoint
     ca_data               = aws_eks_cluster.control_plane.certificate_authority[0].data
@@ -8,6 +8,7 @@ locals {
     private_subnet_ids    = var.vpc_config.private_subnet_ids
     node_security_group   = aws_security_group.node.id
     node_instance_profile = var.iam_config.node_role
+    admin_role_arn        = data.aws_iam_role.admin_role.arn
   }
 }
 

@@ -142,20 +142,33 @@ data "aws_iam_role" "node_role" {
   name = var.iam_config.node_role
 }
 
+data "aws_iam_role" "admin_role" {
+  name = var.iam_config.admin_role
+}
+
+
 locals {
   aws_auth_role_map = concat(
-    [{
-      rolearn  = data.aws_iam_role.node_role.arn
-      username = "system:node:{{EC2PrivateDNSName}}"
-      groups   = ["system:bootstrappers", "system:nodes"]
-    }],
+    [
+      {
+        rolearn  = data.aws_iam_role.node_role.arn
+        username = "system:node:{{EC2PrivateDNSName}}"
+        groups   = ["system:bootstrappers", "system:nodes"]
+      },
+      {
+        rolearn  = data.aws_iam_role.admin_role.arn
+        username = data.aws_iam_role.admin_role.name
+        groups   = ["system:masters"]
+      },
+    ],
     var.aws_auth_role_map,
   )
 }
 
 module "aws_auth" {
-  source = "./kubectl"
-  config = local.config
+  source           = "./kubectl"
+  config           = local.config
+  command_template = file("${path.module}/aws-auth-apply-cmd.sh")
   manifest = templatefile(
     "${path.module}/aws-auth-cm.yaml.tmpl",
     {
