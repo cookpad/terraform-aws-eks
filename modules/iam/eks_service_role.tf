@@ -1,5 +1,5 @@
 resource "aws_iam_role" "eks_service_role" {
-  name               = var.eks_service_role_name
+  name               = var.service_role_name
   assume_role_policy = data.aws_iam_policy_document.eks_assume_role_policy.json
 }
 

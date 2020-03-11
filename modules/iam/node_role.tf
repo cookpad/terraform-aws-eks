@@ -1,10 +1,10 @@
 resource "aws_iam_role" "eks_node" {
-  name               = var.eks_node_role_name
+  name               = var.node_role_name
   assume_role_policy = data.aws_iam_policy_document.eks_node_assume_role_policy.json
 }
 
 resource "aws_iam_instance_profile" "eks_node" {
-  name = var.eks_node_role_name
+  name = var.node_role_name
   role = aws_iam_role.eks_node.name
 }
 

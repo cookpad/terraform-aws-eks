@@ -14,6 +14,7 @@ module "vpc" {
 module "iam" {
   source = "../../../modules/iam"
 
-  eks_service_role_name = "eksServiceRole-${var.cluster_name}"
-  eks_node_role_name    = "EKSNode-${var.cluster_name}"
+  service_role_name = "eksServiceRole-${var.cluster_name}"
+  node_role_name    = "EKSNode-${var.cluster_name}"
+  admin_role_name   = "EKSAdmin-${var.cluster_name}"
 }
