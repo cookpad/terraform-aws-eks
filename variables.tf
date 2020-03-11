@@ -13,12 +13,6 @@ variable "availability_zones" {
   description = "The availability zones to launch worker nodes in"
 }
 
-variable "endpoint_public_access" {
-  type        = bool
-  description = "Indicates whether or not the EKS public API server endpoint is enabled."
-  default     = false
-}
-
 variable "aws_auth_role_map" {
   default     = []
   description = "A list of mappings from aws role arns to kubernetes users, and their groups"
