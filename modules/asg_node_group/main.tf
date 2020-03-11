@@ -87,7 +87,7 @@ resource "aws_launch_template" "config" {
     }
   }
 
-  key_name = "development"
+  key_name = var.key_name
 }
 
 resource "aws_autoscaling_group" "nodes" {

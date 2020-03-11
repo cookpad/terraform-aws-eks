@@ -107,3 +107,9 @@ The CPU and Memory resources on each type should be the same, or the cluster aut
 EOF
   default     = []
 }
+
+variable "key_name" {
+  type        = string
+  default     = ""
+  description = "SSH keypair name for the nodes"
+}
