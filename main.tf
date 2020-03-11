@@ -16,8 +16,7 @@ module "iam" {
 module "cluster" {
   source = "./modules/cluster"
 
-  name                   = var.cluster_name
-  endpoint_public_access = var.endpoint_public_access
+  name = var.cluster_name
 
   vpc_config = module.vpc.config
   iam_config = module.iam.config

@@ -38,9 +38,6 @@ module "cluster" {
 
   name = var.cluster_name
 
-  # So we can access the k8s API from CI/dev
-  endpoint_public_access = true
-
   vpc_config = {
     vpc_id = data.aws_vpc.network.id
     public_subnet_ids = {
