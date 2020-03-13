@@ -22,8 +22,3 @@ variable "apply" {
   description = "Do nothing if false"
   default     = true
 }
-
-variable "command_template" {
-  type    = string
-  default = ""
-}
