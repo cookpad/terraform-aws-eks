@@ -60,7 +60,7 @@ data "template_cloudinit_config" "config" {
 resource "aws_launch_template" "config" {
   image_id               = data.aws_ami.image.id
   name                   = local.name_prefix
-  vpc_security_group_ids = [var.cluster_config.node_security_group]
+  vpc_security_group_ids = concat([var.cluster_config.node_security_group], var.security_groups)
   user_data              = data.template_cloudinit_config.config.rendered
 
   instance_type = local.instance_types.0
