@@ -166,9 +166,8 @@ locals {
 }
 
 module "aws_auth" {
-  source           = "./kubectl"
-  config           = local.config
-  command_template = file("${path.module}/aws-auth-apply-cmd.sh")
+  source = "./kubectl"
+  config = local.config
   manifest = templatefile(
     "${path.module}/aws-auth-cm.yaml.tmpl",
     {
