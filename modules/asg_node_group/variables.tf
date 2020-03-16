@@ -101,7 +101,7 @@ variable "taints" {
 variable "custom_instance_types" {
   type        = list(string)
   description = <<EOF
-Can be set to a custom list of instance types if one of the presets is not suitable (if set instance_size is ignored, instance family should be used to provide a description of the instances managed by this group)
+Can be set to a custom list of instance types if one of the presets is not suitable (if set instance_size is ignored, instance_family should be used to provide a description of the instances managed by this group)
 e.g. [\"i3.xlarge\", \"i3en.xlarge\"]
 The CPU and Memory resources on each type should be the same, or the cluster autoscaler may not work properly.
 EOF
@@ -112,4 +112,10 @@ variable "key_name" {
   type        = string
   default     = ""
   description = "SSH keypair name for the nodes"
+}
+
+variable "security_groups" {
+  type        = list(string)
+  default     = []
+  description = "Additional security groups for the nodes"
 }
