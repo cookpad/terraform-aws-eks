@@ -9,7 +9,7 @@ variable "cluster_config" {
 }
 
 variable "k8s_version" {
-  default = "1.14"
+  default = "1.15"
 }
 
 variable "zone_awareness" {
