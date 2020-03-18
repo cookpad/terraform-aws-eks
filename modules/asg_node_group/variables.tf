@@ -40,13 +40,13 @@ variable "docker_volume_size" {
 variable "max_size" {
   type        = number
   default     = 12
-  description = "The maximum number of instances that will be launched by this group"
+  description = "The maximum number of instances that will be launched by this group, if not a multiple of the number of AZs in the group, may be rounded down"
 }
 
 variable "min_size" {
   type        = number
   default     = 0
-  description = "The minimum number of instances in each ASG, should only be needed if not using cluster autoscaler or bootstapping"
+  description = "The minimum number of instances that will be launched by this group, if not a multiple of the number of AZs in the group, may be rounded up"
 }
 
 variable "instance_size" {

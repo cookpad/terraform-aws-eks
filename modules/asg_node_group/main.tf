@@ -14,6 +14,7 @@ locals {
   labels         = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
   asg_subnets    = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
   max_size       = floor(var.max_size / length(local.asg_subnets))
+  min_size       = ceil(var.min_size / length(local.asg_subnets))
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -94,7 +95,7 @@ resource "aws_autoscaling_group" "nodes" {
   for_each = local.asg_subnets
 
   name                = "${local.name_prefix}-${each.key}"
-  min_size            = var.min_size
+  min_size            = local.min_size
   max_size            = local.max_size
   vpc_zone_identifier = each.value
 
