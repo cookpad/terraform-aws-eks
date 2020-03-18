@@ -106,11 +106,14 @@ resource "aws_eks_cluster" "control_plane" {
     subnet_ids              = concat(values(var.vpc_config.public_subnet_ids), values(var.vpc_config.private_subnet_ids))
   }
 
-  encryption_config {
-    resources = ["secrets"]
+  dynamic "encryption_config" {
+    for_each = local.encryption_configs
+    content {
+      resources = ["secrets"]
 
-    provider {
-      key_arn = local.kms_cmk_arn
+      provider {
+        key_arn = encryption_config.value
+      }
     }
   }
 
@@ -184,10 +187,12 @@ module "storage_classes" {
 }
 
 locals {
-  kms_cmk_arn = length(var.kms_cmk_arn) > 0 ? var.kms_cmk_arn : aws_kms_key.cmk[0].arn
+  create_key         = length(var.kms_cmk_arn) == 0 && var.envelope_encryption_enabled
+  kms_cmk_arn        = local.create_key ? aws_kms_key.cmk[0].arn : var.kms_cmk_arn
+  encryption_configs = var.envelope_encryption_enabled ? [local.kms_cmk_arn] : []
 }
 
 resource "aws_kms_key" "cmk" {
-  count       = length(var.kms_cmk_arn) > 0 ? 0 : 1
+  count       = local.create_key ? 1 : 0
   description = "eks secrets cmk: ${var.name}"
 }
