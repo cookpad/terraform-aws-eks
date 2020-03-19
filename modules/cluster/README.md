@@ -20,7 +20,7 @@ module "cluster" {
 }
 ```
 
-[see example](./examples/cluster/main.tf)
+[see example](../../examples/cluster/main.tf)
 
 ## Features
 
