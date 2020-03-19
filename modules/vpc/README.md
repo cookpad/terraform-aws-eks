@@ -2,7 +2,7 @@
 
 This module provisions an AWS VPC network that can be used to run EKS clusters.
 
-# Usage
+## Usage
 
 ```hcl
 provider "aws" {
@@ -56,13 +56,13 @@ module "sal" {
 }
 ```
 
-# Features
+## Features
 
 As well as configuring the subnets and route table of the provisioned VPC, this
 module also provisions internet and NAT gateways, to provide internet access to
 nodes running in all subnets.
 
-# Restrictions
+## Restrictions
 
 In order to run an EKS cluster you must create subnets in at least 3 availability
 zones.
@@ -72,7 +72,7 @@ up to 7 subnet pairs.
 
 The size of each subnet is relative to the CIDR block chosen for the VPC.
 
-# Development
+## Development
 
 This module is tested by [`test/vpc_test.go`](test/vpc_test.go) which validates
 the example configuration in [`examples/vpc`](examples/vpc).
