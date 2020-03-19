@@ -17,12 +17,6 @@ minimal extra configuration, for example for testing and development purposes.
 
 
 ```hcl
-provider "aws" {
-  region  = "us-east-1"
-  version = "~> 2.52"
-}
-
-
 module "eks" {
   source = "cookpad/eks/aws"
 
@@ -31,12 +25,12 @@ module "eks" {
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 ```
-[see example](./examples/eks)
+[see example](./examples/eks/main.tf)
 
 For more advanced uses, we recommend that you construct and configure
 your clusters using the modules contained within the [`modules`](./modules) folder.
 
-[see example](./examples/cluster)
+[see example](./examples/cluster/main.tf)
 
 This allows for much more flexibility, in order to for example:
 
