@@ -36,6 +36,8 @@ module "eks" {
 For more advanced uses, we recommend that you construct and configure
 your clusters using the modules contained within the [`modules`](./modules) folder.
 
+[see example](./examples/cluster)
+
 This allows for much more flexibility, in order to for example:
 
 * Provision a cluster in an existing VPC.
