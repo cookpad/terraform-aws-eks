@@ -7,7 +7,7 @@ This module provisions nodes for your cluster by managing AWS auto scaling group
 * Will manage spot or on demand instances.
 * Provisions an auto scaling group per availability zone, to support applications
   utilizing EBS volumes via PVC.
-* Prepares the auto scaling group(s) to be scaled by the cluster auto-scaler.
+* Prepares the auto scaling group(s) to be scaled by the cluster autoscaler.
 * Configures a separate EBS volume for use as the docker volume.
 * Uses the official AWS EKS optimised Amazon Linux AMI
 
@@ -146,7 +146,7 @@ module "nodes" {
 
 The module automatically applies the node security group provided by the cluster
 module to each node. This allows access of the nodes to the control plane, and
-infra cluster communication between pods running on the cluster.
+intra-cluster communication between pods running on the cluster.
 
 If you need to add any additional security groups, e.g. for ssh access, configure
 `security_groups` with the security group ids.
@@ -158,7 +158,7 @@ Set `key_name` to configure a ssh key pair.
 ### Cloud config
 
 The module will configure the instance user data to use cloud config to add
-each node to the cluster, via the eks boots rep script, as well as setting the
+each node to the cluster, via the eks bootsstrap script, as well as setting the
 instances name tag.
 
 If you need to provide any additional cloud config it will be merged,
