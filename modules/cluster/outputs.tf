@@ -1,7 +1,6 @@
 locals {
   config = {
     name                  = aws_eks_cluster.control_plane.name
-    k8s_version           = aws_eks_cluster.control_plane.version
     endpoint              = aws_eks_cluster.control_plane.endpoint
     ca_data               = aws_eks_cluster.control_plane.certificate_authority[0].data
     vpc_id                = var.vpc_config.vpc_id
