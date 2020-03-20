@@ -8,13 +8,14 @@ locals {
   preset_instance_types = [
     for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"
   ]
-  instance_types = length(var.custom_instance_types) == 0 ? local.preset_instance_types : var.custom_instance_types
-  name_prefix    = replace(join("-", ["eks-node", var.cluster_config.name, local.node_role, var.instance_family, var.instance_size, var.instance_lifecycle]), "_", "-")
-  node_role      = length(var.node_role) > 0 ? var.node_role : (var.instance_lifecycle == "spot" ? "spot-worker" : "worker")
-  labels         = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
-  asg_subnets    = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
-  max_size       = floor(var.max_size / length(local.asg_subnets))
-  min_size       = ceil(var.min_size / length(local.asg_subnets))
+  instance_types     = length(var.instance_types) == 0 ? local.preset_instance_types : var.instance_types
+  instance_overrides = var.instance_lifecycle == "spot" ? local.instance_types : [local.instance_types[0]]
+  name_prefix        = replace(join("-", ["eks-node", var.cluster_config.name, local.node_role, var.instance_family, var.instance_size, var.instance_lifecycle]), "_", "-")
+  node_role          = length(var.node_role) > 0 ? var.node_role : (var.instance_lifecycle == "spot" ? "spot-worker" : "worker")
+  labels             = merge({ "node-role.kubernetes.io/${local.node_role}" = "true" }, var.labels)
+  asg_subnets        = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
+  max_size           = floor(var.max_size / length(local.asg_subnets))
+  min_size           = ceil(var.min_size / length(local.asg_subnets))
 }
 
 data "aws_ssm_parameter" "image_id" {

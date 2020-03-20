@@ -58,7 +58,7 @@ variable "instance_size" {
 variable "instance_family" {
   type        = string
   default     = "general_purpose"
-  description = "The family of instances that this group will launch, should be one of: memory_optimized, general_purpose or compute_optimized. Defaults to general_purpose"
+  description = "The family of instances that this group will launch, should be one of: memory_optimized, general_purpose, compute_optimized or burstable. Defaults to general_purpose"
 }
 
 variable "instance_lifecycle" {
@@ -98,7 +98,7 @@ variable "taints" {
   description = "taints that will be added to the kubernetes node"
 }
 
-variable "custom_instance_types" {
+variable "instance_types" {
   type        = list(string)
   description = <<EOF
 Can be set to a custom list of instance types if one of the presets is not suitable (if set instance_size is ignored, instance_family should be used to provide a description of the instances managed by this group)
