@@ -13,6 +13,30 @@ module "critical_addons_node_group" {
 
 data "aws_region" "current" {}
 
+module "aws_k8s_cni" {
+  source   = "./kubectl"
+  config   = local.config
+  manifest = file("${path.module}/addons/aws-k8s-cni.yaml")
+}
+
+module "coredns" {
+  source = "./kubectl"
+  config = local.config
+  manifest = templatefile(
+    "${path.module}/addons/coredns.yaml",
+    { aws_region = data.aws_region.current.name },
+  )
+}
+
+module "kube_proxy" {
+  source = "./kubectl"
+  config = local.config
+  manifest = templatefile(
+    "${path.module}/addons/kube-proxy.yaml",
+    { aws_region = data.aws_region.current.name },
+  )
+}
+
 module "cluster_autoscaler" {
   source = "./kubectl"
   config = local.config
