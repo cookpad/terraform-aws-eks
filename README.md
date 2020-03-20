@@ -39,6 +39,15 @@ This allows for much more flexibility, in order to for example:
 * Provision several different node types for use by the same cluster.
 * To use existing IAM roles.
 
+## Requirements
+
+In order to communicate with kubernetes  correctly this module requires
+`kubectl` and the `aws` cli to be installed and on your path.
+
+Note: We considered an approach using the kubernetes terraform provider. But
+this required multiple edit - plan - apply cycles to create a cluster.
+This module allows a cluster to be created and ready to use in a single PR.
+
 ## Modules
 
 ### [vpc](./modules/vpc)
