@@ -19,7 +19,7 @@ locals {
 }
 
 data "aws_ssm_parameter" "image_id" {
-  name = "/aws/service/eks/optimized-ami/${var.cluster_config.k8s_version}/amazon-linux-2/recommended/image_id"
+  name = "/aws/service/eks/optimized-ami/${var.k8s_version}/amazon-linux-2/recommended/image_id"
 }
 
 data "aws_ami" "image" {

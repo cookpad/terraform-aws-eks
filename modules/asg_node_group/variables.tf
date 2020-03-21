@@ -1,12 +1,15 @@
 variable "cluster_config" {
   type = object({
     name                  = string
-    k8s_version           = string
     vpc_id                = string
     private_subnet_ids    = map(string)
     node_security_group   = string
     node_instance_profile = string
   })
+}
+
+variable "k8s_version" {
+  default = "1.14"
 }
 
 variable "zone_awareness" {
