@@ -1,17 +1,20 @@
-data "aws_region" "current" {}
-
 locals {
   command = templatefile(
     "${path.module}/command.sh",
     {
-      region       = data.aws_region.current.name
       cluster_name = var.config.name
+      ca_data      = var.config.ca_data
+      endpoint     = var.config.endpoint
+      token        = data.aws_eks_cluster_auth.auth.token
       kubeconfig   = "${path.module}/${sha1(var.manifest)}.kubeconfig"
-      role_arn     = var.config.admin_role_arn
       manifest     = var.manifest
       namespace    = var.namespace
     }
   )
+}
+
+data "aws_eks_cluster_auth" "auth" {
+  name = var.config.name
 }
 
 resource "null_resource" "apply" {

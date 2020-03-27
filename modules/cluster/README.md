@@ -44,11 +44,6 @@ in `aws_auth_role_map` and `aws_auth_user_map`.
 The module automatically adds the node role to the `system:bootstrappers` and
 `system:nodes` groups (that are required for nodes to join the cluster).
 
-
-The admin role is automatically added to the `system:masters` group.
-This is required for the module to provision configuration to the cluster
-via kubectl.
-
 example:
 
 ```hcl
