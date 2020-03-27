@@ -21,7 +21,7 @@ resource "null_resource" "apply" {
   count = var.apply ? 1 : 0
 
   triggers = {
-    manifest_sha1 = sha1(local.command)
+    manifest_sha1 = sha1(var.manifest)
   }
 
   provisioner "local-exec" {
