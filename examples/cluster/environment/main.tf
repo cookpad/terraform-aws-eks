@@ -16,5 +16,4 @@ module "iam" {
 
   service_role_name = "eksServiceRole-${var.cluster_name}"
   node_role_name    = "EKSNode-${var.cluster_name}"
-  admin_role_name   = "EKSAdmin-${var.cluster_name}"
 }

@@ -1,7 +1,8 @@
 variable "config" {
   type = object({
-    name           = string
-    admin_role_arn = string
+    name     = string
+    ca_data  = string
+    endpoint = string
   })
   description = "cluster config"
 }

@@ -13,7 +13,6 @@ locals {
   iam_config = {
     service_role = "eksServiceRole-${var.cluster_name}"
     node_role    = "EKSNode-${var.cluster_name}"
-    admin_role   = "EKSAdmin-${var.cluster_name}"
   }
 }
 
