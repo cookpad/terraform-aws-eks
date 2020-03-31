@@ -16,6 +16,7 @@ locals {
   asg_subnets        = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
   max_size           = floor(var.max_size / length(local.asg_subnets))
   min_size           = ceil(var.min_size / length(local.asg_subnets))
+  device_mappings    = tolist(data.aws_ami.image.block_device_mappings)[0]
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -72,11 +73,12 @@ resource "aws_launch_template" "config" {
   }
 
   block_device_mappings {
-    device_name = var.root_volume_device
+    device_name = local.device_mappings.device_name
 
     ebs {
+      volume_type = local.device_mappings.ebs.volume_type
       volume_size = var.root_volume_size
-      volume_type = "gp2"
+      snapshot_id = local.device_mappings.ebs.snapshot_id
     }
   }
 
