@@ -8,7 +8,6 @@ This module provisions nodes for your cluster by managing AWS auto scaling group
 * Provisions an auto scaling group per availability zone, to support applications
   utilizing EBS volumes via PVC.
 * Prepares the auto scaling group(s) to be scaled by the cluster autoscaler.
-* Configures a separate EBS volume for use as the docker volume.
 * Uses the official AWS EKS optimised Amazon Linux AMI
 
 ## Usage
@@ -106,7 +105,7 @@ module "nodes" {
 
 ### Volume size
 
-You can configure the root and docker volume size (they default to 20 GiB).
+You can configure the root volume size (it defaults to 40 GiB).
 
 e.g.
 
@@ -116,7 +115,6 @@ module "nodes" {
 
   cluster_config     = module.cluster.config
   root_volume_size   = 10
-  docker_volume_size = 50
 }
 
 ```
