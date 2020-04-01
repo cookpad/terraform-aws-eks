@@ -200,7 +200,7 @@ func writeKubeconfig(t *testing.T, opts ...string) string {
 		"--region", "us-east-1",
 	}
 	if len(opts) > 1 {
-		opts = append(args, "--role-arn", opts[1])
+		args = append(args, "--role-arn", opts[1])
 	}
 	shell.RunCommand(t, shell.Command{
 		Command: "aws",
