@@ -9,6 +9,7 @@ RUN apk add --no-cache \
       curl \
       git \
       go \
+      jq \
       perl-utils \
       python3 && \
     pip3 install awscli && \
