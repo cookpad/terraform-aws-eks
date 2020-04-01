@@ -324,7 +324,7 @@ spec:
     spec:
       containers:
         - name: aws-cluster-autoscaler
-          image: "k8s.gcr.io/cluster-autoscaler:v1.15.6"
+          image: "us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.15.6"
           imagePullPolicy: "IfNotPresent"
           command:
             - ./cluster-autoscaler
