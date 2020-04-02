@@ -25,12 +25,12 @@ module "eks" {
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 ```
-[see example](./examples/eks/main.tf)
+[see example](https://github.com/cookpad/terraform-aws-eks/blob/master/examples/eks/main.tf)
 
 For more advanced uses, we recommend that you construct and configure
-your clusters using the modules contained within the [`modules`](./modules) folder.
+your clusters using the submodules.
 
-[see example](./examples/cluster/main.tf)
+[see example](https://github.com/cookpad/terraform-aws-eks/blob/master/examples/cluster/main.tf)
 
 This allows for much more flexibility, in order to for example:
 
@@ -64,7 +64,7 @@ provider "aws" {
 }
 ```
 
-[see an example role here](./examples/iam_permissions/main.tf)
+[see an example role here](https://github.com/cookpad/terraform-aws-eks/blob/master/examples/iam_permissions/main.tf)
 
 Without this you may encounter difficulties applying kubernetes manifests to
 the cluster.
@@ -74,17 +74,17 @@ are listed in the `aws_auth_user_map` variable of the cluster module.
 
 ## Modules
 
-### [vpc](./modules/vpc)
+### `vpc`
 
 This module provisions a VPC with public and private subnets suitable for
 launching an EKS cluster into.
 
-### [iam](./modules/iam)
+### `iam`
 
 This module provisions the IAM roles and policies needed to run an EKS cluster
 and nodes.
 
-### [cluster](./modules/cluster)
+### `cluster`
 
 This module provisions an EKS cluster, including the EKS Kubernetes control
 plane, and several important cluster services (critial addons), and nodes to
@@ -92,7 +92,7 @@ run these services.
 
 It will **not** provision any nodes that can be used to run non cluster services.
 
-### [asg_node_group](./modules/asg_node_group)
+### `asg_node_group`
 
 This module provisions EC2 autoscaling groups that will make compute resources
 available, in order to run Kuberntes pods.
