@@ -6,7 +6,7 @@ metadata:
   name: metrics-server
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
 ---
 # Source: metrics-server/templates/aggregated-metrics-reader-cluster-role.yaml
@@ -16,7 +16,7 @@ metadata:
   name: system:metrics-server-aggregated-reader
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -33,7 +33,7 @@ metadata:
   name: system:metrics-server
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
 rules:
   - apiGroups:
@@ -56,7 +56,7 @@ metadata:
   namespace: kube-system
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -74,7 +74,7 @@ metadata:
   name: system:metrics-server
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -86,14 +86,14 @@ subjects:
     namespace: kube-system
 ---
 # Source: metrics-server/templates/role-binding.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: metrics-server-auth-reader
   namespace: kube-system
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -111,7 +111,7 @@ metadata:
   name: metrics-server
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
   annotations:
     {}
@@ -132,7 +132,7 @@ metadata:
   name: metrics-server
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
 spec:
   selector:
@@ -233,7 +233,7 @@ metadata:
   name: v1beta1.metrics.k8s.io
   labels:
     app: metrics-server
-    chart: metrics-server-2.10.0
+    chart: metrics-server-2.10.1
     release: metrics-server
 spec:
   service:

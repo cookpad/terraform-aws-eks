@@ -1,4 +1,37 @@
 ---
+# Source: aws-node-termination-handler/templates/psp.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: aws-node-termination-handler
+  labels:
+    app.kubernetes.io/name: aws-node-termination-handler
+    helm.sh/chart: aws-node-termination-handler-0.7.3
+    app.kubernetes.io/instance: aws-node-termination-handler
+    k8s-app: aws-node-termination-handler
+    app.kubernetes.io/version: "1.3.1"
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+spec:
+  privileged: false
+  hostIPC: false
+  hostNetwork: true
+  hostPID: false
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  allowedCapabilities:
+    - '*'
+  fsGroup:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+    - '*'
+---
 # Source: aws-node-termination-handler/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -7,10 +40,10 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.5.1
+    helm.sh/chart: aws-node-termination-handler-0.7.3
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.2.0"
+    app.kubernetes.io/version: "1.3.1"
 ---
 # Source: aws-node-termination-handler/templates/clusterrole.yaml
 kind: ClusterRole
@@ -53,6 +86,24 @@ rules:
     - get
     - delete
 ---
+# Source: aws-node-termination-handler/templates/psp.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: aws-node-termination-handler-psp
+  labels:
+    app.kubernetes.io/name: aws-node-termination-handler
+    helm.sh/chart: aws-node-termination-handler-0.7.3
+    app.kubernetes.io/instance: aws-node-termination-handler
+    k8s-app: aws-node-termination-handler
+    app.kubernetes.io/version: "1.3.1"
+rules:
+  - apiGroups: ['policy']
+    resources: ['podsecuritypolicies']
+    verbs:     ['use']
+    resourceNames:
+      - aws-node-termination-handler
+---
 # Source: aws-node-termination-handler/templates/clusterrolebinding.yaml
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -67,6 +118,26 @@ roleRef:
   name: aws-node-termination-handler
   apiGroup: rbac.authorization.k8s.io
 ---
+# Source: aws-node-termination-handler/templates/psp.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: aws-node-termination-handler-psp
+  labels:
+    app.kubernetes.io/name: aws-node-termination-handler
+    helm.sh/chart: aws-node-termination-handler-0.7.3
+    app.kubernetes.io/instance: aws-node-termination-handler
+    k8s-app: aws-node-termination-handler
+    app.kubernetes.io/version: "1.3.1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: aws-node-termination-handler-psp
+subjects:
+  - kind: ServiceAccount
+    name: aws-node-termination-handler
+    namespace: kube-system
+---
 # Source: aws-node-termination-handler/templates/daemonset.yaml
 apiVersion: apps/v1
 kind: DaemonSet
@@ -75,10 +146,10 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.5.1
+    helm.sh/chart: aws-node-termination-handler-0.7.3
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.2.0"
+    app.kubernetes.io/version: "1.3.1"
 spec:
   updateStrategy:
     null
@@ -113,15 +184,25 @@ spec:
                     operator: In
                     values:
                       - amd64
+                      - arm
+                      - arm64
       serviceAccountName: aws-node-termination-handler
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet    
       containers:
         - name: aws-node-termination-handler
-          image: amazon/aws-node-termination-handler:v1.2.0
+          image: amazon/aws-node-termination-handler:v1.3.1
           imagePullPolicy: IfNotPresent
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
           volumeMounts:
             - name: "uptime"
               mountPath: "/proc/uptime"
+              readOnly: true
           env:
           - name: NODE_NAME
             valueFrom:

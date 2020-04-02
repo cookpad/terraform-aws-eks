@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
 spec:
   # Prevents running in privileged mode
   privileged: false
@@ -50,7 +50,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
 spec:
   selector:
@@ -67,19 +67,19 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
   annotations: 
     eks.amazonaws.com/role-arn: ${iam_role_arn}
 ---
 # Source: cluster-autoscaler/templates/clusterrole.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
 rules:
   - apiGroups:
@@ -142,6 +142,16 @@ rules:
       - list
       - get
   - apiGroups:
+    - batch
+    - extensions
+    resources:
+    - jobs
+    verbs:
+    - get
+    - list
+    - patch
+    - watch
+  - apiGroups:
       - extensions
     resources:
       - replicasets
@@ -184,7 +194,23 @@ rules:
       - list
       - watch
   - apiGroups:
+    - coordination.k8s.io
+    resources:
+    - leases
+    verbs:
+    - create
+  - apiGroups:
+    - coordination.k8s.io
+    resourceNames:
+    - cluster-autoscaler
+    resources:
+    - leases
+    verbs:
+    - get
+    - update
+  - apiGroups:
     - extensions
+    - policy
     resources:
     - podsecuritypolicies
     resourceNames:
@@ -193,13 +219,13 @@ rules:
     - use
 ---
 # Source: cluster-autoscaler/templates/clusterrolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -211,13 +237,13 @@ subjects:
     namespace: kube-system
 ---
 # Source: cluster-autoscaler/templates/role.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
 rules:
   - apiGroups:
@@ -238,13 +264,13 @@ rules:
       - update
 ---
 # Source: cluster-autoscaler/templates/rolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -262,7 +288,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
 spec:
   ports:
@@ -282,7 +308,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-6.6.1"
+    helm.sh/chart: "cluster-autoscaler-7.2.0"
   name: cluster-autoscaler
 spec:
   replicas: 1
@@ -298,7 +324,7 @@ spec:
     spec:
       containers:
         - name: aws-cluster-autoscaler
-          image: "k8s.gcr.io/cluster-autoscaler:v1.14.7"
+          image: "us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.15.6"
           imagePullPolicy: "IfNotPresent"
           command:
             - ./cluster-autoscaler
