@@ -1,5 +1,7 @@
 # Terraform EKS Module
 
+![.github/workflows/ci.yml](https://github.com/cookpad/terraform-aws-eks/workflows/.github/workflows/ci.yml/badge.svg)
+
 This repo contains a set of Terraform modules that can be used to provision
 a Elastic Kubernetes (EKS) cluster on AWS.
 
@@ -19,6 +21,7 @@ minimal extra configuration, for example for testing and development purposes.
 ```hcl
 module "eks" {
   source = "cookpad/eks/aws"
+  version = "~> 1.14"
 
   cluster_name       = "hal-9000"
   cidr_block         = "10.4.0.0/16"
