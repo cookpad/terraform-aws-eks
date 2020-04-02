@@ -48,6 +48,30 @@ Note: We considered an approach using the kubernetes terraform provider. But
 this required multiple edit - plan - apply cycles to create a cluster.
 This module allows a cluster to be created and ready to use in a single PR.
 
+## Multi User Environments
+
+In an environment where multiple IAM users are used to running `terraform run`
+and `terraform apply` it is recommended to use the assume role functionality
+to assume a common IAM role in the aws provider definition.
+
+```hcl
+provider "aws" {
+  region              = "us-east-1"
+  version             = "2.52.0"
+  assume_role {
+    role_arn = "arn:aws:iam::<your account id>:role/Terraform"
+  }
+}
+```
+
+[see an example role here](./examples/iam_permissions/main.tf)
+
+Without this you may encounter difficulties applying kubernetes manifests to
+the cluster.
+
+Alternatively you should ensure that all users who need to run terraform
+are listed in the `aws_auth_user_map` variable of the cluster module.
+
 ## Modules
 
 ### [vpc](./modules/vpc)
