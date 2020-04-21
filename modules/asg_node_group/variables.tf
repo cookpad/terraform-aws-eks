@@ -60,6 +60,12 @@ variable "spot_allocation_strategy" {
   description = "How to allocate capacity across the Spot pools. Valid values: 'lowest-price' or 'capacity-optimized'."
 }
 
+variable "gpu" {
+  type        = bool
+  default     = false
+  description = "Set if using GPU instance types"
+}
+
 variable "cloud_config" {
   type        = list(string)
   default     = []

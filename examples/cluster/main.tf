@@ -29,8 +29,23 @@ module "node_group" {
   labels = {
     "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
   }
+}
+
+module "gpu_nodes" {
+  source = "../../modules/asg_node_group"
+
+  cluster_config = module.cluster.config
+
+  gpu             = true
+  instance_family = "gpu"
+  instance_size   = "2xlarge"
+  instance_types  = ["p3.2xlarge"]
+
+  labels = {
+    "k8s.amazonaws.com/accelerator" = "nvidia-tesla-v100"
+  }
 
   taints = {
-    "terraform-aws-eks" = "test:PreferNoSchedule"
+    "nvidia.com/gpu" = "gpu:NoSchedule"
   }
 }

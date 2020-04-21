@@ -3,7 +3,7 @@
 # This is in order to simulate launching a cluster in an existing VPC!
 
 locals {
-  availability_zones = toset(["us-east-1a", "us-east-1b", "us-east-1c"])
+  availability_zones = toset(["us-east-1a", "us-east-1b", "us-east-1d"])
   vpc_config = {
     vpc_id             = data.aws_vpc.network.id
     public_subnet_ids  = { for subnet in data.aws_subnet.public : subnet.availability_zone => subnet.id }
