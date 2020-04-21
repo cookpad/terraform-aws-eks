@@ -252,5 +252,4 @@ spec:
               cpu: 50m
               memory: 64Mi
       tolerations:
-        - key: CriticalAddonsOnly
-          operator: Exists
+        - operator: Exists

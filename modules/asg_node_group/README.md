@@ -45,11 +45,25 @@ group will launch.
 These groups are useful when utilising spot instances to provide diversity to
 avoid the effects of price spikes.
 
+When using on-demand instances, as diversity is not required, only the
+first instance type in a family is used.
+
+e.g.
+```hcl
+module "nodes" {
+  source = "cookpad/eks/aws//modules/aws_node_group"
+
+  cluster_config     = module.cluster.config
+  instance_family    = "compute_optimized"
+  instance_lifecycle = "on_demand"
+}
+```
+
 #### `instance_family` & `instance_types`
 
 Alternatively `instance_types` can be used to provide a list of the exact
-instance types that will be launched, `instance_family` is used in this
-case to provide part of the ASG name.
+instance types that will be launched, `instance_family` and `instance_size` is
+used in this case to provide part of the ASG name.
 
 e.g.
 ```hcl
@@ -59,22 +73,45 @@ module "nodes" {
   cluster_config     = module.cluster.config
   max_size           = 16
   instance_family    = "io_optimised"
+  instance_size      = "xlarge"
   instance_types     = ["i3.xlarge", "i3en.xlarge"]
 }
 ```
 
-You may also want to configure the module in this way, when using on-demand
-instances, thus diversity is not required!
+### GPU Nodes
 
-e.g.
+In order to use a GPU optimised AMI set the `gpu` variable.
+
+It is recommended to set the `k8s.amazonaws.com/accelerator` variable to avoid
+the cluster autoscaler from adding too many nodes whilst the GPU driver is
+initialising. See https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws#gpu-node-groups for more info.
+
+If you are running mixed workloads on your cluster, you could
+add a taint to your GPU nodes to avoid running non GPU workloads on expensive
+GPU instances.
+
+Note: Currently you would need to manually add the appropriate toleration
+to your workloads, as EKS currently doesn't enable the `ExtendedResourceToleration`
+admission controller, see: https://github.com/aws/containers-roadmap/issues/739
+
 ```hcl
-module "nodes" {
+module "gpu_nodes" {
   source = "cookpad/eks/aws//modules/aws_node_group"
 
-  cluster_config     = module.cluster.config
-  instance_family    = "compute_optimized"
-  instance_types     = ["c5.large"]
-  instance_lifecycle = "on_demand"
+  cluster_config = module.cluster.config
+
+  gpu             = true
+  instance_family = "gpu"
+  instance_size   = "2xlarge"
+  instance_types  = ["p3.2xlarge"]
+
+  labels = {
+    "k8s.amazonaws.com/accelerator" = "nvidia-tesla-v100"
+  }
+
+  taints = {
+    "nvidia.com/gpu" = "gpu:NoSchedule"
+  }
 }
 ```
 

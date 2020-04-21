@@ -9,7 +9,7 @@ module "vpc" {
 
   name               = var.cluster_name
   cidr_block         = var.cidr_block
-  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1d"]
 }
 
 module "iam" {
