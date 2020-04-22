@@ -78,3 +78,10 @@ module "prometheus_node_exporter" {
   apply    = var.prometheus_node_exporter
   manifest = file("${path.module}/addons/prometheus-node-exporter.yaml")
 }
+
+module "nvidia_device_plugin" {
+  source   = "./kubectl"
+  config   = local.config
+  apply    = var.nvidia_device_plugin
+  manifest = file("${path.module}/addons/nvidia-device-plugin.yml")
+}

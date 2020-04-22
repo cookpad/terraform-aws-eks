@@ -93,6 +93,7 @@ cluster_autoscaler           = false
 metrics_server               = false
 prometheus_node_exporter     = false
 aws_node_termination_handler = false
+nvidia_device_plugin         = false
 ```
 
 Note that setting these values to false will not remove provisioned add-ons
