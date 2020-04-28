@@ -178,8 +178,8 @@ module "storage_classes" {
 
 locals {
   create_key         = length(var.kms_cmk_arn) == 0 && var.envelope_encryption_enabled
-  kms_cmk_arn        = local.create_key ? aws_kms_key.cmk[0].arn : var.kms_cmk_arn
-  encryption_configs = var.envelope_encryption_enabled ? [local.kms_cmk_arn] : []
+  kms_cmk_arn        = local.create_key ? aws_kms_key.cmk.*.arn : [var.kms_cmk_arn]
+  encryption_configs = var.envelope_encryption_enabled ? local.kms_cmk_arn : []
 }
 
 resource "aws_kms_key" "cmk" {
