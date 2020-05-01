@@ -20,7 +20,7 @@ extraArgs:
   balance-similar-node-groups: true
 image:
   repository: us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler
-  tag: v1.15.6
+  tag: v1.16.5
 fullnameOverride: cluster-autoscaler
 resources:
   limits:
