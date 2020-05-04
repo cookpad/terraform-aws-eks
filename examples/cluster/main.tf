@@ -12,6 +12,8 @@ module "cluster" {
   vpc_config = local.vpc_config
   iam_config = local.iam_config
 
+  envelope_encryption_enabled = false
+
   aws_auth_role_map = [
     {
       username = aws_iam_role.test_role.name
