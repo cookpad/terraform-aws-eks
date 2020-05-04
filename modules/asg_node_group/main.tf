@@ -7,7 +7,7 @@ locals {
   }
 
   labels = merge(
-    { "node-role.kubernetes.io/${local.node_role}" = "true" },
+    { "node-role.k8s.cookpad.com/${local.node_role}" = "true" },
     var.gpu ? { "nvidia.com/gpu" = "true" } : {},
     var.labels,
   )
