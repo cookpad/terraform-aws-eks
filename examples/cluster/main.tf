@@ -28,6 +28,8 @@ module "node_group" {
 
   cluster_config = module.cluster.config
 
+  name = "standard-nodes"
+
   labels = {
     "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
   }

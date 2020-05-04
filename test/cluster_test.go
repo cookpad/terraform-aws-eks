@@ -151,7 +151,7 @@ func WaitUntilPodSucceededE(t *testing.T, options *k8s.KubectlOptions, podName s
 
 func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
-	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-role.k8s.cookpad.com/spot-worker=true"})
+	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-group.k8s.cookpad.com/name=standard-nodes"})
 	require.NoError(t, err)
 	for _, node := range nodes {
 		assert.Equal(t, clusterName, node.Labels["cookpad.com/terraform-aws-eks-test-environment"])

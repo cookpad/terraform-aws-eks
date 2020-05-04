@@ -12,6 +12,12 @@ variable "k8s_version" {
   default = "1.16"
 }
 
+variable "name" {
+  type        = string
+  default     = ""
+  description = "An optional identifier for this node group"
+}
+
 variable "zone_awareness" {
   type        = bool
   default     = true
@@ -70,12 +76,6 @@ variable "cloud_config" {
   type        = list(string)
   default     = []
   description = "Provide additional cloud-config(s), will be merged with the default config"
-}
-
-variable "node_role" {
-  type        = string
-  default     = ""
-  description = "Set a custom node role, for nodes in this group, defaults to worker or spot-worker if not set"
 }
 
 variable "labels" {
