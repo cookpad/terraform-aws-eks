@@ -24,6 +24,8 @@ resource "aws_security_group" "control_plane" {
 /*
   Nodes Security Group
   And rules to control communication between nodes and cluster.
+
+  
 */
 
 resource "aws_security_group" "node" {
@@ -72,23 +74,23 @@ resource "aws_security_group_rule" "node_ingress_self" {
 resource "aws_security_group_rule" "node_ingress_cluster" {
   count = var.legacy_security_groups ? 1 : 0
 
-  description              = "Allow worker Kubelets and pods to receive communication from the cluster control plane"
+  description              = "Allow nodes to communicate with nodes and the cluster in the cluster security group"
   from_port                = 0
   to_port                  = 65535
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.node[count.index].id
-  source_security_group_id = aws_security_group.control_plane[count.index].id
+  protocol                 = "-1"
+  security_group_id        = aws_eks_cluster.control_plane.vpc_config.0.cluster_security_group_id
+  source_security_group_id = aws_security_group.node[count.index].id
   type                     = "ingress"
 }
 
-resource "aws_security_group_rule" "cluster_ingress_node_https" {
+resource "aws_security_group_rule" "cluster_ingress_node" {
   count = var.legacy_security_groups ? 1 : 0
 
-  description              = "Allow pods to communicate with the cluster API Server"
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.control_plane[count.index].id
-  source_security_group_id = aws_security_group.node[count.index].id
+  description              = "Allow cluster (and nodes) in the cluster security group nodes to communicate with nodes"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.node[count.index].id
+  source_security_group_id = aws_eks_cluster.control_plane.vpc_config.0.cluster_security_group_id
   type                     = "ingress"
 }
