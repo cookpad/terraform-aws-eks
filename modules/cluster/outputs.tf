@@ -5,7 +5,7 @@ locals {
     ca_data               = aws_eks_cluster.control_plane.certificate_authority[0].data
     vpc_id                = var.vpc_config.vpc_id
     private_subnet_ids    = var.vpc_config.private_subnet_ids
-    node_security_group   = aws_security_group.node.id
+    node_security_group   = var.legacy_security_groups ? aws_security_group.node[0].id : aws_eks_cluster.control_plane.vpc_config.0.cluster_security_group_id
     node_instance_profile = var.iam_config.node_role
   }
 }
