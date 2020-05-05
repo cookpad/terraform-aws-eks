@@ -7,15 +7,14 @@ locals {
   }
 
   labels = merge(
-    { "node-role.kubernetes.io/${local.node_role}" = "true" },
+    var.name != "" ? { "node-group.k8s.cookpad.com/name" = var.name } : {},
     var.gpu ? { "nvidia.com/gpu" = "true" } : {},
     var.labels,
   )
 
   instance_types       = length(var.instance_types) > 0 ? var.instance_types : [for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"]
   instance_overrides   = var.instance_lifecycle == "spot" ? local.instance_types : [local.instance_types[0]]
-  name_prefix          = replace(join("-", ["eks-node", var.cluster_config.name, local.node_role, var.instance_family, var.instance_size, var.instance_lifecycle]), "_", "-")
-  node_role            = length(var.node_role) > 0 ? var.node_role : join("-", compact([var.instance_lifecycle == "spot" ? "spot" : "", var.gpu ? "gpu" : "", "worker"]))
+  name_prefix          = replace(join("-", compact(["eks-node", var.cluster_config.name, var.name, var.instance_family, var.instance_size, var.instance_lifecycle])), "_", "-")
   asg_subnets          = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
   max_size             = floor(var.max_size / length(local.asg_subnets))
   min_size             = ceil(var.min_size / length(local.asg_subnets))

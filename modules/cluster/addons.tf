@@ -1,11 +1,11 @@
 module "critical_addons_node_group" {
   source = "../asg_node_group"
 
+  name           = "critical-addons"
   cluster_config = local.config
   min_size       = 2
   max_size       = 3
   zone_awareness = false
-  node_role      = "critical-addons"
   taints = {
     "CriticalAddonsOnly" = "true:NoSchedule"
   }

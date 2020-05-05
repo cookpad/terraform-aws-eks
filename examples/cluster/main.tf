@@ -12,6 +12,8 @@ module "cluster" {
   vpc_config = local.vpc_config
   iam_config = local.iam_config
 
+  envelope_encryption_enabled = false
+
   aws_auth_role_map = [
     {
       username = aws_iam_role.test_role.name
@@ -25,6 +27,8 @@ module "node_group" {
   source = "../../modules/asg_node_group"
 
   cluster_config = module.cluster.config
+
+  name = "standard-nodes"
 
   labels = {
     "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
