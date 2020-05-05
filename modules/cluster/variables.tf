@@ -119,5 +119,5 @@ variable "nvidia_device_plugin" {
 variable "legacy_security_groups" {
   type        = bool
   default     = false
-  description = "Should we create security groups for the cluster and nodes (rather than using the cluster security group), if changed after provisioning - forces the cluster to be recreated"
+  description = "Preserves existing security group setup from pre 1.15 clusters, to allow existing clusters to be upgraded without recreation"
 }
