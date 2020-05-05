@@ -115,3 +115,9 @@ variable "nvidia_device_plugin" {
   default     = true
   description = "Should the nvidia device plugin be installed, required for GPU nodes"
 }
+
+variable "legacy_security_groups" {
+  type        = bool
+  default     = false
+  description = "Preserves existing security group setup from pre 1.15 clusters, to allow existing clusters to be upgraded without recreation"
+}
