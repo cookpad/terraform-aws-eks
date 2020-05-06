@@ -174,7 +174,7 @@ func validateCluster(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
 	waitForCluster(t, kubectlOptions)
 	waitForNodes(t, kubectlOptions, 2)
-	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-role.kubernetes.io/critical-addons=true"})
+	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-group.k8s.cookpad.com/name=critical-addons"})
 	require.NoError(t, err)
 	assert.GreaterOrEqual(t, len(nodes), 2)
 	for _, node := range nodes {
