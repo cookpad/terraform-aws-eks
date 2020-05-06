@@ -20,6 +20,7 @@ locals {
   max_size             = floor(var.max_size / length(local.asg_subnets))
   min_size             = ceil(var.min_size / length(local.asg_subnets))
   root_device_mappings = tolist(data.aws_ami.image.block_device_mappings)[0]
+  tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" })
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -84,16 +85,31 @@ resource "aws_launch_template" "config" {
     }
   }
 
+  tag_specifications {
+    resource_type = "instance"
+    tags          = local.tags
+  }
+
+  tag_specifications {
+    resource_type = "volume"
+    tags          = local.tags
+  }
+
+  tags = local.tags
+
   key_name = var.key_name
 }
 
 resource "aws_autoscaling_group" "nodes" {
   for_each = local.asg_subnets
 
-  name                = "${local.name_prefix}-${each.key}"
-  min_size            = local.min_size
-  max_size            = local.max_size
-  vpc_zone_identifier = each.value
+  name                      = "${local.name_prefix}-${each.key}"
+  min_size                  = local.min_size
+  max_size                  = local.max_size
+  vpc_zone_identifier       = each.value
+  termination_policies      = var.termination_policies
+  enabled_metrics           = var.enabled_metrics
+  wait_for_capacity_timeout = 0
 
   mixed_instances_policy {
     launch_template {
@@ -133,7 +149,7 @@ resource "aws_autoscaling_group" "nodes" {
   tag {
     key                 = "kubernetes.io/cluster/${var.cluster_config.name}"
     value               = "owned"
-    propagate_at_launch = true
+    propagate_at_launch = false
   }
 
   tag {
@@ -157,6 +173,15 @@ resource "aws_autoscaling_group" "nodes" {
       key                 = "k8s.io/cluster-autoscaler/node-template/taint/${tag.key}"
       value               = tag.value
       propagate_at_launch = true
+    }
+  }
+
+  dynamic "tag" {
+    for_each = local.tags
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = false
     }
   }
 

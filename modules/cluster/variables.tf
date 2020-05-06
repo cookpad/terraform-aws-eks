@@ -123,7 +123,7 @@ variable "legacy_security_groups" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(string)
   default     = {}
-  description = "A map of tags to assign to the cluster and cloudwatch log group resources"
+  description = "A map of tags to assign to cluster AWS resources"
 }
