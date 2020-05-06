@@ -5,6 +5,7 @@ variable "cluster_config" {
     private_subnet_ids    = map(string)
     node_security_group   = string
     node_instance_profile = string
+    tags                  = map(string)
   })
 }
 
@@ -91,6 +92,12 @@ variable "taints" {
   description = "taints that will be added to the kubernetes node"
 }
 
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "A map of additional tags to apply to this groups AWS resources"
+}
+
 variable "instance_types" {
   type        = list(string)
   description = <<EOF
@@ -111,4 +118,30 @@ variable "security_groups" {
   type        = list(string)
   default     = []
   description = "Additional security groups for the nodes"
+}
+
+variable "termination_policies" {
+  type        = list(string)
+  default     = ["OldestLaunchTemplate", "OldestInstance"]
+  description = "A list of policies to decide how the instances in the auto scale group should be terminated."
+}
+
+variable "enabled_metrics" {
+  type = list(string)
+  default = [
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupInServiceCapacity",
+    "GroupMaxSize",
+    "GroupMinSize",
+    "GroupPendingInstances",
+    "GroupPendingCapacity",
+    "GroupStandbyInstances",
+    "GroupStandbyCapacity",
+    "GroupTerminatingInstances",
+    "GroupTerminatingCapacity",
+    "GroupTotalInstances",
+    "GroupTotalCapacity",
+  ]
+  description = "A list of metrics to collect."
 }
