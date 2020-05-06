@@ -21,6 +21,10 @@ module "cluster" {
       groups   = ["system:masters"]
     }
   ]
+
+  tags = {
+    Project = "terraform-aws-eks"
+  }
 }
 
 module "node_group" {
