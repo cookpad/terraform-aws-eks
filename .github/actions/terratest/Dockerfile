@@ -21,5 +21,5 @@ RUN apk add --no-cache \
     chmod +x ./kubectl && \
     mv ./kubectl /usr/local/bin/kubectl
 
-COPY entrypoint.sh /entrypoint.sh
+COPY *.sh ./
 ENTRYPOINT ["/entrypoint.sh"]
