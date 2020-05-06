@@ -9,6 +9,7 @@ data "aws_iam_role" "service_role" {
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
   role_arn = data.aws_iam_role.service_role.arn
+  tags     = var.tags
 
   version = var.k8s_version
 
@@ -50,6 +51,7 @@ resource "aws_iam_openid_connect_provider" "cluster_oidc" {
 resource "aws_cloudwatch_log_group" "control_plane" {
   name              = "/aws/eks/${var.name}/cluster"
   retention_in_days = 7
+  tags              = var.tags
 }
 
 /*
