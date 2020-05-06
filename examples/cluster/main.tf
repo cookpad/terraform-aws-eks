@@ -42,6 +42,8 @@ module "gpu_nodes" {
   instance_family = "gpu"
   instance_size   = "2xlarge"
   instance_types  = ["p3.2xlarge"]
+  zone_awareness  = false
+  min_size        = 1
 
   labels = {
     "k8s.amazonaws.com/accelerator" = "nvidia-tesla-v100"
