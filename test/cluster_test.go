@@ -242,13 +242,13 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
 
 	// Check the cluster scales up
-	waitForNodes(t, kubectlOptions, 6)
+	waitForNodes(t, kubectlOptions, 2)
 
 	// Check that the example workload pods can all run
 	filters = metav1.ListOptions{
 		LabelSelector: "app=test-workload",
 	}
-	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 6, 1, 10*time.Second)
+	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 2, 1, 10*time.Second)
 	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
 		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 12, 10*time.Second)
 	}
@@ -268,7 +268,7 @@ metadata:
   labels:
     app: test-workload
 spec:
-  replicas: 6
+  replicas: 2
   selector:
     matchLabels:
       app: test-workload
