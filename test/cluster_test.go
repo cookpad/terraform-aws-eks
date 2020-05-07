@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -10,10 +9,8 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/k8s"
-	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
-	"github.com/gruntwork-io/terratest/modules/shell"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 
@@ -66,89 +63,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer os.Remove(admin_kubeconfig)
 		validateAdminRole(t, admin_kubeconfig)
 	})
-}
-
-func validateGPUNodes(t *testing.T, kubeconfig string) {
-	// Generate some example workload
-	namespace := strings.ToLower(random.UniqueId())
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
-	workload := fmt.Sprintf(EXAMPLE_GPU_WORKLOAD, namespace, namespace)
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
-	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
-
-	filters := metav1.ListOptions{
-		LabelSelector: "app=gpu-test-workload",
-	}
-	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 1, 1, 10*time.Second)
-	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
-		WaitUntilPodSucceeded(t, kubectlOptions, pod.Name, 24, 10*time.Second)
-	}
-}
-
-const EXAMPLE_GPU_WORKLOAD = `---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: %s
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: test-gpu-workload
-  namespace: %s
-spec:
-  template:
-    metadata:
-      labels:
-        app: gpu-test-workload
-    spec:
-      restartPolicy: OnFailure
-      containers:
-      - name: nvidia-smi
-        image: nvidia/cuda:9.2-devel
-        args:
-        - "nvidia-smi"
-        - "--list-gpus"
-        resources:
-          limits:
-            nvidia.com/gpu: 1
-      tolerations:
-        - key: nvidia.com/gpu
-          operator: Exists
-`
-
-// WaitUntilPodSucceeded waits until the pod has reached the Succeeded status, retrying the check for the specified amount of times, sleeping
-// for the provided duration between each try. This will fail the test if there is an error or if the check times out.
-func WaitUntilPodSucceeded(t *testing.T, options *k8s.KubectlOptions, podName string, retries int, sleepBetweenRetries time.Duration) {
-	require.NoError(t, WaitUntilPodSucceededE(t, options, podName, retries, sleepBetweenRetries))
-}
-
-// WaitUntilPodCompletedE waits until the pod has reached the Succeeded status, retrying the check for the specified amount of times, sleeping
-// for the provided duration between each try.
-func WaitUntilPodSucceededE(t *testing.T, options *k8s.KubectlOptions, podName string, retries int, sleepBetweenRetries time.Duration) error {
-	statusMsg := fmt.Sprintf("Wait for pod %s to Succeed.", podName)
-	message, err := retry.DoWithRetryE(
-		t,
-		statusMsg,
-		retries,
-		sleepBetweenRetries,
-		func() (string, error) {
-			pod, err := k8s.GetPodE(t, options, podName)
-			if err != nil {
-				return "", err
-			}
-			if pod.Status.Phase != corev1.PodSucceeded {
-				return "", k8s.NewPodNotAvailableError(pod)
-			}
-			return "Pod is now Succeeded", nil
-		},
-	)
-	if err != nil {
-		logger.Logf(t, "Timedout waiting for Pod to Succeed: %s", err)
-		return err
-	}
-	logger.Logf(t, message)
-	return nil
 }
 
 func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
@@ -222,17 +136,11 @@ func validateMetricsServer(t *testing.T, kubeconfig string) {
 }
 
 func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
-	filters := metav1.ListOptions{
-		LabelSelector: "app.kubernetes.io/name=aws-cluster-autoscaler",
-	}
 
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
 
 	// Check that the autoscaler pods are running
-	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 1, 1, 10*time.Second)
-	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
-		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
-	}
+	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app.kubernetes.io/name=aws-cluster-autoscaler"}, 1, 30, 6*time.Second)
 
 	// Generate some example workload
 	namespace := strings.ToLower(random.UniqueId())
@@ -245,13 +153,7 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	waitForNodes(t, kubectlOptions, 2)
 
 	// Check that the example workload pods can all run
-	filters = metav1.ListOptions{
-		LabelSelector: "app=test-workload",
-	}
-	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, 2, 1, 10*time.Second)
-	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
-		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 12, 10*time.Second)
-	}
+	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=test-workload"}, 2, 50, 6*time.Second)
 }
 
 const EXAMPLE_WORKLOAD = `---
@@ -288,80 +190,55 @@ spec:
 func validateNodeTerminationHandler(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
 	nodes := k8s.GetNodes(t, kubectlOptions)
-	filters := metav1.ListOptions{
-		LabelSelector: "k8s-app=aws-node-termination-handler",
-	}
-
 	// Check that the handler is running on all the nodes
-	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, len(nodes), 6, 10*time.Second)
-	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
-		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
-	}
+	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "k8s-app=aws-node-termination-handler"}, len(nodes), 30, 6*time.Second)
 }
 
 func validateNodeExporter(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
 	nodes := k8s.GetNodes(t, kubectlOptions)
-	filters := metav1.ListOptions{
-		LabelSelector: "app=prometheus-node-exporter",
-	}
-
 	// Check that the exporter is running on all the nodes
-	k8s.WaitUntilNumPodsCreated(t, kubectlOptions, filters, len(nodes), 6, 10*time.Second)
-	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
-		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
-	}
+	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=prometheus-node-exporter"}, len(nodes), 30, 6*time.Second)
 }
 
-func writeKubeconfig(t *testing.T, opts ...string) string {
-	file, err := ioutil.TempFile(os.TempDir(), "kubeconfig-")
-	require.NoError(t, err)
-	args := []string{
-		"eks",
-		"update-kubeconfig",
-		"--name", opts[0],
-		"--kubeconfig", file.Name(),
-		"--region", "us-east-1",
-	}
-	if len(opts) > 1 {
-		args = append(args, "--role-arn", opts[1])
-	}
-	shell.RunCommand(t, shell.Command{
-		Command: "aws",
-		Args:    args,
-	})
-	return file.Name()
+func validateGPUNodes(t *testing.T, kubeconfig string) {
+	// Generate some example workload
+	namespace := strings.ToLower(random.UniqueId())
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
+	workload := fmt.Sprintf(EXAMPLE_GPU_WORKLOAD, namespace, namespace)
+	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
+	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
+	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=gpu-test-workload"}, 1, 30, 10*time.Second)
 }
 
-func waitForCluster(t *testing.T, kubectlOptions *k8s.KubectlOptions) {
-	maxRetries := 40
-	sleepBetweenRetries := 10 * time.Second
-	retry.DoWithRetry(t, "Check that access to the k8s api works", maxRetries, sleepBetweenRetries, func() (string, error) {
-		// Try an operation on the API to check it works
-		_, err := k8s.GetServiceAccountE(t, kubectlOptions, "default")
-		return "", err
-	})
-
-}
-
-func waitForNodes(t *testing.T, kubectlOptions *k8s.KubectlOptions, numNodes int) {
-	maxRetries := 40
-	sleepBetweenRetries := 10 * time.Second
-	retry.DoWithRetry(t, "wait for nodes to launch", maxRetries, sleepBetweenRetries, func() (string, error) {
-		nodes, err := k8s.GetNodesE(t, kubectlOptions)
-
-		if err != nil {
-			return "", err
-		}
-
-		// Wait for at least n nodes to start
-		if len(nodes) < numNodes {
-			return "", fmt.Errorf("less than %d nodes started", numNodes)
-		}
-
-		return "", err
-	})
-
-	// Wait for the nodes to be ready
-	k8s.WaitUntilAllNodesReady(t, kubectlOptions, maxRetries, sleepBetweenRetries)
-}
+const EXAMPLE_GPU_WORKLOAD = `---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: %s
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-gpu-workload
+  namespace: %s
+spec:
+  template:
+    metadata:
+      labels:
+        app: gpu-test-workload
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: nvidia-smi
+        image: nvidia/cuda:9.2-devel
+        args:
+        - "nvidia-smi"
+        - "--list-gpus"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+`
