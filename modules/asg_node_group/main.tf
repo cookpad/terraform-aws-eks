@@ -48,14 +48,14 @@ data "template_cloudinit_config" "config" {
   base64_encode = true
 
   part {
-    content_type = "text/jinja2"
+    content_type = "text/plain"
     content      = data.template_file.cloud_config.rendered
   }
 
   dynamic "part" {
     for_each = var.cloud_config
     content {
-      content_type = "text/jinja2"
+      content_type = "text/plain"
       content      = part.value
       merge_type   = "list(append)+dict(recurse_list)+str()"
     }
