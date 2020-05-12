@@ -1,6 +1,6 @@
 locals {
   cluster_autoscaler_iam_role_count = length(var.cluster_autoscaler_iam_role_arn) == 0 && var.cluster_autoscaler ? 1 : 0
-  cluster_autoscaler_iam_role_arn   = length(var.cluster_autoscaler_iam_role_arn) > 0 || ! var.cluster_autoscaler ? var.cluster_autoscaler_iam_role_arn : aws_iam_role.cluster_autoscaler[0].arn
+  cluster_autoscaler_iam_role_arn   = length(var.cluster_autoscaler_iam_role_arn) > 0 ? var.cluster_autoscaler_iam_role_arn : join("", aws_iam_role.cluster_autoscaler.*.arn)
 }
 
 data "aws_iam_policy_document" "cluster_autoscaler_assume_role_policy" {
