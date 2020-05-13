@@ -8,7 +8,6 @@ metadata:
   labels:     
     app: prometheus-node-exporter
     release: prometheus-node-exporter
-    chart: prometheus-node-exporter-1.9.1
 spec:
   privileged: false
   # Required to prevent escalations to root.
@@ -60,7 +59,6 @@ metadata:
   namespace: kube-system
   labels:
     app: prometheus-node-exporter
-    chart: prometheus-node-exporter-1.9.1
     release: "prometheus-node-exporter"
 imagePullSecrets:
   []
@@ -73,7 +71,6 @@ metadata:
   labels:     
     app: prometheus-node-exporter
     release: prometheus-node-exporter
-    chart: prometheus-node-exporter-1.9.1
 rules:
 - apiGroups: ['extensions']
   resources: ['podsecuritypolicies']
@@ -89,7 +86,6 @@ metadata:
   labels:     
     app: prometheus-node-exporter
     release: prometheus-node-exporter
-    chart: prometheus-node-exporter-1.9.1
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -110,7 +106,6 @@ metadata:
   labels:     
     app: prometheus-node-exporter
     release: prometheus-node-exporter
-    chart: prometheus-node-exporter-1.9.1
 spec:
   type: ClusterIP
   ports:
@@ -131,7 +126,6 @@ metadata:
   labels:     
     app: prometheus-node-exporter
     release: prometheus-node-exporter
-    chart: prometheus-node-exporter-1.9.1
 spec:
   selector:
     matchLabels:
@@ -146,7 +140,6 @@ spec:
       labels:         
         app: prometheus-node-exporter
         release: prometheus-node-exporter
-        chart: prometheus-node-exporter-1.9.1
     spec:
       serviceAccountName: prometheus-node-exporter
       securityContext:

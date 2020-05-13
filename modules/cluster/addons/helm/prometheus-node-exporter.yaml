@@ -1,7 +1,0 @@
-image:
-  repository: prom/node-exporter
-resources:
-  limits:
-    memory: "64Mi"
-  requests:
-    cpu: "32m"
