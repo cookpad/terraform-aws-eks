@@ -56,11 +56,11 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer os.Remove(kubeconfig)
 		validateCluster(t, kubeconfig)
 		validateSecretsBehaviour(t, kubeconfig)
+		validateDNS(t, kubeconfig)
 		validateMetricsServer(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
 		validateNodeTerminationHandler(t, kubeconfig)
-		validateNodeExporter(t, kubeconfig)
 		validateGPUNodes(t, kubeconfig)
 		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
 		defer os.Remove(admin_kubeconfig)
@@ -210,6 +210,38 @@ metadata:
 type: Opaque
 data:
   password: T3BlbiBTZXNhbWU=
+`
+
+func validateDNS(t *testing.T, kubeconfig string) {
+	nameSuffix := strings.ToLower(random.UniqueId())
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
+	test := fmt.Sprintf(DNS_TEST_JOB, nameSuffix)
+	defer k8s.KubectlDeleteFromString(t, kubectlOptions, test)
+	k8s.KubectlApplyFromString(t, kubectlOptions, test)
+	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "job-name=nslookup-" + nameSuffix}, 1, 30, 10*time.Second)
+}
+
+const DNS_TEST_JOB = `---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nslookup-%s
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: dnsutils
+        image: gcr.io/kubernetes-e2e-test-images/dnsutils:1.3
+        command:
+          - nslookup
+          - kubernetes.default
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+  backoffLimit: 4
 `
 
 func validateMetricsServer(t *testing.T, kubeconfig string) {
