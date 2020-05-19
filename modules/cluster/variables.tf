@@ -62,7 +62,7 @@ variable "cluster_autoscaler_iam_role_arn" {
 
 variable "metrics_server" {
   type        = bool
-  default     = true
+  default     = false
   description = "Should the metrics server be deployed"
 }
 
@@ -74,7 +74,7 @@ variable "aws_node_termination_handler" {
 
 variable "prometheus_node_exporter" {
   type        = bool
-  default     = true
+  default     = false
   description = "Should the prometheus node exporter be deployed"
 }
 
