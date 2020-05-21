@@ -13,8 +13,6 @@ module "cluster" {
   iam_config = local.iam_config
 
   envelope_encryption_enabled = false
-  metrics_server              = true
-
 
   aws_auth_role_map = [
     {

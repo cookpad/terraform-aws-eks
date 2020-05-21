@@ -6,7 +6,6 @@ variable "cluster_config" {
     node_security_group   = string
     node_instance_profile = string
     tags                  = map(string)
-    dns_cluster_ip        = string
   })
 }
 
