@@ -3,14 +3,14 @@
 ![.github/workflows/ci.yml](https://github.com/cookpad/terraform-aws-eks/workflows/.github/workflows/ci.yml/badge.svg)
 
 This repo contains a set of Terraform modules that can be used to provision
-a Elastic Kubernetes (EKS) cluster on AWS.
+an Elastic Kubernetes (EKS) cluster on AWS.
 
 This module provides a way to provision an EKS cluster based on the current
 best practices employed by Cookpad's Global SRE team. 
 
 ## Using this module
 
-The root module deploys a fully working EKS cluster in it's own isolated
+The root module deploys a fully working EKS cluster in its own isolated
 network, the IAM resources required for the cluster to operate and a single
 pool of worker nodes.
 
@@ -90,7 +90,7 @@ and nodes.
 ### `cluster`
 
 This module provisions an EKS cluster, including the EKS Kubernetes control
-plane, and several important cluster services (critial addons), and nodes to
+plane, and several important cluster services (critical addons), and nodes to
 run these services.
 
 It will **not** provision any nodes that can be used to run non cluster services.
@@ -98,4 +98,4 @@ It will **not** provision any nodes that can be used to run non cluster services
 ### `asg_node_group`
 
 This module provisions EC2 autoscaling groups that will make compute resources
-available, in order to run Kuberntes pods.
+available, in order to run Kubernetes pods.
