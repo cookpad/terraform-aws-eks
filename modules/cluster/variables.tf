@@ -42,7 +42,7 @@ variable "iam_config" {
   description = "The IAM roles used by the cluster, If you use the included IAM module you can provide it's config output variable."
 }
 
-variable "iam_permissions_boundary" {
+variable "cluster_autoscaler_iam_permissions_boundary" {
   type        = string
   default     = ""
   description = "The ARN of the policy that is used to set the permissions boundary for the role."
