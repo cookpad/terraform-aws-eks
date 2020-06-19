@@ -3,8 +3,15 @@ module "critical_addons_node_group" {
 
   name           = "critical-addons"
   cluster_config = local.config
-  min_size       = 2
-  max_size       = 3
+
+  key_name         = var.critical_addons_node_group_key_name
+  min_size         = var.critical_addons_node_group_min_size
+  max_size         = var.critical_addons_node_group_max_size
+  desired_capacity = var.critical_addons_node_group_desired_capacity
+  instance_family  = var.critical_addons_node_group_instance_family
+  instance_size    = var.critical_addons_node_group_instance_size
+  security_groups  = var.critical_addons_node_group_security_groups
+
   zone_awareness = false
   taints = {
     "CriticalAddonsOnly" = "true:NoSchedule"
