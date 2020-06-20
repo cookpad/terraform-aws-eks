@@ -157,12 +157,6 @@ variable "critical_addons_node_group_min_size" {
   description = "The minimum number of instances that will be launched by this group, if not a multiple of the number of AZs in the group, may be rounded up"
 }
 
-variable "critical_addons_node_group_desired_capacity" {
-  type        = number
-  default     = 1
-  description = "The number of Amazon EC2 instances that should be running in the group."
-}
-
 variable "critical_addons_node_group_instance_size" {
   type        = string
   default     = "large"
