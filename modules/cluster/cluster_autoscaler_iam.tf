@@ -22,9 +22,10 @@ data "aws_iam_policy_document" "cluster_autoscaler_assume_role_policy" {
 }
 
 resource "aws_iam_role" "cluster_autoscaler" {
-  count              = local.cluster_autoscaler_iam_role_count
-  name               = "EksClusterAutoscaler-${var.name}"
-  assume_role_policy = data.aws_iam_policy_document.cluster_autoscaler_assume_role_policy.json
+  count                = local.cluster_autoscaler_iam_role_count
+  name                 = "EksClusterAutoscaler-${var.name}"
+  assume_role_policy   = data.aws_iam_policy_document.cluster_autoscaler_assume_role_policy.json
+  permissions_boundary = var.cluster_autoscaler_iam_permissions_boundary
 }
 
 data "aws_iam_policy_document" "cluster_autoscaler_policy" {

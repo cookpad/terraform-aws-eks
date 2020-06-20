@@ -42,6 +42,12 @@ variable "iam_config" {
   description = "The IAM roles used by the cluster, If you use the included IAM module you can provide it's config output variable."
 }
 
+variable "cluster_autoscaler_iam_permissions_boundary" {
+  type        = string
+  default     = ""
+  description = "The ARN of the policy that is used to set the permissions boundary for the role."
+}
+
 variable "oidc_root_ca_thumbprints" {
   type        = list(string)
   default     = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
