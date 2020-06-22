@@ -32,7 +32,7 @@ spec:
       - command:
         - /bin/sh
         - -c
-        - kube-proxy --v=2 --config=/var/lib/kube-proxy-config/config
+        - kube-proxy --v=2 --config=/var/lib/kube-proxy-config/config --metrics-bind-address=0.0.0.0
         image: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/eks/kube-proxy:v1.16.8
         imagePullPolicy: IfNotPresent
         name: kube-proxy
@@ -56,6 +56,10 @@ spec:
           name: kubeconfig
         - mountPath: /var/lib/kube-proxy-config/
           name: config
+        ports:
+        - containerPort: 10249
+          name: metrics
+          protocol: TCP
       dnsPolicy: ClusterFirst
       hostNetwork: true
       priorityClassName: system-cluster-critical
