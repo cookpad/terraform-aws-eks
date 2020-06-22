@@ -63,7 +63,7 @@ module "cluster" {
     }
   ]
 
-  aws_user_role_map = [
+  aws_auth_user_map = [
     {
       username = "cookpadder"
       role_arn = "arn:aws:iam::123456789000:user/admin/cookpadder"
