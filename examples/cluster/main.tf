@@ -15,6 +15,8 @@ module "cluster" {
   envelope_encryption_enabled = false
   metrics_server              = true
 
+  critical_addons_node_group_key_name = "development"
+
 
   aws_auth_role_map = [
     {
@@ -34,7 +36,8 @@ module "node_group" {
 
   cluster_config = module.cluster.config
 
-  name = "standard-nodes"
+  name     = "standard-nodes"
+  key_name = "development"
 
   labels = {
     "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
@@ -45,6 +48,9 @@ module "gpu_nodes" {
   source = "../../modules/asg_node_group"
 
   cluster_config = module.cluster.config
+
+  name     = "gpu-nodes"
+  key_name = "development"
 
   gpu             = true
   instance_family = "gpu"
