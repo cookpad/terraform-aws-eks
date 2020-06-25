@@ -6,7 +6,7 @@ resource "aws_security_group" "control_plane" {
   count = var.legacy_security_groups ? 1 : 0
 
   name        = "eks-control-plane-${var.name}"
-  description = "This security group exists to avoid recreating an EKS cluster, please do not use"
+  description = "Cluster communication with worker nodes"
   vpc_id      = var.vpc_config.vpc_id
 
   egress {
