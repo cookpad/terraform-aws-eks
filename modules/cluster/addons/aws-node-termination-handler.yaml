@@ -223,7 +223,7 @@ spec:
           - name: DELETE_LOCAL_DATA
             value: "true"
           - name: IGNORE_DAEMON_SETS
-            value: ""
+            value: "true"
           - name: GRACE_PERIOD
             value: ""
           - name: POD_TERMINATION_GRACE_PERIOD
