@@ -106,6 +106,7 @@ resource "aws_autoscaling_group" "nodes" {
   name                      = "${local.name_prefix}-${each.key}"
   min_size                  = local.min_size
   max_size                  = local.max_size
+  desired_capacity          = var.desired_capacity
   vpc_zone_identifier       = each.value
   termination_policies      = var.termination_policies
   enabled_metrics           = var.enabled_metrics
