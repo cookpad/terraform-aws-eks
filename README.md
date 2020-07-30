@@ -8,6 +8,7 @@ an Elastic Kubernetes (EKS) cluster on AWS.
 This module provides a way to provision an EKS cluster based on the current
 best practices employed by Cookpad's Global SRE team. 
 
+
 ## Using this module
 
 The root module deploys a fully working EKS cluster in its own isolated
