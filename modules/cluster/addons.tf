@@ -8,6 +8,7 @@ module "critical_addons_node_group" {
   min_size        = var.critical_addons_node_group_min_size
   instance_size   = var.critical_addons_node_group_instance_size
   instance_family = var.critical_addons_node_group_instance_family
+  cloud_config    = var.critical_addons_node_group_cloud_config
   key_name        = var.critical_addons_node_group_key_name
   security_groups = var.critical_addons_node_group_security_groups
 
