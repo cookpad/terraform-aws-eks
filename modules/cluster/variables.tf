@@ -140,27 +140,16 @@ variable "dns_cluster_ip" {
   description = "Overrides the IP address to use for DNS queries within the cluster. Defaults to 10.100.0.10 or 172.20.0.10 based on the VPC cidr"
 }
 
-variable "critical_addons_node_group_key_name" {
-  type    = string
-  default = ""
-}
-
-variable "critical_addons_node_group_security_groups" {
-  type        = list(string)
-  default     = []
-  description = "Additional security groups for the nodes"
+variable "critical_addons_node_group_min_size" {
+  type        = number
+  default     = 2
+  description = "The minimum number of instances that will be launched by this group, if not a multiple of the number of AZs in the group, may be rounded up"
 }
 
 variable "critical_addons_node_group_max_size" {
   type        = number
   default     = 3
   description = "The maximum number of instances that will be launched by this group, if not a multiple of the number of AZs in the group, may be rounded down"
-}
-
-variable "critical_addons_node_group_min_size" {
-  type        = number
-  default     = 2
-  description = "The minimum number of instances that will be launched by this group, if not a multiple of the number of AZs in the group, may be rounded up"
 }
 
 variable "critical_addons_node_group_instance_size" {
@@ -173,4 +162,15 @@ variable "critical_addons_node_group_instance_family" {
   type        = string
   default     = "general_purpose"
   description = "The family of instances that this group will launch, should be one of: memory_optimized, general_purpose, compute_optimized or burstable. Defaults to general_purpose"
+}
+
+variable "critical_addons_node_group_key_name" {
+  type    = string
+  default = ""
+}
+
+variable "critical_addons_node_group_security_groups" {
+  type        = list(string)
+  default     = []
+  description = "Additional security groups for the nodes"
 }
