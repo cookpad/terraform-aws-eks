@@ -109,3 +109,13 @@ module "nvidia_device_plugin" {
   manifest = file("${path.module}/addons/nvidia-device-plugin.yaml")
   replace  = true
 }
+
+module "aws_ebs_csi_driver" {
+  source = "./kubectl"
+  config = local.config
+  apply  = var.aws_ebs_csi_driver
+  manifest = templatefile(
+    "${path.module}/addons/aws-ebs-csi-driver.yaml",
+    { iam_role_arn = local.aws_ebs_csi_driver_iam_role_arn }
+  )
+}
