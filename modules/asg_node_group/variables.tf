@@ -11,7 +11,7 @@ variable "cluster_config" {
 }
 
 variable "k8s_version" {
-  default = "1.16"
+  default = "1.17"
 }
 
 variable "name" {
