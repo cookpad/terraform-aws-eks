@@ -84,6 +84,24 @@ variable "prometheus_node_exporter" {
   description = "Should the prometheus node exporter be deployed"
 }
 
+variable "aws_ebs_csi_driver" {
+  type        = bool
+  default     = true
+  description = "Should the Amazon Elastic Block Store (EBS) CSI driver be deployed"
+}
+
+variable "aws_ebs_csi_driver_iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "The IAM role for the Amazon Elastic Block Store (EBS) CSI driver, if omitted then an IAM role will be created"
+}
+
+variable "aws_ebs_csi_driver_iam_permissions_boundary" {
+  type        = string
+  default     = ""
+  description = "The ARN of the policy that is used to set the permissions boundary for the role."
+}
+
 variable "aws_auth_role_map" {
   type = list(object({
     rolearn  = string
