@@ -77,6 +77,7 @@ module "metrics_server" {
   config   = local.config
   apply    = var.metrics_server
   manifest = file("${path.module}/addons/metrics-server.yaml")
+  replace  = true
 }
 
 module "pod_nanny" {

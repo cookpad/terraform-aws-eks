@@ -1,248 +1,187 @@
----
-# Source: metrics-server/templates/metrics-server-serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: metrics-server
   namespace: kube-system
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
 ---
-# Source: metrics-server/templates/aggregated-metrics-reader-cluster-role.yaml
-kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
 metadata:
-  name: system:metrics-server-aggregated-reader
   labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
-    rbac.authorization.k8s.io/aggregate-to-view: "true"
-    rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: system:aggregated-metrics-reader
 rules:
-  - apiGroups: ["metrics.k8s.io"]
-    resources: ["pods","nodes"]
-    verbs: ["get", "list", "watch"]
+- apiGroups:
+  - metrics.k8s.io
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
 ---
-# Source: metrics-server/templates/cluster-role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: system:metrics-server
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
 rules:
-  - apiGroups:
-    - ""
-    resources:
-      - pods
-      - nodes
-      - nodes/stats
-      - namespaces
-    verbs:
-      - get
-      - list
-      - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  - nodes/stats
+  - namespaces
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
 ---
-# Source: metrics-server/templates/auth-delegator-crb.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: metrics-server:system:auth-delegator
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:auth-delegator
-subjects:
-  - kind: ServiceAccount
-    name: metrics-server
-    namespace: kube-system
----
-# Source: metrics-server/templates/metrics-server-crb.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: system:metrics-server
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:metrics-server
-subjects:
-  - kind: ServiceAccount
-    name: metrics-server
-    namespace: kube-system
----
-# Source: metrics-server/templates/role-binding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: metrics-server-auth-reader
   namespace: kube-system
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: extension-apiserver-authentication-reader
 subjects:
-  - kind: ServiceAccount
-    name: metrics-server
-    namespace: kube-system
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
 ---
-# Source: metrics-server/templates/metric-server-service.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: metrics-server:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:metrics-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:metrics-server
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: Metrics-server
   name: metrics-server
   namespace: kube-system
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
-  annotations:
-    {}
 spec:
   ports:
-    - port: 443
-      protocol: TCP
-      targetPort: https
+  - port: 443
+    protocol: TCP
+    targetPort: main-port
   selector:
-    app: metrics-server
-    release: metrics-server
-  type: ClusterIP
+    k8s-app: metrics-server
 ---
-# Source: metrics-server/templates/metrics-server-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    k8s-app: metrics-server
   name: metrics-server
   namespace: kube-system
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
 spec:
   selector:
     matchLabels:
-      app: metrics-server
-      release: metrics-server
-  replicas: 1
+      k8s-app: metrics-server
   template:
     metadata:
       labels:
-        app: metrics-server
-        release: metrics-server
+        k8s-app: metrics-server
+      name: metrics-server
     spec:
-      serviceAccountName: metrics-server
       containers:
-        - command:
-          - /pod_nanny
-          - --cpu=40m
-          - --extra-cpu=0.5m
-          - --memory=40Mi
-          - --extra-memory=4Mi
-          - --threshold=5
-          - --deployment=metrics-server
-          - --container=metrics-server
-          - --poll-period=300000
-          - --estimator=exponential
-          - --minClusterSize=3
-          env:
-          - name: MY_POD_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-          - name: MY_POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
-          image: k8s.gcr.io/addon-resizer:1.8.8
-          name: metrics-server-nanny
-          resources:
-            limits:
-              cpu: 100m
-              memory: 300Mi
-            requests:
-              cpu: 5m
-              memory: 50Mi
-        - name: metrics-server
-          image: "k8s.gcr.io/metrics-server-amd64:v0.3.6"
-          imagePullPolicy: IfNotPresent
-          command:
-            - /metrics-server
-            - --cert-dir=/tmp
-            - --logtostderr
-            - --secure-port=8443
-          ports:
-          - containerPort: 8443
-            name: https
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: https
-              scheme: HTTPS
-            initialDelaySeconds: 20
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: https
-              scheme: HTTPS
-            initialDelaySeconds: 20
-          resources:
-            {}
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - all
-            readOnlyRootFilesystem: true
-            runAsGroup: 10001
-            runAsNonRoot: true
-            runAsUser: 10001
-          volumeMounts:
-          - name: tmp
-            mountPath: /tmp
+      - command:
+        - /pod_nanny
+        - --cpu=40m
+        - --extra-cpu=0.5m
+        - --memory=40Mi
+        - --extra-memory=4Mi
+        - --threshold=5
+        - --deployment=metrics-server
+        - --container=metrics-server
+        - --poll-period=300000
+        - --estimator=exponential
+        - --minClusterSize=3
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: k8s.gcr.io/addon-resizer:1.8.8
+        name: metrics-server-nanny
+        resources:
+          limits:
+            cpu: 100m
+            memory: 300Mi
+          requests:
+            cpu: 5m
+            memory: 50Mi
+      - args:
+        - --cert-dir=/tmp
+        - --secure-port=4443
+        image: k8s.gcr.io/metrics-server/metrics-server:v0.3.7
+        imagePullPolicy: IfNotPresent
+        name: metrics-server
+        ports:
+        - containerPort: 4443
+          name: main-port
+          protocol: TCP
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-dir
       nodeSelector:
-        {}
-      affinity:
-        {}
+        kubernetes.io/os: linux
+      serviceAccountName: metrics-server
       tolerations:
-        - key: CriticalAddonsOnly
-          operator: Exists
+      - key: CriticalAddonsOnly
+        operator: Exists
       volumes:
-      - name: tmp
-        emptyDir: {}
+      - emptyDir: {}
+        name: tmp-dir
 ---
-# Source: metrics-server/templates/metrics-api-service.yaml
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
   name: v1beta1.metrics.k8s.io
-  labels:
-    app: metrics-server
-    chart: metrics-server-2.11.1
-    release: metrics-server
 spec:
+  group: metrics.k8s.io
+  groupPriorityMinimum: 100
+  insecureSkipTLSVerify: true
   service:
     name: metrics-server
     namespace: kube-system
-  group: metrics.k8s.io
   version: v1beta1
-  insecureSkipTLSVerify: true
-  groupPriorityMinimum: 100
   versionPriority: 100
