@@ -92,6 +92,7 @@ module "aws_node_termination_handler" {
   config   = local.config
   apply    = var.aws_node_termination_handler
   manifest = file("${path.module}/addons/aws-node-termination-handler.yaml")
+  replace  = true
 }
 
 module "prometheus_node_exporter" {
