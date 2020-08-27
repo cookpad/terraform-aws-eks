@@ -10,6 +10,8 @@ locals {
       kubeconfig   = "${path.module}/${sha1(var.manifest)}.kubeconfig"
       manifest     = local.manifest
       namespace    = var.namespace
+      replace      = var.replace ? [1] : []
+      apply        = var.replace ? [] : [1]
     }
   )
 }
