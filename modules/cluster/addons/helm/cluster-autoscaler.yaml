@@ -8,8 +8,9 @@ replicaCount: 1
 rbac:
   create: true
   pspEnabled: true
-  serviceAccountAnnotations:
-    eks.amazonaws.com/role-arn: ${iam_role_arn}
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: ${iam_role_arn}
 extraArgs:
   v: 4
   stderrthreshold: info
@@ -20,8 +21,9 @@ extraArgs:
   balance-similar-node-groups: true
 image:
   repository: us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler
-  tag: v1.16.5
+  tag: v1.17.3
 fullnameOverride: cluster-autoscaler
+nameOverride: aws-cluster-autoscaler
 resources:
   limits:
     cpu: 100m
