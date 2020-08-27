@@ -7,6 +7,7 @@ ADDONS_DIR=../modules/cluster/addons
 
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo add eks https://aws.github.io/eks-charts
+helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
 helm repo update
 
 helm_template() {
@@ -16,3 +17,4 @@ helm_template() {
 helm_template eks aws-node-termination-handler 0.7.3
 helm_template stable cluster-autoscaler 7.2.2
 helm_template stable metrics-server 2.11.1
+helm_template nvdp nvidia-device-plugin 0.6.0

@@ -1,0 +1,2 @@
+nodeSelector: 
+  nvidia.com/gpu: "true"

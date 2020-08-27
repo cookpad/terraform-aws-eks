@@ -1,3 +1,5 @@
+---
+# Source: nvidia-device-plugin/templates/daemonset.yml
 # Copyright (c) 2019, NVIDIA CORPORATION.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,16 +13,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: nvidia-device-plugin-daemonset
   namespace: kube-system
+  labels:
+    helm.sh/chart: nvidia-device-plugin-0.6.0
+    app.kubernetes.io/name: nvidia-device-plugin
+    app.kubernetes.io/instance: nvidia-device-plugin
+    app.kubernetes.io/version: "0.6.0"
 spec:
   selector:
     matchLabels:
-      name: nvidia-device-plugin-ds
+      app.kubernetes.io/name: nvidia-device-plugin
+      app.kubernetes.io/instance: nvidia-device-plugin
   updateStrategy:
     type: RollingUpdate
   template:
@@ -30,25 +37,16 @@ spec:
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ""
       labels:
-        name: nvidia-device-plugin-ds
+        app.kubernetes.io/name: nvidia-device-plugin
+        app.kubernetes.io/instance: nvidia-device-plugin
     spec:
-      nodeSelector:
-        nvidia.com/gpu: "true"
-      tolerations:
-      # This toleration is deprecated. Kept here for backward compatibility
-      # See https://kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/
-      - key: CriticalAddonsOnly
-        operator: Exists
-      - key: nvidia.com/gpu
-        operator: Exists
-        effect: NoSchedule
       # Mark this pod as a critical add-on; when enabled, the critical add-on
       # scheduler reserves resources for critical add-on pods so that they can
       # be rescheduled after a failure.
       # See https://kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/
       priorityClassName: "system-node-critical"
       containers:
-      - image: nvidia/k8s-device-plugin:1.0.0-beta5
+      - image: nvidia/k8s-device-plugin:v0.6.0
         name: nvidia-device-plugin-ctr
         securityContext:
           allowPrivilegeEscalation: false
@@ -61,3 +59,11 @@ spec:
         - name: device-plugin
           hostPath:
             path: /var/lib/kubelet/device-plugins
+      nodeSelector:
+        nvidia.com/gpu: "true"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Exists
