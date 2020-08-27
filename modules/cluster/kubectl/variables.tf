@@ -23,3 +23,9 @@ variable "apply" {
   description = "Do nothing if false"
   default     = true
 }
+
+variable "replace" {
+  type        = bool
+  description = "Fall back to replace --force if apply fails"
+  default     = false
+}

@@ -19,8 +19,18 @@ contexts:
 current-context: ${cluster_name}
 EOF
 
-kubectl --kubeconfig=${kubeconfig} apply -f -<<EOF
+MANIFEST="$(cat <<EOF
 ${manifest}
 EOF
+)"
+
+%{ for r in replace ~}
+echo "$MANIFEST" | kubectl --kubeconfig=${kubeconfig} apply -f - || echo "$MANIFEST" | kubectl --kubeconfig=${kubeconfig} replace --force -f -
+%{ endfor ~}
+
+%{ for a in apply ~}
+echo "$MANIFEST" | kubectl --kubeconfig=${kubeconfig} apply -f -
+%{ endfor ~}
+
 
 rm ${kubeconfig}
