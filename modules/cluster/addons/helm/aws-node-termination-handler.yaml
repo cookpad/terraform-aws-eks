@@ -4,3 +4,4 @@ deleteLocalData: true
 enableSpotInterruptionDraining: true
 enableScheduledEventDraining: true
 ignoreDaemonSets: true
+enablePrometheusServer: true
