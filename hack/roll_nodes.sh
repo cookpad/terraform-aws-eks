@@ -4,19 +4,16 @@
 #
 # Replace Kubernetes Nodes, to roll out config changes
 #
-# TARGET_VERSION - The kubelet version you want to be running. Defaults to the EKS server version.
-# This is normally what you want when doing an EKS upgrade, if you are rolling out new node config
-# for some other reason, you might want to set this to `all` so we don't match any nodes, and just
-# replace them all!
-#
 # This script depends on a correctly configured kubectl, jq and aws cli
 
 set -xeuo pipefail
 
-TARGET_VERSION="${2:-$(kubectl version -o json | jq -r .serverVersion.gitVersion)}"
+# If you need some extra aws cli flags in your environment e.g. --profile=foo add
+# them here!
+AWS_EXTRA_ARGS=""
 
 NODES_TO_ROLL=$(kubectl get nodes -o json |\
-  jq -r ".items | map(select(.status.nodeInfo.kubeletVersion != \"$TARGET_VERSION\")) | .[].metadata.name"
+  jq -r ".items | .[].metadata.name"
 )
 
 instance_id() {
@@ -38,7 +35,7 @@ nodes_rolled() {
 }
 
 wait_for_pods() {
-  while [ $(kubectl get pods --all-namespaces --field-selector status.phase!=Running -o json | jq -r '.items | length') -gt 0 ]
+  while [ $(kubectl get pods --all-namespaces --field-selector status.phase=Pending -o json | jq -r '.items | length') -gt 0 ]
   do
     sleep 10
   done
@@ -46,7 +43,7 @@ wait_for_pods() {
 
 detach() {
   rolled=$(nodes_rolled)
-  aws autoscaling detach-instances \
+  aws $AWS_EXTRA_ARGS autoscaling detach-instances \
     --instance-ids $1 \
     --auto-scaling-group-name $(autoscaling_group_name $1) \
     --no-should-decrement-desired-capacity
@@ -66,6 +63,6 @@ do
   instance=$(instance_id $NODE)
   detach $instance
   kubectl drain --delete-local-data --ignore-daemonsets $NODE
-  aws ec2 terminate-instances --instance-ids $instance
+  aws $AWS_EXTRA_ARGS ec2 terminate-instances --instance-ids $instance
   wait_for_pods
 done
