@@ -93,18 +93,6 @@ module "storage_classes" {
   manifest = file("${path.module}/storage_classes.yaml")
 }
 
-module "default_priorityclass" {
-  source   = "./kubectl"
-  config   = local.config
-  manifest = file("${path.module}/default_priorityclass.yaml")
-}
-
-module "overprovisioning_priorityclass" {
-  source   = "./kubectl"
-  config   = local.config
-  manifest = file("${path.module}/overprovisioning_priorityclass.yaml")
-}
-
 locals {
   create_key         = length(var.kms_cmk_arn) == 0 && var.envelope_encryption_enabled
   kms_cmk_arn        = local.create_key ? aws_kms_key.cmk.*.arn : [var.kms_cmk_arn]
