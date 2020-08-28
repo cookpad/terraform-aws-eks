@@ -11,7 +11,6 @@ this task in a relatively safe way.
 * This guide assumes that the cluster autoscaler is enabled (and working)
 * This guide assumes that you have correctly configured kubectl's current context to point at the cluster you are working with, and have configured the aws cli so it can perform operations on the nodes in your cluster.
 * This guide recommends running a script that performs potentially destructive actions, make sure you understand what it is doing and why before you run it, anything you break is your own fault!
-⚠️ ⚠️ ⚠️ WARNING ⚠️ ⚠️ ⚠️
 
 # Overview
 
