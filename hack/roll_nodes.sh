@@ -1,19 +1,18 @@
 #!/bin/bash
 
-PAUSE="5m"
+set -xeuo pipefail
+
+PAUSE=300
 CLUSTER_VERSION=$(kubectl version -o json | jq -r .serverVersion.gitVersion)
 
 nodes_to_roll() {
   kubectl get nodes -o json |\
-    jq -r '.items | map(select(.nodeInfo.kubeletVersion != "$CLUSTER_VERSION")) | .[].metadata.name'
+    jq -r ".items | map(select(.status.nodeInfo.kubeletVersion != \"$CLUSTER_VERSION\")) | .[].metadata.name"
 }
 
-nodes_to_terminate() {
+instance_id() {
   kubectl get nodes -o json |\
-    jq -r '.items |\
-      map(select(.spec.taints | any(contains({key: "node.kubernetes.io/unschedulable", "effect": "NoSchedule"})))) |\
-      map(select(.nodeInfo.kubeletVersion != "$CLUSTER_VERSION")) |\
-      map(.spec.providerID | split("/")[4]) | join(" ")'
+    jq -r ".items | map(select(.metadata.name == \"$1\")) | map(.spec.providerID | split(\"/\")[4]) | join(\" \")"
 }
 
 for NODE in $(nodes_to_roll)
@@ -24,6 +23,6 @@ done
 for NODE in $(nodes_to_roll)
 do
   kubectl drain --delete-local-data --ignore-daemonsets $NODE
-  aws ec2 terminate-instances --instance-ids $(nodes_to_terminate)
+  aws --profile=dev ec2 terminate-instances --instance-ids $(instance_id $NODE)
   sleep $PAUSE
 done
