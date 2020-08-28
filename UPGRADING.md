@@ -7,7 +7,7 @@
 
 ## 1.15 -> 1.16
 
-Some deprecated API version are removed by this version of Kubernetes.
+Some deprecated API versions are removed by this version of Kubernetes.
 
 Make sure you follow the instructions at https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html#1-16-prequisites
 before upgrading your cluster.
