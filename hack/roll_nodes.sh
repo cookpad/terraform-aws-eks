@@ -35,7 +35,7 @@ nodes_rolled() {
 }
 
 wait_for_pods() {
-  while [ $(kubectl get pods --all-namespaces --field-selector status.phase=Pending -o json | jq -r '.items | length') -gt 0 ]
+  while [ $(kubectl get pods --all-namespaces -o json | jq '.items | map(select(.status.phase=="Running" | not)) | map(select(.status.phase=="Succeeded" | not)) | length') -gt 0 ]
   do
     sleep 10
   done
