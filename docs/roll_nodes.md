@@ -23,7 +23,7 @@ The `hack/roll_nodes.sh` performs the following actions.
   * Wait for the new node to be ready
   * Run kubectl drain so that workloads are migrated to another node
   * Terminate the underlying ec2 node
-  * Wait for the number of pods that are in the Pending phase to become 0
+  * Wait for the number of pods that are not in the Running or Succeeded phase to become 0
 
 # Notes
 
