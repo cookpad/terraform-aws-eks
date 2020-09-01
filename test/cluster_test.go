@@ -62,6 +62,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
 		defer os.Remove(admin_kubeconfig)
 		validateAdminRole(t, admin_kubeconfig)
+		validateStorage(t, kubeconfig)
 	})
 }
 
@@ -266,4 +267,58 @@ spec:
       tolerations:
         - key: nvidia.com/gpu
           operator: Exists
+`
+
+func validateStorage(t *testing.T, kubeconfig string) {
+	// Generate some example workload
+	namespace := strings.ToLower(random.UniqueId())
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
+	workload := fmt.Sprintf(EXAMPLE_STORAGE_WORKLOAD, namespace, namespace, namespace)
+	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
+	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
+	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=storage-test-workload"}, 1, 30, 10*time.Second)
+}
+
+const EXAMPLE_STORAGE_WORKLOAD = `---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: %s
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ebs-claim
+  namespace: %s
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-storage-workload
+  namespace: %s
+spec:
+  template:
+    metadata:
+      labels:
+        app: storage-test-workload
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: app
+        image: alpine
+        command: ["/bin/sh"]
+        args: ["-c", "echo $(date -u) >> /data/out.txt && cat /data/out.txt"]
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /data
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: ebs-claim
 `
