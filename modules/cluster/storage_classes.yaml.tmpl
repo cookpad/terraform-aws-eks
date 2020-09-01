@@ -7,7 +7,7 @@ metadata:
 provisioner: ${provisioner}
 parameters:
   type: gp2
-  ${fstype}: ext4
+  ${fstype}
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 ---
@@ -19,7 +19,7 @@ provisioner: ${provisioner}
 parameters:
   type: io1
   iopsPerGB: "50"
-  ${fstype}: ext4
+  ${fstype}
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 ---
@@ -31,7 +31,7 @@ provisioner: ${provisioner}
 parameters:
   type: io1
   iopsPerGB: "25"
-  ${fstype}: ext4
+  ${fstype}
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 ---
@@ -42,7 +42,7 @@ metadata:
 provisioner: ${provisioner}
 parameters:
   type: st1
-  ${fstype}: ext4
+  ${fstype}
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 ---
@@ -53,6 +53,6 @@ metadata:
 provisioner: ${provisioner}
 parameters:
   type: sc1
-  ${fstype}: ext4
+  ${fstype}
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
