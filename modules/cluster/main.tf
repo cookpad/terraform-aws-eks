@@ -95,7 +95,7 @@ module "storage_classes" {
     "${path.module}/storage_classes.yaml.tmpl",
     {
       provisioner = var.aws_ebs_csi_driver ? "ebs.csi.aws.com" : "kubernetes.io/aws-ebs",
-      fstype      = var.aws_ebs_csi_driver ? "csi.storage.k8s.io/fstype: ${var.pvc_fstype}" : "fsType: ${var.pvc_fstype}"
+      fstype      = var.aws_ebs_csi_driver ? "csi.storage.k8s.io/fstype: ${var.pv_fstype}" : "fsType: ${var.pv_fstype}"
     }
   )
 }
