@@ -88,9 +88,16 @@ module "aws_auth" {
 }
 
 module "storage_classes" {
-  source   = "./kubectl"
-  config   = local.config
-  manifest = file("${path.module}/storage_classes.yaml")
+  source  = "./kubectl"
+  config  = local.config
+  replace = true
+  manifest = templatefile(
+    "${path.module}/storage_classes.yaml.tmpl",
+    {
+      provisioner = var.aws_ebs_csi_driver ? "ebs.csi.aws.com" : "kubernetes.io/aws-ebs",
+      fstype      = var.aws_ebs_csi_driver ? "csi.storage.k8s.io/fstype: ${var.pvc_fstype}" : "fsType: ${var.pvc_fstype}"
+    }
+  )
 }
 
 locals {

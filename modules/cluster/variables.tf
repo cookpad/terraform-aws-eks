@@ -102,6 +102,12 @@ variable "aws_ebs_csi_driver_iam_permissions_boundary" {
   description = "The ARN of the policy that is used to set the permissions boundary for the role."
 }
 
+variable "pv_fstype" {
+  type        = string
+  default     = "ext4"
+  description = "File system type that will be formatted during volume creation, (xfs, ext2, ext3 or ext4)"
+}
+
 variable "aws_auth_role_map" {
   type = list(object({
     rolearn  = string

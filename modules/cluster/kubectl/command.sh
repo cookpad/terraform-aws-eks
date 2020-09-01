@@ -25,7 +25,7 @@ EOF
 )"
 
 %{ for r in replace ~}
-echo "$MANIFEST" | kubectl --kubeconfig=${kubeconfig} apply -f - || echo "$MANIFEST" | kubectl --kubeconfig=${kubeconfig} replace --force -f -
+echo "$MANIFEST" | kubectl --kubeconfig=${kubeconfig} apply -f - || echo "$MANIFEST" | kubectl --kubeconfig=${kubeconfig} replace --force --save-config -f -
 %{ endfor ~}
 
 %{ for a in apply ~}
