@@ -14,6 +14,7 @@ module "cluster" {
 
   envelope_encryption_enabled = false
   metrics_server              = true
+  aws_ebs_csi_driver          = var.aws_ebs_csi_driver
 
   critical_addons_node_group_key_name = "development"
 

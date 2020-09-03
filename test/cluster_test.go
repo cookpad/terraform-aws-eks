@@ -63,6 +63,10 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer os.Remove(admin_kubeconfig)
 		validateAdminRole(t, admin_kubeconfig)
 		validateStorage(t, kubeconfig)
+		deployTerraform(t, workingDir, map[string]interface{}{
+			"aws_ebs_csi_driver": true,
+		})
+		validateStorage(t, kubeconfig)
 	})
 }
 

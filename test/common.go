@@ -25,6 +25,11 @@ func deployTerraform(t *testing.T, workingDir string, vars map[string]interface{
 
 	if test_structure.IsTestDataPresent(t, test_structure.FormatTestDataPath(workingDir, "TerraformOptions.json")) {
 		terraformOptions = test_structure.LoadTerraformOptions(t, workingDir)
+		for k, v := range vars {
+			if _, ok := terraformOptions.Vars[k]; !ok {
+				terraformOptions.Vars[k] = v
+			}
+		}
 	} else {
 		terraformOptions = &terraform.Options{
 			// The path to where our Terraform code is located
