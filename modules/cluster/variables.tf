@@ -108,7 +108,7 @@ variable "aws_alb_ingress_controller" {
   description = "Should the ALB Ingress Controller be deployed"
 }
 
-variable "aws_alb_ingress_contoller_iam_role_arn" {
+variable "aws_alb_ingress_controller_iam_role_arn" {
   type        = string
   default     = ""
   description = "The IAM role for the ALB Ingress Controller, if omitted then an IAM role will be created"
