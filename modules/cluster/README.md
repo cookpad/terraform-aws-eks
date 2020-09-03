@@ -85,21 +85,20 @@ specify the arn of an existing key by setting `kms_cmk_arn`
 
 ## Cluster critical add-ons
 
-By default all addons are setup. If you want to disable this behaviour you may
-by setting some or all of:
 
-```hcl
-cluster_autoscaler           = false
-metrics_server               = false
-prometheus_node_exporter     = false
-aws_node_termination_handler = false
-nvidia_device_plugin         = false
-```
+| addon | variable | default |
+|-------|----------|---------|
+| [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) | `cluster_autoscaler` | ✅ enabled |
+| [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) | `aws_node_termination_handler` | ✅ enabled |
+| [NVIDIA device plugin for Kubernetes](https://github.com/NVIDIA/k8s-device-plugin) | `nvidia_device_plugin` | ✅ enabled (but only schedules to gpu nodes) |
+| [Prometheus Node Exporter](https://github.com/prometheus/node_exporter) | `prometheus_node_exporter` | ❌ disabled |
+| [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) | `metrics_server` | ❌ disabled |
+| [Amazon Elastic Block Store (EBS) CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/) | `aws_ebs_csi_driver` | ❌ disabled |
 
-Note that setting these values to false will not remove provisioned add-ons
-from an existing cluster.
+Note that setting these variables to false will not remove provisioned add-ons from an existing cluster.
 
-By default if the cluster autoscaler is enabled an IAM role is provisioned to
-provide the appropriate permissions to alter managed auto scaling groups. If
-you wish to manage this IAM role externally you should set
-`cluster_autoscaler_iam_role_arn`
+By default if `cluster_autoscaler` is enabled an IAM role is provisioned to provide the appropriate permissions to alter managed auto scaling groups.
+If you wish to manage this IAM role externally you should set `cluster_autoscaler_iam_role_arn`
+
+By default if `aws_ebs_csi_driver` is enabled an IAM role is provisioned to provide the appropriate permissions.
+If you wish to manage this IAM role externally you should set `aws_ebs_csi_driver_iam_role_arn`
