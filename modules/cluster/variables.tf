@@ -86,7 +86,7 @@ variable "prometheus_node_exporter" {
 
 variable "aws_ebs_csi_driver" {
   type        = bool
-  default     = true
+  default     = false
   description = "Should the Amazon Elastic Block Store (EBS) CSI driver be deployed"
 }
 
