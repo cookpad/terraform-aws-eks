@@ -1,6 +1,5 @@
-FROM alpine:3.11.2
+FROM alpine:3.12.0
 
-ARG GOTESTSUM_VERSION=0.4.0
 ARG TERRAFORM_VERSION=0.12.24
 ARG KUBERNETES_VERSION=1.15.11
 
@@ -11,8 +10,7 @@ RUN apk add --no-cache \
       go \
       jq \
       perl-utils \
-      python3 && \
-    pip3 install awscli && \
+      aws-cli && \
     git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
     echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile && ln -s ~/.tfenv/bin/* /usr/local/bin && \
     tfenv install $TERRAFORM_VERSION && \
