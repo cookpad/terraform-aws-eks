@@ -6,4 +6,4 @@ export SKIP_cleanup_terraform=true
 source .github/actions/terratest/assume_role.sh
 
 cd test
-go test -v -timeout 45m -run TestTerraformAwsEksCluster
+go test -v -timeout 45m -run TestTerraformAwsEksCluster | grep -v "constructing many client instances from the same exec auth config"
