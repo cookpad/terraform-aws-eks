@@ -24,3 +24,4 @@ helm_template nvdp nvidia-device-plugin 0.6.0
 curl -o $ADDONS_DIR/kustomize/overlays/metrics-server/resources/metrics-server.yaml -L https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml
 kustomize_build metrics-server
 kustomize_build aws-ebs-csi-driver
+kustomize_build aws-alb-ingress-controller
