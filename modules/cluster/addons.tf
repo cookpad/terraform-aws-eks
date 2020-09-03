@@ -127,7 +127,7 @@ module "aws_alb_ingress_controller" {
   manifest = templatefile(
     "${path.module}/addons/aws-alb-ingress-controller.yaml",
     {
-      iam_role_arn = local.aws_alb_ingress_contoller_iam_role_arn,
+      iam_role_arn = local.aws_alb_ingress_controller_iam_role_arn,
       cluster_name = var.name,
     }
   )
