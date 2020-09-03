@@ -21,7 +21,7 @@ minimal extra configuration, for example for testing and development purposes.
 ```hcl
 module "eks" {
   source = "cookpad/eks/aws"
-  version = "~> 1.14"
+  version = "~> 1.16"
 
   cluster_name       = "hal-9000"
   cidr_block         = "10.4.0.0/16"
