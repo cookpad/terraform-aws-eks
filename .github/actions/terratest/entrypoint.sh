@@ -6,4 +6,4 @@ tfenv install || true
 source /assume_role.sh
 
 cd test
-go test -v -timeout 45m "$@"
+go test -v -timeout 45m "$@" | grep -v "constructing many client instances from the same exec auth config"
