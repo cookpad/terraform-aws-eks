@@ -119,3 +119,16 @@ module "aws_ebs_csi_driver" {
     { iam_role_arn = local.aws_ebs_csi_driver_iam_role_arn }
   )
 }
+
+module "aws_alb_ingress_controller" {
+  source = "./kubectl"
+  config = local.config
+  apply  = var.aws_alb_ingress_controller
+  manifest = templatefile(
+    "${path.module}/addons/aws-alb-ingress-controller.yaml",
+    {
+      iam_role_arn = local.aws_alb_ingress_controller_iam_role_arn,
+      cluster_name = var.name,
+    }
+  )
+}

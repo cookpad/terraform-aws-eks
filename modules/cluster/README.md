@@ -86,19 +86,20 @@ specify the arn of an existing key by setting `kms_cmk_arn`
 ## Cluster critical add-ons
 
 
-| addon | variable | default |
-|-------|----------|---------|
-| [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) | `cluster_autoscaler` | ✅ enabled |
-| [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) | `aws_node_termination_handler` | ✅ enabled |
-| [NVIDIA device plugin for Kubernetes](https://github.com/NVIDIA/k8s-device-plugin) | `nvidia_device_plugin` | ✅ enabled (but only schedules to gpu nodes) |
-| [Prometheus Node Exporter](https://github.com/prometheus/node_exporter) | `prometheus_node_exporter` | ❌ disabled |
-| [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) | `metrics_server` | ❌ disabled |
-| [Amazon Elastic Block Store (EBS) CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/) | `aws_ebs_csi_driver` | ❌ disabled |
+| addon | variable | default | iam role variable |
+|-------|----------|---------|-------------------|
+| [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) | `cluster_autoscaler` | ✅ enabled | `cluster_autoscaler_iam_role_arn` |
+| [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) | `aws_node_termination_handler` | ✅ enabled ||
+| [NVIDIA device plugin for Kubernetes](https://github.com/NVIDIA/k8s-device-plugin) | `nvidia_device_plugin` | ✅ enabled (but only schedules to gpu nodes) ||
+| [Prometheus Node Exporter](https://github.com/prometheus/node_exporter) | `prometheus_node_exporter` | ❌ disabled ||
+| [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) | `metrics_server` | ❌ disabled ||
+| [Amazon Elastic Block Store (EBS) CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/) | `aws_ebs_csi_driver` | ❌ disabled | `aws_ebs_csi_driver_iam_role_arn` |
+| [AWS ALB Ingress Controller](https://github.com/kubernetes-sigs/aws-alb-ingress-controller) | `aws_alb_ingress_controller` | ❌ disabled | `aws_alb_ingress_controller_iam_role_arn` |
 
 Note that setting these variables to false will not remove provisioned add-ons from an existing cluster.
 
-By default if `cluster_autoscaler` is enabled an IAM role is provisioned to provide the appropriate permissions to alter managed auto scaling groups.
-If you wish to manage this IAM role externally you should set `cluster_autoscaler_iam_role_arn`
+Some addons require an IAM role in order to provide the appropriate permissions to read or modify AWS resources.
+If enabled these addons will provision an IAM role for this purpose.
 
-By default if `aws_ebs_csi_driver` is enabled an IAM role is provisioned to provide the appropriate permissions.
-If you wish to manage this IAM role externally you should set `aws_ebs_csi_driver_iam_role_arn`
+If you wish to avoid this, for example because you manage IAM roles with some other external process, you may specify an IAM role ARN for the addon to assume,
+and the module will skip provisioning an IAM role.

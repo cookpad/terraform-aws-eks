@@ -25,3 +25,4 @@ curl -o $ADDONS_DIR/kustomize/overlays/metrics-server/resources/metrics-server.y
 kustomize_build metrics-server
 curl -o $ADDONS_DIR/kustomize/overlays/aws-ebs-csi-driver/resources/crd_snapshotter.yaml -L https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/v0.6.0/deploy/kubernetes/cluster/crd_snapshotter.yaml
 kustomize_build aws-ebs-csi-driver
+kustomize_build aws-alb-ingress-controller
