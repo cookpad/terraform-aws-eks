@@ -9,4 +9,5 @@ spec:
       containers:
       - name: alb-ingress-controller
         args:
+          - --ingress-class=alb
           - --cluster-name=${cluster_name}

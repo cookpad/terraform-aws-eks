@@ -80,6 +80,7 @@ spec:
     spec:
       containers:
       - args:
+        - --ingress-class=alb
         - --cluster-name=${cluster_name}
         env: null
         image: docker.io/amazon/aws-alb-ingress-controller:v1.1.9
