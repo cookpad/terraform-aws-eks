@@ -6,12 +6,6 @@ locals {
     burstable         = ["t3", "t3a"]
   }
 
-  labels = merge(
-    var.name != "" ? { "node-group.k8s.cookpad.com/name" = var.name } : {},
-    var.gpu ? { "nvidia.com/gpu" = "true" } : {},
-    var.labels,
-  )
-
   instance_types       = length(var.instance_types) > 0 ? var.instance_types : [for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"]
   instance_overrides   = var.instance_lifecycle == "spot" ? local.instance_types : [local.instance_types[0]]
   name_prefix          = replace(join("-", compact(["eks-node", var.cluster_config.name, var.name, var.instance_family, var.instance_size, var.instance_lifecycle])), "_", "-")
@@ -21,6 +15,12 @@ locals {
   root_device_mappings = tolist(data.aws_ami.image.block_device_mappings)[0]
   autoscaler_tags      = var.cluster_autoscaler ? { "k8s.io/cluster-autoscaler/enabled" = "true", "k8s.io/cluster-autoscaler/${var.cluster_config.name}" = "owned" } : {}
   tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags)
+
+  labels = merge(
+    var.name != "" ? { "node-group.k8s.cookpad.com/name" = var.name } : { "node-group.k8s.cookpad.com/name" = local.name_prefix },
+    var.gpu ? { "nvidia.com/gpu" = "true" } : {},
+    var.labels,
+  )
 }
 
 data "aws_ssm_parameter" "image_id" {
