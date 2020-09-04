@@ -19,7 +19,8 @@ locals {
   max_size             = floor(var.max_size / length(local.asg_subnets))
   min_size             = ceil(var.min_size / length(local.asg_subnets))
   root_device_mappings = tolist(data.aws_ami.image.block_device_mappings)[0]
-  tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" })
+  autoscaler_tags      = var.cluster_autoscaler ? { "k8s.io/cluster-autoscaler/enabled" = "true", "k8s.io/cluster-autoscaler/${var.cluster_config.name}" = "owned" } : {}
+  tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags)
 }
 
 data "aws_ssm_parameter" "image_id" {
@@ -135,24 +136,6 @@ resource "aws_autoscaling_group" "nodes" {
   }
 
   tag {
-    key                 = "k8s.io/cluster-autoscaler/enabled"
-    value               = "true"
-    propagate_at_launch = false
-  }
-
-  tag {
-    key                 = "k8s.io/cluster-autoscaler/${var.cluster_config.name}"
-    value               = "owned"
-    propagate_at_launch = false
-  }
-
-  tag {
-    key                 = "kubernetes.io/cluster/${var.cluster_config.name}"
-    value               = "owned"
-    propagate_at_launch = false
-  }
-
-  tag {
     key                 = "Role"
     value               = "eks-node"
     propagate_at_launch = true
@@ -178,6 +161,7 @@ resource "aws_autoscaling_group" "nodes" {
 
   dynamic "tag" {
     for_each = local.tags
+
     content {
       key                 = tag.key
       value               = tag.value

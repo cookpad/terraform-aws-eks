@@ -146,3 +146,9 @@ variable "enabled_metrics" {
   ]
   description = "A list of metrics to collect."
 }
+
+variable "cluster_autoscaler" {
+  type        = bool
+  default     = true
+  description = "Should this group be managed by the cluster autoscaler"
+}
