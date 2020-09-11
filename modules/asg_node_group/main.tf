@@ -144,32 +144,32 @@ resource "aws_autoscaling_group" "nodes" {
   }
 
   tag {
-    key = "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com/zone"
-    value = each.key
+    key                 = "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com/zone"
+    value               = each.key
     propagate_at_launch = false
   }
 
   tag {
-    key = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/zone"
-    value = each.key
+    key                 = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/zone"
+    value               = each.key
     propagate_at_launch = false
   }
 
   tag {
-    key = "k8s.io/cluster-autoscaler/node-template/label/failure-domain.beta.kubernetes.io/zone"
-    value = each.key
+    key                 = "k8s.io/cluster-autoscaler/node-template/label/failure-domain.beta.kubernetes.io/zone"
+    value               = each.key
     propagate_at_launch = false
   }
 
   tag {
-    key = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/region"
-    value = data.aws_region.current.name
+    key                 = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/region"
+    value               = data.aws_region.current.name
     propagate_at_launch = false
   }
 
   tag {
-    key = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/region"
-    value = data.aws_region.current.name
+    key                 = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/region"
+    value               = data.aws_region.current.name
     propagate_at_launch = false
   }
 
