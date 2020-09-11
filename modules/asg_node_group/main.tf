@@ -35,6 +35,8 @@ data "aws_ami" "image" {
   }
 }
 
+data "aws_region" "current" {}
+
 data "template_file" "cloud_config" {
   template = file("${path.module}/cloud_config.tpl")
   vars = {
@@ -139,6 +141,36 @@ resource "aws_autoscaling_group" "nodes" {
     key                 = "Role"
     value               = "eks-node"
     propagate_at_launch = true
+  }
+
+  tag {
+    key = "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com"
+    value = each.key
+    propagate_at_launch = false
+  }
+
+  tag {
+    key = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/zone"
+    value = each.key
+    propagate_at_launch = false
+  }
+
+  tag {
+    key = "k8s.io/cluster-autoscaler/node-template/label/failure-domain.beta.kubernetes.io/zone"
+    value = each.key
+    propagate_at_launch = false
+  }
+
+  tag {
+    key = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/region"
+    value = data.aws_region.current.name
+    propagate_at_launch = false
+  }
+
+  tag {
+    key = "k8s.io/cluster-autoscaler/node-template/label/topology.kubernetes.io/region"
+    value = data.aws_region.current.name
+    propagate_at_launch = false
   }
 
   dynamic "tag" {
