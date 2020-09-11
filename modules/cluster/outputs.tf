@@ -9,6 +9,7 @@ locals {
     node_instance_profile = var.iam_config.node_role
     tags                  = var.tags
     dns_cluster_ip        = local.dns_cluster_ip
+    aws_ebs_csi_driver    = var.aws_ebs_csi_driver
   }
 }
 

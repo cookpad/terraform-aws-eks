@@ -143,10 +143,13 @@ resource "aws_autoscaling_group" "nodes" {
     propagate_at_launch = true
   }
 
-  tag {
-    key                 = "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com/zone"
-    value               = each.key
-    propagate_at_launch = false
+  dynamic "tag" {
+    for_each = var.cluster_config.aws_ebs_csi_driver ? { "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com/zone" = each.key } : {}
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = false
+    }
   }
 
   tag {
