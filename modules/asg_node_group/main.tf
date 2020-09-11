@@ -144,7 +144,7 @@ resource "aws_autoscaling_group" "nodes" {
   }
 
   tag {
-    key = "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com"
+    key = "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com/zone"
     value = each.key
     propagate_at_launch = false
   }
