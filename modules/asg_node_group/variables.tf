@@ -7,6 +7,7 @@ variable "cluster_config" {
     node_instance_profile = string
     tags                  = map(string)
     dns_cluster_ip        = string
+    aws_ebs_csi_driver    = bool
   })
 }
 
