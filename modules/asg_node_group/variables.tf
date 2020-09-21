@@ -5,6 +5,7 @@ variable "cluster_config" {
     private_subnet_ids    = map(string)
     node_security_group   = string
     node_instance_profile = string
+    dns_cluster_ip        = string
   })
 }
 

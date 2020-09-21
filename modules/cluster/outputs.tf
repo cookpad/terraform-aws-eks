@@ -7,6 +7,7 @@ locals {
     private_subnet_ids    = var.vpc_config.private_subnet_ids
     node_security_group   = aws_security_group.node.id
     node_instance_profile = var.iam_config.node_role
+    dns_cluster_ip        = local.dns_cluster_ip
   }
 }
 

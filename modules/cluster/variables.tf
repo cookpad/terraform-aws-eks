@@ -109,3 +109,9 @@ variable "kms_cmk_arn" {
   default     = ""
   description = "The ARN of the KMS (CMK) customer master key, to be used for Envelope Encryption of Kubernetes secrets, if not set a key will be generated"
 }
+
+variable "dns_cluster_ip" {
+  type        = string
+  default     = ""
+  description = "Overrides the IP address to use for DNS queries within the cluster. Defaults to 10.100.0.10 or 172.20.0.10 based on the VPC cidr"
+}

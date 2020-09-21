@@ -19,12 +19,23 @@ module "aws_k8s_cni" {
   manifest = file("${path.module}/addons/aws-k8s-cni.yaml")
 }
 
+data "aws_vpc" "network" {
+  id = var.vpc_config.vpc_id
+}
+
+locals {
+  dns_cluster_ip = length(var.dns_cluster_ip) > 0 ? var.dns_cluster_ip : (split(".", data.aws_vpc.network.cidr_block)[0] == "10" ? "172.20.0.10" : "10.100.0.10")
+}
+
 module "coredns" {
   source = "./kubectl"
   config = local.config
   manifest = templatefile(
     "${path.module}/addons/coredns.yaml",
-    { aws_region = data.aws_region.current.name },
+    {
+      aws_region     = data.aws_region.current.name,
+      dns_cluster_ip = local.dns_cluster_ip,
+    },
   )
 }
 
