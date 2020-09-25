@@ -198,3 +198,28 @@ instances name tag.
 
 If you need to provide any additional cloud config it will be merged,
 see https://cloudinit.readthedocs.io/en/latest/topics/merging.html for more info.
+
+### Bottlerocket
+
+[Bottlerocket](https://github.com/bottlerocket-os/bottlerocket) is a free and open-source Linux-based operating system meant for hosting containers.
+
+To use bottlerocket set the bottlerocket variable.
+
+```hcl
+module "bottlerocket_nodes" {
+  source = "cookpad/eks/aws//modules/aws_node_group"
+
+  cluster_config     = module.cluster.config
+  bottlerocket       = true
+}
+```
+⚠️ If you are using bottlerocket nodes and need EBS persistent volumes you must
+enable the [AWS EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver) by setting `aws_ebs_csi_driver = true` on the cluster module.
+see: https://github.com/bottlerocket-os/bottlerocket/blob/develop/QUICKSTART-EKS.md#csi-plugin
+
+⚠️ Bottlerocket does not yet [support GPU nodes](https://github.com/bottlerocket-os/bottlerocket/issues/769), do not set `gpu = true` when `bottlerocket = true`, as this may result in an invalid configuration!
+
+📝 If you want to get a shell session on your instances via Bottlerocket's SSM agent
+you will need to attach the `arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore` policy
+to your node instance profile. If you use the `cookpad/eks/aws//modules/iam` module to
+provision your node role, then this is done by default!

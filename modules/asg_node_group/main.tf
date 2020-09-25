@@ -12,9 +12,10 @@ locals {
   asg_subnets          = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
   max_size             = floor(var.max_size / length(local.asg_subnets))
   min_size             = ceil(var.min_size / length(local.asg_subnets))
-  root_device_mappings = tolist(data.aws_ami.image.block_device_mappings)[0]
+  root_device_mappings = var.bottlerocket ? tolist(data.aws_ami.bottlerocket_image.block_device_mappings)[0] : tolist(data.aws_ami.image.block_device_mappings)[0]
   autoscaler_tags      = var.cluster_autoscaler ? { "k8s.io/cluster-autoscaler/enabled" = "true", "k8s.io/cluster-autoscaler/${var.cluster_config.name}" = "owned" } : {}
-  tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags)
+  bottlerocket_tags    = var.bottlerocket ? { "Name" = "eks-node-${var.cluster_config.name}" } : {}
+  tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags, local.bottlerocket_tags)
 
   labels = merge(
     var.name != "" ? { "node-group.k8s.cookpad.com/name" = var.name } : { "node-group.k8s.cookpad.com/name" = local.name_prefix },
@@ -32,6 +33,18 @@ data "aws_ami" "image" {
   filter {
     name   = "image-id"
     values = [data.aws_ssm_parameter.image_id.value]
+  }
+}
+
+data "aws_ssm_parameter" "bottlerocket_image_id" {
+  name = "/aws/service/bottlerocket/aws-k8s-${var.k8s_version}/x86_64/latest/image_id"
+}
+
+data "aws_ami" "bottlerocket_image" {
+  owners = ["amazon"]
+  filter {
+    name   = "image-id"
+    values = [data.aws_ssm_parameter.bottlerocket_image_id.value]
   }
 }
 
@@ -66,11 +79,23 @@ data "template_cloudinit_config" "config" {
   }
 }
 
+data "template_file" "bottlerocket_config" {
+  template = file("${path.module}/bottlerocket_config.toml.tpl")
+  vars = {
+    cluster_name     = var.cluster_config.name
+    cluster_endpoint = var.cluster_config.endpoint
+    cluster_ca_data  = var.cluster_config.ca_data
+    dns_cluster_ip   = var.cluster_config.dns_cluster_ip
+    node_labels      = join("\n", [for label, value in local.labels : "\"${label}\" = \"${value}\""])
+    node_taints      = join("\n", [for taint, value in var.taints : "\"${taint}\" = \"${value}\""])
+  }
+}
+
 resource "aws_launch_template" "config" {
-  image_id               = data.aws_ami.image.id
+  image_id               = var.bottlerocket ? data.aws_ami.bottlerocket_image.id : data.aws_ami.image.id
   name                   = local.name_prefix
   vpc_security_group_ids = concat([var.cluster_config.node_security_group], var.security_groups)
-  user_data              = data.template_cloudinit_config.config.rendered
+  user_data              = var.bottlerocket ? base64encode(data.template_file.bottlerocket_config.rendered) : data.template_cloudinit_config.config.rendered
 
   instance_type = local.instance_types.0
 
@@ -141,15 +166,6 @@ resource "aws_autoscaling_group" "nodes" {
     key                 = "Role"
     value               = "eks-node"
     propagate_at_launch = true
-  }
-
-  dynamic "tag" {
-    for_each = var.cluster_config.aws_ebs_csi_driver ? { "k8s.io/cluster-autoscaler/node-template/label/topology.ebs.csi.aws.com/zone" = each.key } : {}
-    content {
-      key                 = tag.key
-      value               = tag.value
-      propagate_at_launch = false
-    }
   }
 
   tag {

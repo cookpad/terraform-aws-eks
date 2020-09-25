@@ -1,6 +1,8 @@
 variable "cluster_config" {
   type = object({
     name                  = string
+    endpoint              = string
+    ca_data               = string
     vpc_id                = string
     private_subnet_ids    = map(string)
     node_security_group   = string
@@ -152,4 +154,9 @@ variable "cluster_autoscaler" {
   type        = bool
   default     = true
   description = "Should this group be managed by the cluster autoscaler"
+}
+
+variable "bottlerocket" {
+  type    = bool
+  default = false
 }
