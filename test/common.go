@@ -18,6 +18,10 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
 func deployTerraform(t *testing.T, workingDir string, vars map[string]interface{}) {
@@ -49,6 +53,46 @@ func cleanupTerraform(t *testing.T, workingDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 	terraform.Destroy(t, terraformOptions)
 	test_structure.CleanupTestDataFolder(t, workingDir)
+}
+
+func removeSecurityGroups(t *testing.T, workingDir string) {
+	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+	vpcId := terraform.Output(t, terraformOptions, "vpc_id")
+	client := ec2.New(session.New())
+	input := &ec2.DescribeSecurityGroupsInput{
+		Filters: []*ec2.Filter{
+			{
+				Name: aws.String("vpc-id"),
+				Values: []*string{
+					aws.String(vpcId),
+				},
+			},
+		},
+	}
+	err := client.DescribeSecurityGroupsPages(
+		input,
+		func(page *ec2.DescribeSecurityGroupsOutput, lastPage bool) bool {
+			for _, sg := range page.SecurityGroups {
+				if *sg.GroupName == "default" {
+					continue
+				}
+				fmt.Println("Deleting security group:", *sg.GroupName, *sg.GroupId)
+				deleteInput := &ec2.DeleteSecurityGroupInput{
+					GroupId: aws.String(*sg.GroupId),
+				}
+				_, err := client.DeleteSecurityGroup(deleteInput)
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+
+			}
+			return !lastPage
+		},
+	)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 }
 
 func writeKubeconfig(t *testing.T, opts ...string) string {
