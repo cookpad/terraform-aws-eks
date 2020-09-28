@@ -59,6 +59,16 @@ func removeSecurityGroups(t *testing.T, workingDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 	vpcId := terraform.Output(t, terraformOptions, "vpc_id")
 	client := ec2.New(session.New(&aws.Config{Region: aws.String("us-east-1")}))
+	securityGroups(t, client, vpcId, func(sg *ec2.SecurityGroup) {
+		revokeRules(t, client, sg)
+	})
+	securityGroups(t, client, vpcId, func(sg *ec2.SecurityGroup) {
+		deleteSecurityGroup(t, client, sg)
+	})
+
+}
+
+func securityGroups(t *testing.T, client *ec2.EC2, vpcId string, function func(*ec2.SecurityGroup)) {
 	input := &ec2.DescribeSecurityGroupsInput{
 		Filters: []*ec2.Filter{
 			{
@@ -73,18 +83,7 @@ func removeSecurityGroups(t *testing.T, workingDir string) {
 		input,
 		func(page *ec2.DescribeSecurityGroupsOutput, lastPage bool) bool {
 			for _, sg := range page.SecurityGroups {
-				if *sg.GroupName == "default" {
-					continue
-				}
-				logger.Log(t, "Deleting security group:", *sg.GroupName, *sg.GroupId)
-				deleteInput := &ec2.DeleteSecurityGroupInput{
-					GroupId: aws.String(*sg.GroupId),
-				}
-				_, err := client.DeleteSecurityGroup(deleteInput)
-				if err != nil {
-					logger.Log(t, err.Error())
-				}
-
+				function(sg)
 			}
 			return !lastPage
 		},
@@ -92,7 +91,33 @@ func removeSecurityGroups(t *testing.T, workingDir string) {
 	if err != nil {
 		logger.Log(t, err.Error())
 	}
+}
 
+func deleteSecurityGroup(t *testing.T, client *ec2.EC2, sg *ec2.SecurityGroup) {
+	if *sg.GroupName == "default" {
+		return
+	}
+	logger.Log(t, "Deleting security group:", *sg.GroupName, *sg.GroupId)
+	deleteInput := &ec2.DeleteSecurityGroupInput{
+		GroupId: aws.String(*sg.GroupId),
+	}
+	_, err := client.DeleteSecurityGroup(deleteInput)
+	if err != nil {
+		logger.Log(t, err.Error())
+	}
+}
+
+func revokeRules(t *testing.T, client *ec2.EC2, sg *ec2.SecurityGroup) {
+	for _, permission := range sg.IpPermissions {
+		input := &ec2.RevokeSecurityGroupIngressInput{
+			GroupId:       aws.String(*sg.GroupId),
+			IpPermissions: []*ec2.IpPermission{permission},
+		}
+		_, err := client.RevokeSecurityGroupIngress(input)
+		if err != nil {
+			logger.Log(t, err.Error())
+		}
+	}
 }
 
 func writeKubeconfig(t *testing.T, opts ...string) string {
