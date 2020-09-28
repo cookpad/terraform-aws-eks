@@ -76,13 +76,13 @@ func removeSecurityGroups(t *testing.T, workingDir string) {
 				if *sg.GroupName == "default" {
 					continue
 				}
-				fmt.Println("Deleting security group:", *sg.GroupName, *sg.GroupId)
+				logger.Log(t, "Deleting security group:", *sg.GroupName, *sg.GroupId)
 				deleteInput := &ec2.DeleteSecurityGroupInput{
 					GroupId: aws.String(*sg.GroupId),
 				}
 				_, err := client.DeleteSecurityGroup(deleteInput)
 				if err != nil {
-					fmt.Println(err.Error())
+					logger.Log(t, err.Error())
 				}
 
 			}
@@ -90,7 +90,7 @@ func removeSecurityGroups(t *testing.T, workingDir string) {
 		},
 	)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Log(t, err.Error())
 	}
 
 }
