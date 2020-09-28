@@ -25,6 +25,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
 	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
 		cleanupTerraform(t, workingDir)
+		removeSecurityGroups(t, environmentDir)
 		cleanupTerraform(t, environmentDir)
 	})
 
