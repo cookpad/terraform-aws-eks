@@ -58,7 +58,7 @@ func cleanupTerraform(t *testing.T, workingDir string) {
 func removeSecurityGroups(t *testing.T, workingDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 	vpcId := terraform.Output(t, terraformOptions, "vpc_id")
-	client := ec2.New(session.New())
+	client := ec2.New(session.New(&aws.Config{Region: aws.String("us-east-1")}))
 	input := &ec2.DescribeSecurityGroupsInput{
 		Filters: []*ec2.Filter{
 			{
