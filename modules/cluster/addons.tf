@@ -21,9 +21,12 @@ module "critical_addons_node_group" {
 data "aws_region" "current" {}
 
 module "aws_k8s_cni" {
-  source   = "./kubectl"
-  config   = local.config
-  manifest = file("${path.module}/addons/aws-k8s-cni.yaml")
+  source = "./kubectl"
+  config = local.config
+  manifest = templatefile(
+    "${path.module}/addons/aws-k8s-cni.yaml",
+    { aws_region = data.aws_region.current.name },
+  )
 }
 
 data "aws_vpc" "network" {
