@@ -28,8 +28,6 @@ module "eks" {
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 ```
-[see example](https://github.com/cookpad/terraform-aws-eks/blob/master/examples/eks/main.tf)
-
 For more advanced uses, we recommend that you construct and configure
 your clusters using the submodules.
 
