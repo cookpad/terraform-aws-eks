@@ -77,12 +77,23 @@ spec:
                 operator: In
                 values:
                 - amd64
+                - arm64
+            - matchExpressions:
+              - key: "kubernetes.io/os"
+                operator: In
+                values:
+                - linux
+              - key: "kubernetes.io/arch"
+                operator: In
+                values:
+                - amd64
+                - arm64
       containers:
       - command:
         - /bin/sh
         - -c
         - kube-proxy --v=2 --config=/var/lib/kube-proxy-config/config
-        image: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/eks/kube-proxy:v1.16.8
+        image: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/eks/kube-proxy:v1.16.13-eksbuild.1
         imagePullPolicy: IfNotPresent
         name: kube-proxy
         resources:
