@@ -47,8 +47,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 			"cidr_block":   vpcCidr,
 		})
 		deployTerraform(t, workingDir, map[string]interface{}{
-			"cluster_name":       clusterName,
-			"aws_ebs_csi_driver": false,
+			"cluster_name": clusterName,
 		})
 	})
 
@@ -92,7 +91,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateClusterAutoscaler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
-		deployTerraform(t, workingDir, map[string]interface{}{
+		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
 			"aws_ebs_csi_driver": true,
 		})
 		validateStorage(t, kubeconfig)

@@ -49,6 +49,14 @@ func deployTerraform(t *testing.T, workingDir string, vars map[string]interface{
 	terraform.InitAndApply(t, terraformOptions)
 }
 
+func overideAndApplyTerraform(t *testing.T, workingDir string, vars map[string]interface{}) {
+	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+	for k, v := range vars {
+		terraformOptions.Vars[k] = v
+	}
+	terraform.InitAndApply(t, terraformOptions)
+}
+
 func cleanupTerraform(t *testing.T, workingDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 	terraform.Destroy(t, terraformOptions)
