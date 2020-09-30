@@ -37,7 +37,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		cleanupTerraform(t, environmentDir)
 	})
 
-	test_structure.RunTestStage(t, "deploy_terraform", func() {
+	test_structure.RunTestStage(t, "deploy_cluster", func() {
 		uniqueId := random.UniqueId()
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
 		vpcCidr := aws.GetRandomPrivateCidrBlock(18)
@@ -46,11 +46,12 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 			"cidr_block":   vpcCidr,
 		})
 		deployTerraform(t, workingDir, map[string]interface{}{
-			"cluster_name": clusterName,
+			"cluster_name":       clusterName,
+			"aws_ebs_csi_driver": false,
 		})
 	})
 
-	test_structure.RunTestStage(t, "validate", func() {
+	test_structure.RunTestStage(t, "validate_cluster", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
 		defer os.Remove(kubeconfig)
@@ -58,10 +59,18 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateSecretsBehaviour(t, kubeconfig)
 		validateDNS(t, kubeconfig)
 		validateMetricsServer(t, kubeconfig)
-		validateClusterAutoscaler(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
+	})
+
+	test_structure.RunTestStage(t, "validate_standard_node_group", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
+		defer os.Remove(kubeconfig)
+		nodeGroupDir := "../examples/cluster/standard_node_group"
+		deployTerraform(t, nodeGroupDir, map[string]interface{}{})
+		defer cleanupTerraform(t, nodeGroupDir)
 		validateNodeTerminationHandler(t, kubeconfig)
-		validateGPUNodes(t, kubeconfig)
+		validateClusterAutoscaler(t, kubeconfig)
 		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
 		defer os.Remove(admin_kubeconfig)
 		validateAdminRole(t, admin_kubeconfig)
@@ -71,6 +80,17 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		})
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
+	})
+
+	test_structure.RunTestStage(t, "validate_gpu_node_group", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
+		defer os.Remove(kubeconfig)
+		gpuNodeGroupDir := "../examples/cluster/gpu_node_group"
+		deployTerraform(t, gpuNodeGroupDir, map[string]interface{}{})
+		defer cleanupTerraform(t, gpuNodeGroupDir)
+		validateGPUNodes(t, kubeconfig)
+		validateNodeTerminationHandler(t, kubeconfig)
 	})
 }
 
@@ -242,7 +262,7 @@ func validateGPUNodes(t *testing.T, kubeconfig string) {
 	workload := fmt.Sprintf(EXAMPLE_GPU_WORKLOAD, namespace, namespace)
 	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
 	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
-	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=gpu-test-workload"}, 1, 30, 10*time.Second)
+	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=gpu-test-workload"}, 1, 30, 32*time.Second)
 }
 
 const EXAMPLE_GPU_WORKLOAD = `---
