@@ -29,6 +29,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 
 	environmentDir := "../examples/cluster/environment"
 	workingDir := "../examples/cluster"
+	awsRegion := "us-east-1"
 
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
 	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
@@ -75,6 +76,9 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateDNS(t, kubeconfig)
 		validateMetricsServer(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
+		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
+		defer os.Remove(admin_kubeconfig)
+		validateAdminRole(t, admin_kubeconfig)
 	})
 
 	test_structure.RunTestStage(t, "validate_standard_node_group", func() {
@@ -86,19 +90,12 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer cleanupTerraform(t, nodeGroupDir)
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
-		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
-		defer os.Remove(admin_kubeconfig)
-		validateAdminRole(t, admin_kubeconfig)
-		validateStorage(t, kubeconfig)
-		deployTerraform(t, workingDir, map[string]interface{}{
-			"aws_ebs_csi_driver": true,
-		})
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
 		deployTerraform(t, workingDir, map[string]interface{}{
-			"cluster_name":       clusterName,
 			"aws_ebs_csi_driver": true,
 		})
+		validateStorage(t, kubeconfig)
 	})
 
 	test_structure.RunTestStage(t, "validate_gpu_node_group", func() {
@@ -233,7 +230,7 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	waitForNodes(t, kubectlOptions, 2)
 
 	// Check that the example workload pods can all run
-	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=test-workload"}, 2, 50, 6*time.Second)
+	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=test-workload"}, 2, 50, 32*time.Second)
 }
 
 const EXAMPLE_WORKLOAD = `---
