@@ -51,6 +51,21 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		})
 	})
 
+	test_structure.RunTestStage(t, "validate_vpc", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, environmentDir)
+		vpcId := terraform.Output(t, terraformOptions, "vpc_id")
+		subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
+		require.Equal(t, 6, len(subnets))
+
+		for _, subnetId := range terraform.OutputList(t, terraformOptions, "public_subnet_ids") {
+			assert.True(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
+		}
+
+		for _, subnetId := range terraform.OutputList(t, terraformOptions, "private_subnet_ids") {
+			assert.False(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
+		}
+	})
+
 	test_structure.RunTestStage(t, "validate_cluster", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
@@ -80,6 +95,10 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		})
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
+		deployTerraform(t, workingDir, map[string]interface{}{
+			"cluster_name":       clusterName,
+			"aws_ebs_csi_driver": true,
+		})
 	})
 
 	test_structure.RunTestStage(t, "validate_gpu_node_group", func() {
