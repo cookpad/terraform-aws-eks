@@ -48,7 +48,8 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 			"cidr_block":   vpcCidr,
 		})
 		deployTerraform(t, workingDir, map[string]interface{}{
-			"cluster_name": clusterName,
+			"cluster_name":       clusterName,
+			"aws_ebs_csi_driver": false,
 		})
 	})
 
