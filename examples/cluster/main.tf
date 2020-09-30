@@ -9,8 +9,8 @@ module "cluster" {
 
   name = var.cluster_name
 
-  vpc_config = local.vpc_config
-  iam_config = local.iam_config
+  vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
+  iam_config = data.terraform_remote_state.environment.outputs.iam_config
 
   envelope_encryption_enabled = false
   metrics_server              = true
@@ -30,42 +30,5 @@ module "cluster" {
 
   tags = {
     Project = "terraform-aws-eks"
-  }
-}
-
-module "node_group" {
-  source = "../../modules/asg_node_group"
-
-  cluster_config = module.cluster.config
-
-  name     = "standard-nodes"
-  key_name = "development"
-
-  labels = {
-    "cookpad.com/terraform-aws-eks-test-environment" = var.cluster_name
-  }
-}
-
-module "gpu_nodes" {
-  source = "../../modules/asg_node_group"
-
-  cluster_config = module.cluster.config
-
-  name     = "gpu-nodes"
-  key_name = "development"
-
-  gpu             = true
-  instance_family = "gpu"
-  instance_size   = "2xlarge"
-  instance_types  = ["p3.2xlarge"]
-  zone_awareness  = false
-  min_size        = 1
-
-  labels = {
-    "k8s.amazonaws.com/accelerator" = "nvidia-tesla-v100"
-  }
-
-  taints = {
-    "nvidia.com/gpu" = "gpu:NoSchedule"
   }
 }
