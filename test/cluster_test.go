@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -89,6 +90,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer cleanupTerraform(t, nodeGroupDir)
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
+		validateKubeBench(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
 		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
@@ -105,6 +107,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		deployTerraform(t, gpuNodeGroupDir, map[string]interface{}{})
 		defer cleanupTerraform(t, gpuNodeGroupDir)
 		validateGPUNodes(t, kubeconfig)
+		validateKubeBench(t, kubeconfig)
 		validateNodeTerminationHandler(t, kubeconfig)
 	})
 }
@@ -444,4 +447,75 @@ spec:
             backend:
               serviceName: echoserver
               servicePort: 80
+`
+
+func validateKubeBench(t *testing.T, kubeconfig string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-bench")
+	defer k8s.KubectlDeleteFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
+	k8s.KubectlApplyFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
+	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=kube-bench"}, 1, 30, 5*time.Second)
+	output, err := k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "logs", "-l", "app=kube-bench")
+	require.NoError(t, err)
+	results := make([]KubeBenchResult, 1)
+	err = json.Unmarshal([]byte(output), &results)
+	require.NoError(t, err)
+	result := results[0]
+	assert.Equal(t, result.TotalFail, 0)
+	// https://github.com/awslabs/amazon-eks-ami/pull/391
+	assert.LessOrEqual(t, result.TotalWarn, 1)
+}
+
+type KubeBenchResult struct {
+	TotalPass int `json:total_pass`
+	TotalFail int `json:total_fail`
+	TotalWarn int `json:total_warn`
+	TotalInfo int `json:total_info`
+}
+
+const KUBEBENCH_MANIFEST = `---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-bench
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-bench
+  namespace: kube-bench
+spec:
+  template:
+    metadata:
+      labels:
+        app: kube-bench
+    spec:
+      hostPID: true
+      containers:
+        - name: kube-bench
+          image: aquasec/kube-bench:latest
+          command: ["kube-bench", "node", "--benchmark", "eks-1.0", "--json"]
+          volumeMounts:
+            - name: var-lib-kubelet
+              mountPath: /var/lib/kubelet
+              readOnly: true
+            - name: etc-systemd
+              mountPath: /etc/systemd
+              readOnly: true
+            - name: etc-kubernetes
+              mountPath: /etc/kubernetes
+              readOnly: true
+      restartPolicy: Never
+      volumes:
+        - name: var-lib-kubelet
+          hostPath:
+            path: "/var/lib/kubelet"
+        - name: etc-systemd
+          hostPath:
+            path: "/etc/systemd"
+        - name: etc-kubernetes
+          hostPath:
+            path: "/etc/kubernetes"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
 `
