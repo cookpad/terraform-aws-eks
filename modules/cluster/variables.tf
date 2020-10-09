@@ -222,3 +222,10 @@ variable "critical_addons_node_group_security_groups" {
   default     = []
   description = "Additional security groups for the nodes"
 }
+
+variable "critical_addons_node_group_bottlerocket" {
+  type        = bool
+  default     = false
+  description = "Use Bottlerocket OS, rather than Amazon Linux for the critical addons node group"
+}
+

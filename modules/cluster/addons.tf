@@ -11,6 +11,7 @@ module "critical_addons_node_group" {
   cloud_config    = var.critical_addons_node_group_cloud_config
   key_name        = var.critical_addons_node_group_key_name
   security_groups = var.critical_addons_node_group_security_groups
+  bottlerocket    = var.critical_addons_node_group_bottlerocket
 
   zone_awareness = false
   taints = {

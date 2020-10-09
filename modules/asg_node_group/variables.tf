@@ -157,6 +157,7 @@ variable "cluster_autoscaler" {
 }
 
 variable "bottlerocket" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
+  description = "Use Bottlerocket OS, rather than Amazon Linux"
 }
