@@ -48,7 +48,8 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 			"cidr_block":   vpcCidr,
 		})
 		deployTerraform(t, workingDir, map[string]interface{}{
-			"cluster_name": clusterName,
+			"cluster_name":       clusterName,
+			"aws_ebs_csi_driver": false,
 		})
 	})
 
@@ -88,15 +89,32 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		nodeGroupDir := "../examples/cluster/standard_node_group"
 		deployTerraform(t, nodeGroupDir, map[string]interface{}{})
 		defer cleanupTerraform(t, nodeGroupDir)
-		validateNodeTerminationHandler(t, kubeconfig)
 		validateClusterAutoscaler(t, kubeconfig)
 		validateKubeBench(t, kubeconfig)
+		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
 		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
 			"aws_ebs_csi_driver": true,
 		})
 		validateStorage(t, kubeconfig)
+	})
+
+	test_structure.RunTestStage(t, "validate_bottlerocket_node_group", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
+		defer os.Remove(kubeconfig)
+		nodeGroupDir := "../examples/cluster/bottlerocket_node_group"
+		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
+			"aws_ebs_csi_driver": true,
+		})
+		deployTerraform(t, nodeGroupDir, map[string]interface{}{})
+		defer cleanupTerraform(t, nodeGroupDir)
+		validateClusterAutoscaler(t, kubeconfig)
+		validateKubeBench(t, kubeconfig)
+		validateNodeTerminationHandler(t, kubeconfig)
+		validateStorage(t, kubeconfig)
+		validateIngress(t, kubeconfig)
 	})
 
 	test_structure.RunTestStage(t, "validate_gpu_node_group", func() {
