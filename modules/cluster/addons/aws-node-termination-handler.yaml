@@ -6,10 +6,10 @@ metadata:
   name: aws-node-termination-handler
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.9.5
+    helm.sh/chart: aws-node-termination-handler-0.10.0
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.0"
   annotations:
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
 spec:
@@ -40,10 +40,10 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.9.5
+    helm.sh/chart: aws-node-termination-handler-0.10.0
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.0"
 ---
 # Source: aws-node-termination-handler/templates/clusterrole.yaml
 kind: ClusterRole
@@ -91,10 +91,10 @@ metadata:
   name: aws-node-termination-handler-psp
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.9.5
+    helm.sh/chart: aws-node-termination-handler-0.10.0
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.0"
 rules:
   - apiGroups: ['policy']
     resources: ['podsecuritypolicies']
@@ -123,10 +123,10 @@ metadata:
   name: aws-node-termination-handler-psp
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.9.5
+    helm.sh/chart: aws-node-termination-handler-0.10.0
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.0"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -144,10 +144,10 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.9.5
+    helm.sh/chart: aws-node-termination-handler-0.10.0
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.0"
 spec:
   updateStrategy:
     rollingUpdate:
@@ -195,7 +195,7 @@ spec:
       dnsPolicy: "ClusterFirstWithHostNet"
       containers:
         - name: aws-node-termination-handler
-          image: amazon/aws-node-termination-handler:v1.7.0
+          image: amazon/aws-node-termination-handler:v1.8.0
           imagePullPolicy: IfNotPresent
           securityContext:
             readOnlyRootFilesystem: true
