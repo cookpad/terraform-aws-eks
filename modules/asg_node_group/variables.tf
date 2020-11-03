@@ -161,3 +161,21 @@ variable "bottlerocket" {
   default     = false
   description = "Use Bottlerocket OS, rather than Amazon Linux"
 }
+
+variable "bottlerocket_admin_container_enabled" {
+  type        = bool
+  default     = false
+  description = "Should the bottlerocket admin container (for ssh access) be enabled by default"
+}
+
+variable "bottlerocket_admin_container_superpowered" {
+  type        = bool
+  default     = true
+  description = "Whether the admin container has high levels of access to the Bottlerocket host."
+}
+
+variable "bottlerocket_admin_container_source" {
+  type        = string
+  default     = ""
+  description = "URI of a custom admin container image"
+}
