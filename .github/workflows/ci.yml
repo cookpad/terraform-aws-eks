@@ -54,3 +54,6 @@ jobs:
           AWS_ROLE_ARN: "arn:aws:iam::214219211678:role/TerraformAWSEKSTests"
         with:
           args: "-run TestTerraformAwsEksCluster"
+      - name: 'Cleanup'
+        if: ${{ failure() }}
+        uses: ./.github/actions/cleanup
