@@ -2,6 +2,6 @@
 
 set -euo pipefail
 
-source /assume_role.sh
+source /app/assume_role.sh
 
 /app/cleanup
