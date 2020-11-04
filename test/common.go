@@ -26,14 +26,14 @@ import (
 
 // Exports a variable so other github actions steps can use it!
 // See https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#set-an-environment-variable-set-env
-func exportVar(name string, value string) {
-	if githubEnv := os.GetEnv("GITHUB_ENV"); githubEnv != "" {
+func exportVar(t *testing.T, name string, value string) {
+	if githubEnv := os.Getenv("GITHUB_ENV"); githubEnv != "" {
 		f, err := os.OpenFile(githubEnv, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		defer f.Close()
 		if err != nil {
 			logger.Log(t, err.Error())
 		}
-		if _, err := f.WriteString("TERRAFORM_AWS_EKS_TEST_CLUSTER_NAME=" + clusterName + "\n"); err != nil {
+		if _, err := f.WriteString(name + "=" + value + "\n"); err != nil {
 			logger.Log(t, err.Error())
 		}
 	}
