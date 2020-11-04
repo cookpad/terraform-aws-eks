@@ -1,0 +1,5 @@
+name: 'Cleanup'
+description: 'Cleanup environment if something went wrong'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
