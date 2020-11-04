@@ -1,8 +1,7 @@
 FROM alpine:3.12.1
 
 WORKDIR /app
-RUN apk add --no-cache go
+RUN apk add --no-cache go bash
 ADD . /app
 RUN go build -o cleanup .
-COPY *.sh ./
 ENTRYPOINT ["/app/entrypoint.sh"]
