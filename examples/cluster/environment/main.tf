@@ -7,14 +7,11 @@ provider "aws" {
 module "vpc" {
   source = "../../../modules/vpc"
 
-  name               = var.cluster_name
+  name               = var.vpc_name
   cidr_block         = var.cidr_block
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1d"]
 }
 
 module "iam" {
   source = "../../../modules/iam"
-
-  service_role_name = "eksServiceRole-${var.cluster_name}"
-  node_role_name    = "EKSNode-${var.cluster_name}"
 }

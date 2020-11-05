@@ -12,5 +12,3 @@ clean() {
 
 cd examples/cluster
 clean
-cd environment
-clean
