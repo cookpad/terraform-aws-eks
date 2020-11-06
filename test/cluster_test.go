@@ -42,7 +42,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 	test_structure.RunTestStage(t, "deploy_cluster", func() {
 		uniqueId := random.UniqueId()
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
-		exportVar(t, "TERRAFORM_AWS_EKS_TEST_CLUSTER_NAME", clusterName)
 		vpcCidr := aws.GetRandomPrivateCidrBlock(18)
 		deployTerraform(t, environmentDir, map[string]interface{}{
 			"cluster_name": clusterName,
