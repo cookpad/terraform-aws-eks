@@ -2,18 +2,15 @@ package test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
-	"github.com/gruntwork-io/terratest/modules/shell"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 
@@ -34,18 +31,12 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
 	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
 		cleanupTerraform(t, workingDir)
-		removeSecurityGroups(t, environmentDir)
-		cleanupTerraform(t, environmentDir)
 	})
 
 	test_structure.RunTestStage(t, "deploy_terraform", func() {
 		uniqueId := random.UniqueId()
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
-		vpcCidr := aws.GetRandomPrivateCidrBlock(18)
-		deployTerraform(t, environmentDir, map[string]interface{}{
-			"cluster_name": clusterName,
-			"cidr_block":   vpcCidr,
-		})
+		deployTerraform(t, environmentDir, map[string]interface{}{})
 		deployTerraform(t, workingDir, map[string]interface{}{
 			"cluster_name": clusterName,
 		})
@@ -312,57 +303,4 @@ func validateNodeExporter(t *testing.T, kubeconfig string) {
 	for _, pod := range k8s.ListPods(t, kubectlOptions, filters) {
 		k8s.WaitUntilPodAvailable(t, kubectlOptions, pod.Name, 6, 10*time.Second)
 	}
-}
-
-func writeKubeconfig(t *testing.T, opts ...string) string {
-	file, err := ioutil.TempFile(os.TempDir(), "kubeconfig-")
-	require.NoError(t, err)
-	args := []string{
-		"eks",
-		"update-kubeconfig",
-		"--name", opts[0],
-		"--kubeconfig", file.Name(),
-		"--region", "us-east-1",
-	}
-	if len(opts) > 1 {
-		args = append(args, "--role-arn", opts[1])
-	}
-	shell.RunCommand(t, shell.Command{
-		Command: "aws",
-		Args:    args,
-	})
-	return file.Name()
-}
-
-func waitForCluster(t *testing.T, kubectlOptions *k8s.KubectlOptions) {
-	maxRetries := 40
-	sleepBetweenRetries := 10 * time.Second
-	retry.DoWithRetry(t, "Check that access to the k8s api works", maxRetries, sleepBetweenRetries, func() (string, error) {
-		// Try an operation on the API to check it works
-		_, err := k8s.GetServiceAccountE(t, kubectlOptions, "default")
-		return "", err
-	})
-
-}
-
-func waitForNodes(t *testing.T, kubectlOptions *k8s.KubectlOptions, numNodes int) {
-	maxRetries := 40
-	sleepBetweenRetries := 10 * time.Second
-	retry.DoWithRetry(t, "wait for nodes to launch", maxRetries, sleepBetweenRetries, func() (string, error) {
-		nodes, err := k8s.GetNodesE(t, kubectlOptions)
-
-		if err != nil {
-			return "", err
-		}
-
-		// Wait for at least n nodes to start
-		if len(nodes) < numNodes {
-			return "", fmt.Errorf("less than %d nodes started", numNodes)
-		}
-
-		return "", err
-	})
-
-	// Wait for the nodes to be ready
-	k8s.WaitUntilAllNodesReady(t, kubectlOptions, maxRetries, sleepBetweenRetries)
 }
