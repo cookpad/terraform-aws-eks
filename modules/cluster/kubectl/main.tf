@@ -2,9 +2,9 @@ locals {
   command = templatefile(
     "${path.module}/command.sh",
     {
-      kubeconfig_path   = "${path.module}/${sha1(var.manifest)}.kubeconfig"
-      replace      = var.replace ? [1] : []
-      apply        = var.replace ? [] : [1]
+      kubeconfig_path = "${path.module}/${sha1(var.manifest)}.kubeconfig"
+      replace         = var.replace ? [1] : []
+      apply           = var.replace ? [] : [1]
     }
   )
   kubeconfig = templatefile(
@@ -34,8 +34,8 @@ resource "null_resource" "apply" {
     command     = local.command
     interpreter = ["/bin/sh", "-ec"]
     environment = {
-       KUBECONFIG = local.kubeconfig
-       MANIFEST = var.manifest
+      KUBECONFIG = local.kubeconfig
+      MANIFEST   = var.manifest
     }
   }
 }
