@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
@@ -31,18 +30,12 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
 	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
 		cleanupTerraform(t, workingDir)
-		removeSecurityGroups(t, environmentDir)
-		cleanupTerraform(t, environmentDir)
 	})
 
 	test_structure.RunTestStage(t, "deploy_terraform", func() {
 		uniqueId := random.UniqueId()
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
-		vpcCidr := aws.GetRandomPrivateCidrBlock(18)
-		deployTerraform(t, environmentDir, map[string]interface{}{
-			"cluster_name": clusterName,
-			"cidr_block":   vpcCidr,
-		})
+		deployTerraform(t, environmentDir, map[string]interface{}{})
 		deployTerraform(t, workingDir, map[string]interface{}{
 			"cluster_name": clusterName,
 		})

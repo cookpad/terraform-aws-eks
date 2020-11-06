@@ -9,8 +9,8 @@ module "cluster" {
 
   name = var.cluster_name
 
-  vpc_config = local.vpc_config
-  iam_config = local.iam_config
+  vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
+  iam_config = data.terraform_remote_state.environment.outputs.iam_config
 
   envelope_encryption_enabled = false
   metrics_server              = true
