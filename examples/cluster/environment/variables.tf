@@ -1,6 +1,6 @@
-variable "cluster_name" {
+variable "vpc_name" {
   type    = string
-  default = "test-cluster"
+  default = "terraform-aws-eks-test-environment"
 }
 
 variable "cidr_block" {

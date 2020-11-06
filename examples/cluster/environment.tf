@@ -3,9 +3,11 @@
 # This is in order to simulate launching a cluster in an existing VPC!
 
 data "terraform_remote_state" "environment" {
-  backend = "local"
+  backend = "s3"
 
   config = {
-    path = "${path.module}/environment/terraform.tfstate"
+    bucket = "cookpad-terraform-aws-eks-testing"
+    key    = "test-environment"
+    region = "us-east-1"
   }
 }
