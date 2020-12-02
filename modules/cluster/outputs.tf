@@ -17,7 +17,7 @@ output "config" {
   value = local.config
 }
 
-output "odic_config" {
+output "oidc_config" {
   value = {
     url       = aws_iam_openid_connect_provider.cluster_oidc.url
     arn       = aws_iam_openid_connect_provider.cluster_oidc.arn
