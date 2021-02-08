@@ -468,20 +468,24 @@ func validateKubeBench(t *testing.T, kubeconfig string) {
 	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=kube-bench"}, 1, 30, 5*time.Second)
 	output, err := k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "logs", "-l", "app=kube-bench")
 	require.NoError(t, err)
-	results := make([]KubeBenchResult, 1)
-	err = json.Unmarshal([]byte(output), &results)
+	resultWrapper := KubeBenchResult{}
+	err = json.Unmarshal([]byte(output), &resultWrapper)
 	require.NoError(t, err)
-	result := results[0]
+	result := resultWrapper.Totals
 	assert.Equal(t, result.TotalFail, 0)
 	// https://github.com/awslabs/amazon-eks-ami/pull/391
 	assert.LessOrEqual(t, result.TotalWarn, 1)
 }
 
 type KubeBenchResult struct {
-	TotalPass int `json:total_pass`
-	TotalFail int `json:total_fail`
-	TotalWarn int `json:total_warn`
-	TotalInfo int `json:total_info`
+	Totals KubeBenchResultTotals `json:"Totals"`
+}
+
+type KubeBenchResultTotals struct {
+	TotalPass int `json:"total_pass"`
+	TotalFail int `json:"total_fail"`
+	TotalWarn int `json:"total_warn"`
+	TotalInfo int `json:"total_info"`
 }
 
 const KUBEBENCH_MANIFEST = `---
