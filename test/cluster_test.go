@@ -472,9 +472,13 @@ func validateKubeBench(t *testing.T, kubeconfig string) {
 	err = json.Unmarshal([]byte(output), &resultWrapper)
 	require.NoError(t, err)
 	result := resultWrapper.Totals
-	assert.Equal(t, 0, result.TotalFail)
+	if !assert.Equal(t, 0, result.TotalFail) {
+		fmt.Printf(`non-zero total_fail: %s`, output)
+	}
 	// https://github.com/awslabs/amazon-eks-ami/pull/391
-	assert.LessOrEqual(t, result.TotalWarn, 1)
+	if !assert.LessOrEqual(t, result.TotalWarn, 1) {
+		fmt.Printf(`>=1 total_warn: %s`, output)
+	}
 }
 
 type KubeBenchResult struct {
