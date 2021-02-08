@@ -472,7 +472,7 @@ func validateKubeBench(t *testing.T, kubeconfig string) {
 	err = json.Unmarshal([]byte(output), &resultWrapper)
 	require.NoError(t, err)
 	result := resultWrapper.Totals
-	assert.Equal(t, result.TotalFail, 0)
+	assert.Equal(t, 0, result.TotalFail)
 	// https://github.com/awslabs/amazon-eks-ami/pull/391
 	assert.LessOrEqual(t, result.TotalWarn, 1)
 }
