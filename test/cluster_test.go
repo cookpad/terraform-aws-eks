@@ -105,7 +105,8 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		deployTerraform(t, nodeGroupDir, map[string]interface{}{})
 		defer cleanupTerraform(t, nodeGroupDir)
 		validateClusterAutoscaler(t, kubeconfig)
-		validateKubeBench(t, kubeconfig)
+		// https://github.com/bottlerocket-os/bottlerocket/pull/1295
+		validateKubeBenchExpectedFails(t, kubeconfig, 2)
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
@@ -462,6 +463,10 @@ spec:
 `
 
 func validateKubeBench(t *testing.T, kubeconfig string) {
+	validateKubeBenchExpectedFails(t, kubeconfig, 0)
+}
+
+func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedFails int) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-bench")
 	defer k8s.KubectlDeleteFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
 	k8s.KubectlApplyFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
@@ -472,8 +477,8 @@ func validateKubeBench(t *testing.T, kubeconfig string) {
 	err = json.Unmarshal([]byte(output), &resultWrapper)
 	require.NoError(t, err)
 	result := resultWrapper.Totals
-	if !assert.Equal(t, 0, result.TotalFail) {
-		fmt.Printf(`non-zero total_fail: %s`, output)
+	if !assert.Equal(t, expectedFails, result.TotalFail) {
+		fmt.Printf(`unexpected total_fail: %s`, output)
 	}
 	// https://github.com/awslabs/amazon-eks-ami/pull/391
 	if !assert.LessOrEqual(t, result.TotalWarn, 1) {
@@ -492,11 +497,279 @@ type KubeBenchResultTotals struct {
 	TotalInfo int `json:"total_info"`
 }
 
+// Override kube-bench config.yaml for bottlerocket support
+// This should be fixed with kube-bench 0.6.0
+// https://github.com/aquasecurity/kube-bench/issues/808
 const KUBEBENCH_MANIFEST = `---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: kube-bench
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-bench-config
+  namespace: kube-bench
+data:
+  config.yaml: |
+    ---
+    ## Controls Files.
+    # These are YAML files that hold all the details for running checks.
+    #
+    ## Uncomment to use different control file paths.
+    # masterControls: ./cfg/master.yaml
+    # nodeControls: ./cfg/node.yaml
+
+    master:
+      components:
+        - apiserver
+        - scheduler
+        - controllermanager
+        - etcd
+        - flanneld
+        # kubernetes is a component to cover the config file /etc/kubernetes/config that is referred to in the benchmark
+        - kubernetes
+
+      kubernetes:
+        defaultconf: /etc/kubernetes/config
+
+      apiserver:
+        bins:
+          - "kube-apiserver"
+          - "hyperkube apiserver"
+          - "hyperkube kube-apiserver"
+          - "apiserver"
+        confs:
+          - /etc/kubernetes/manifests/kube-apiserver.yaml
+          - /etc/kubernetes/manifests/kube-apiserver.yml
+          - /etc/kubernetes/manifests/kube-apiserver.manifest
+          - /var/snap/kube-apiserver/current/args
+          - /var/snap/microk8s/current/args/kube-apiserver
+        defaultconf: /etc/kubernetes/manifests/kube-apiserver.yaml
+
+      scheduler:
+        bins:
+          - "kube-scheduler"
+          - "hyperkube scheduler"
+          - "hyperkube kube-scheduler"
+          - "scheduler"
+        confs:
+          - /etc/kubernetes/manifests/kube-scheduler.yaml
+          - /etc/kubernetes/manifests/kube-scheduler.yml
+          - /etc/kubernetes/manifests/kube-scheduler.manifest
+          - /var/snap/kube-scheduler/current/args
+          - /var/snap/microk8s/current/args/kube-scheduler
+        defaultconf: /etc/kubernetes/manifests/kube-scheduler.yaml
+        kubeconfig:
+          - /etc/kubernetes/scheduler.conf
+        defaultkubeconfig: /etc/kubernetes/scheduler.conf
+
+      controllermanager:
+        bins:
+          - "kube-controller-manager"
+          - "kube-controller"
+          - "hyperkube controller-manager"
+          - "hyperkube kube-controller-manager"
+          - "controller-manager"
+        confs:
+          - /etc/kubernetes/manifests/kube-controller-manager.yaml
+          - /etc/kubernetes/manifests/kube-controller-manager.yml
+          - /etc/kubernetes/manifests/kube-controller-manager.manifest
+          - /var/snap/kube-controller-manager/current/args
+          - /var/snap/microk8s/current/args/kube-controller-manager
+        defaultconf: /etc/kubernetes/manifests/kube-controller-manager.yaml
+        kubeconfig:
+          - /etc/kubernetes/controller-manager.conf
+        defaultkubeconfig: /etc/kubernetes/controller-manager.conf
+
+      etcd:
+        optional: true
+        bins:
+          - "etcd"
+        confs:
+          - /etc/kubernetes/manifests/etcd.yaml
+          - /etc/kubernetes/manifests/etcd.yml
+          - /etc/kubernetes/manifests/etcd.manifest
+          - /etc/etcd/etcd.conf
+          - /var/snap/etcd/common/etcd.conf.yml
+          - /var/snap/etcd/common/etcd.conf.yaml
+          - /var/snap/microk8s/current/args/etcd
+          - /usr/lib/systemd/system/etcd.service
+          - /etc/kubernetes/manifests
+        defaultconf: /etc/kubernetes/manifests/etcd.yaml
+
+      flanneld:
+        optional: true
+        bins:
+          - flanneld
+        defaultconf: /etc/sysconfig/flanneld
+
+    node:
+      components:
+        - kubelet
+        - proxy
+        # kubernetes is a component to cover the config file /etc/kubernetes/config that is referred to in the benchmark
+        - kubernetes
+
+      kubernetes:
+        defaultconf: "/etc/kubernetes/config"
+
+      kubelet:
+        cafile:
+          - "/etc/kubernetes/pki/ca.crt"
+          - "/etc/kubernetes/certs/ca.crt"
+          - "/etc/kubernetes/cert/ca.pem"
+          - "/var/snap/microk8s/current/certs/ca.crt"
+        svc:
+          # These paths must also be included
+          #  in the 'confs' property below
+          - "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+          - "/etc/systemd/system/kubelet.service"
+          - "/lib/systemd/system/kubelet.service"
+          - "/etc/systemd/system/snap.kubelet.daemon.service"
+          - "/etc/systemd/system/snap.microk8s.daemon-kubelet.service"
+        bins:
+          - "hyperkube kubelet"
+          - "kubelet"
+        kubeconfig:
+          - "/etc/kubernetes/kubelet.conf"
+          - "/var/lib/kubelet/kubeconfig"
+          - "/etc/kubernetes/kubelet-kubeconfig"
+          - "/etc/kubernetes/kubelet/kubeconfig"
+          - "/var/snap/microk8s/current/credentials/kubelet.config"
+        confs:
+          - "/var/lib/kubelet/config.yaml"
+          - "/var/lib/kubelet/config.yml"
+          - "/etc/kubernetes/kubelet/kubelet-config.json"
+          - "/etc/kubernetes/kubelet/config"
+          - "/home/kubernetes/kubelet-config.yaml"
+          - "/home/kubernetes/kubelet-config.yml"
+          - "/etc/default/kubelet"
+          - "/var/lib/kubelet/kubeconfig"
+          - "/var/snap/kubelet/current/args"
+          - "/var/snap/microk8s/current/args/kubelet"
+          ## Due to the fact that the kubelet might be configured
+          ## without a kubelet-config file, we use a work-around
+          ## of pointing to the systemd service file (which can also
+          ## hold kubelet configuration).
+          ## Note: The following paths must match the one under 'svc'
+          - "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+          - "/etc/systemd/system/kubelet.service"
+          - "/lib/systemd/system/kubelet.service"
+          - "/etc/systemd/system/snap.kubelet.daemon.service"
+          - "/etc/systemd/system/snap.microk8s.daemon-kubelet.service"
+        defaultconf: "/var/lib/kubelet/config.yaml"
+        defaultsvc: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+        defaultkubeconfig: "/etc/kubernetes/kubelet.conf"
+        defaultcafile: "/etc/kubernetes/pki/ca.crt"
+
+      proxy:
+        optional: true
+        bins:
+          - "kube-proxy"
+          - "hyperkube proxy"
+          - "hyperkube kube-proxy"
+          - "proxy"
+        confs:
+          - /etc/kubernetes/proxy
+          - /etc/kubernetes/addons/kube-proxy-daemonset.yaml
+          - /etc/kubernetes/addons/kube-proxy-daemonset.yml
+          - /var/snap/kube-proxy/current/args
+          - /var/snap/microk8s/current/args/kube-proxy
+        kubeconfig:
+          - "/etc/kubernetes/kubelet-kubeconfig"
+          - "/etc/kubernetes/kubelet/config"
+          - "/var/lib/kubelet/kubeconfig"
+          - "/var/snap/microk8s/current/credentials/proxy.config"
+        svc:
+          - "/lib/systemd/system/kube-proxy.service"
+          - "/etc/systemd/system/snap.microk8s.daemon-proxy.service"
+        defaultconf: /etc/kubernetes/addons/kube-proxy-daemonset.yaml
+        defaultkubeconfig: "/etc/kubernetes/proxy.conf"
+
+    etcd:
+      components:
+        - etcd
+
+      etcd:
+        bins:
+          - "etcd"
+        confs:
+          - /etc/kubernetes/manifests/etcd.yaml
+          - /etc/kubernetes/manifests/etcd.yml
+          - /etc/kubernetes/manifests/etcd.manifest
+          - /etc/etcd/etcd.conf
+          - /var/snap/etcd/common/etcd.conf.yml
+          - /var/snap/etcd/common/etcd.conf.yaml
+          - /var/snap/microk8s/current/args/etcd
+          - /usr/lib/systemd/system/etcd.service
+        defaultconf: /etc/kubernetes/manifests/etcd.yaml
+
+    controlplane:
+      components:
+        - apiserver
+
+      apiserver:
+        bins:
+          - "kube-apiserver"
+          - "hyperkube apiserver"
+          - "hyperkube kube-apiserver"
+          - "apiserver"
+
+    policies:
+      components: []
+
+    managedservices:
+      components: []
+
+    version_mapping:
+      "1.15": "cis-1.5"
+      "1.16": "cis-1.6"
+      "1.17": "cis-1.6"
+      "1.18": "cis-1.6"
+      "1.19": "cis-1.6"
+      "eks-1.0": "eks-1.0"
+      "gke-1.0": "gke-1.0"
+      "ocp-3.10": "rh-0.7"
+      "ocp-3.11": "rh-0.7"
+      "aks-1.0": "aks-1.0"
+
+    target_mapping:
+      "cis-1.5":
+        - "master"
+        - "node"
+        - "controlplane"
+        - "etcd"
+        - "policies"
+      "cis-1.6":
+        - "master"
+        - "node"
+        - "controlplane"
+        - "etcd"
+        - "policies"
+      "gke-1.0":
+        - "master"
+        - "node"
+        - "controlplane"
+        - "etcd"
+        - "policies"
+        - "managedservices"
+      "eks-1.0":
+        - "master"
+        - "node"
+        - "controlplane"
+        - "policies"
+        - "managedservices"
+      "rh-0.7":
+        - "master"
+        - "node"
+      "aks-1.0":
+        - "master"
+        - "node"
+        - "controlplane"
+        - "policies"
+        - "managedservices"
 ---
 apiVersion: batch/v1
 kind: Job
@@ -524,6 +797,9 @@ spec:
             - name: etc-kubernetes
               mountPath: /etc/kubernetes
               readOnly: true
+            - name: kube-bench-config
+              mountPath: "/opt/kube-bench/cfg/config.yaml"
+              subPath: "config.yaml"
       restartPolicy: Never
       volumes:
         - name: var-lib-kubelet
@@ -535,6 +811,9 @@ spec:
         - name: etc-kubernetes
           hostPath:
             path: "/etc/kubernetes"
+        - name: kube-bench-config
+          configMap:
+            name: kube-bench-config
       tolerations:
         - key: nvidia.com/gpu
           operator: Exists
