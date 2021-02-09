@@ -59,7 +59,7 @@ module "cluster" {
     {
       username = "ReadOnlyUser"
       role_arn = "arn:aws:iam::123456789000:role/ReadonlyUser"
-      groups   = ["system:basic-user"]
+      groups   = ["myreadonlygroup"]
     }
   ]
 
