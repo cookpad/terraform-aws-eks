@@ -35,7 +35,7 @@ jobs:
       - name: Slack notify
         uses: rtCamp/action-slack-notify@master
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GITHUB_CHANNEL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: "#k8s"
           SLACK_USERNAME: terraform-aws-eks release bot
           SLACK_ICON_EMOJI: ":rocket:"
