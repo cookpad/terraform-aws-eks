@@ -5,6 +5,10 @@
 * Check the notes for the Kubernetes version you are upgrading to at https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html
 * After upgrading the terraform module, remember to follow the [roll nodes](docs/roll_nodes.md) procedure to roll out upgraded nodes to your cluster.
 
+## 1.17 -> 1.18
+
+[#170](https://github.com/cookpad/terraform-aws-eks/pull/170) renames the cluster-module and root module outputs
+`odic_config` -> `oidc_config`. If you are using this output you will need to update it.
 ## 1.15 -> 1.16
 
 Some deprecated API versions are removed by this version of Kubernetes.
