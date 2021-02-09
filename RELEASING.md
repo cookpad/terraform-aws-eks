@@ -51,11 +51,5 @@ We expect to cherry-pick or backport essential changes to release branches.
 
 # Release Procedure
 
-```bash
-git checkout release-<major>-<minor>
-git tag v<major>.<minor>.<patch> -m "Version <major>.<minor>.<patch>"
-git push --tags
-```
-
-* Create GitHub release https://github.com/cookpad/terraform-aws-eks/releases/new and include any release notes
+* Manually trigger the [Create Release](https://github.com/cookpad/terraform-aws-eks//actions?query=workflow%3A%22Create+Release%22) workflow - follow the [versioning guide](#versioning) when filling out the version input.
 * Check the version has been published at https://registry.terraform.io/modules/cookpad/eks/aws
