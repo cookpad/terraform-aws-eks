@@ -10,6 +10,6 @@ output "cluster_config" {
   value = module.cluster.config
 }
 
-output "odic_config" {
-  value = module.cluster.odic_config
+output "oidc_config" {
+  value = module.cluster.oidc_config
 }
