@@ -1,0 +1,44 @@
+name: Create Release
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Release name'
+        required: true
+      releaseTag:
+        description: 'Version tag (format {major}.{minor}.{patch}-{optional-rc#})'
+        required: true
+      releaseBody:
+        description: 'Release body text'
+        required: true
+      isRC:
+        description: 'Is prerelease? (Set true for release candidates) (true/false)'
+        required: true
+jobs:
+  createrelease:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v2.3.4
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.releaseTag }}
+          release_name: Release ${{ github.event.inputs.versionName }}
+          body: ${{ github.event.inputs.releaseBody }}
+          draft: false
+          prerelease: ${{ github.event.inputs.isRC }}
+      - name: Slack notify
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: "#k8s"
+          SLACK_USERNAME: terraform-aws-eks release bot
+          SLACK_ICON_EMOJI: ":rocket:"
+          SLACK_TITLE: 🚨 Releasing terraform-aws-eks version ${{ github.event.inputs.releaseTag }}
+          SLACK_MESSAGE: https://github.com/cookpad/terraform-aws-eks/releases/tag/${{ github.event.inputs.releaseTag }}/
+          MSG_MINIMAL: true
