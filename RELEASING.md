@@ -49,6 +49,12 @@ from these branches.
 
 We expect to cherry-pick or backport essential changes to release branches.
 
+## Release Cadence and Support
+
+AWS release new major versions of EKS approximately once per quarter (see the [EKS Kubernetes release calendar](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-release-calendar)). We aim to release a stable version of `terraform-aws-eks` within one month of the upstream EKS release.
+
+We will continue to support the latest 3 major EKS versions. Small changes will be backported and released on a minor version.
+
 # Release Procedure
 
 * Manually trigger the [Create Release](https://github.com/cookpad/terraform-aws-eks//actions?query=workflow%3A%22Create+Release%22) workflow - follow the [versioning guide](#versioning) when filling out the version input.
