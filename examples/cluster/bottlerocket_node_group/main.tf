@@ -9,7 +9,7 @@ module "node_group" {
 
   cluster_config = data.terraform_remote_state.cluster.outputs.cluster_config
 
-  name         = "standard-nodes"
+  name         = "bottlerocket-nodes"
   key_name     = "development"
   bottlerocket = true
 
