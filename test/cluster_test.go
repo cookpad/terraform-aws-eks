@@ -74,6 +74,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
 		defer os.Remove(admin_kubeconfig)
 		validateAdminRole(t, admin_kubeconfig)
+		DumpCluserData(t, kubeconfig, "validate_cluster_pods.json", "validate_cluster_nodes.json")
 	})
 
 	test_structure.RunTestStage(t, "validate_standard_node_group", func() {
@@ -92,6 +93,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 			"aws_ebs_csi_driver": true,
 		})
 		validateStorage(t, kubeconfig)
+		DumpCluserData(t, kubeconfig, "validate_standard_node_group_pods.json", "validate_standard_node_group_nodes.json")
 	})
 
 	test_structure.RunTestStage(t, "validate_bottlerocket_node_group", func() {
@@ -110,6 +112,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
+		DumpCluserData(t, kubeconfig, "validate_bottlerocket_node_group_pods.json", "validate_bottlerocket_node_group_nodes.json")
 	})
 
 	test_structure.RunTestStage(t, "validate_gpu_node_group", func() {
@@ -122,6 +125,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateGPUNodes(t, kubeconfig)
 		validateKubeBench(t, kubeconfig)
 		validateNodeTerminationHandler(t, kubeconfig)
+		DumpCluserData(t, kubeconfig, "validate_gpu_node_group_pods.json", "validate_gpu_node_group_nodes.json")
 	})
 }
 

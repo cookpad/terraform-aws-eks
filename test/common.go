@@ -1,6 +1,8 @@
 package test
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -15,9 +17,11 @@ import (
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 
 	"github.com/stretchr/testify/require"
+	"k8s.io/client-go/kubernetes"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 func deployTerraform(t *testing.T, workingDir string, vars map[string]interface{}) {
@@ -188,4 +192,44 @@ func WaitUntilPodsSucceededE(t *testing.T, options *k8s.KubectlOptions, filters 
 
 func WaitUntilPodsSucceeded(t *testing.T, options *k8s.KubectlOptions, filters metav1.ListOptions, desiredCount, retries int, sleepBetweenRetries time.Duration) {
 	require.NoError(t, WaitUntilPodsSucceededE(t, options, filters, desiredCount, retries, sleepBetweenRetries))
+}
+
+func DumpCluserData(t *testing.T, kubeconfig string, podFile string, nodeFile string) {
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+
+	if err != nil {
+		fmt.Println("error loading config")
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		fmt.Println("error creating k8s context")
+	}
+
+	// dump pod info
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		fmt.Println("error getting pod info")
+	}
+	pb, err := json.Marshal(pods)
+	bytesToFile(pb, podFile)
+
+	// dump node info
+	nodes, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		fmt.Println("error getting node info")
+	}
+	nb, err := json.Marshal(nodes)
+	bytesToFile(nb, nodeFile)
+}
+
+func bytesToFile(b []byte, file string) {
+	if f, err := os.Create(file); err != nil {
+		fmt.Println("f2 failed:", err)
+	} else {
+		defer f.Close()
+		_, e := f.Write(b)
+		if e != nil {
+			fmt.Println(e)
+		}
+	}
 }
