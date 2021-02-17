@@ -19,10 +19,10 @@ metadata:
   name: nvidia-device-plugin
   namespace: kube-system
   labels:
-    helm.sh/chart: nvidia-device-plugin-0.7.0
+    helm.sh/chart: nvidia-device-plugin-0.8.2
     app.kubernetes.io/name: nvidia-device-plugin
     app.kubernetes.io/instance: nvidia-device-plugin
-    app.kubernetes.io/version: "0.7.0"
+    app.kubernetes.io/version: "0.8.2"
 spec:
   selector:
     matchLabels:
@@ -48,7 +48,7 @@ spec:
       securityContext:
         {}
       containers:
-      - image: nvidia/k8s-device-plugin:v0.7.0
+      - image: nvcr.io/nvidia/k8s-device-plugin:v0.8.2
         imagePullPolicy: IfNotPresent
         name: nvidia-device-plugin-ctr
         args:
@@ -56,6 +56,7 @@ spec:
         - "--pass-device-specs=false"
         - "--fail-on-init-error=true"
         - "--device-list-strategy=envvar"
+        - "--nvidia-driver-root=/"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
