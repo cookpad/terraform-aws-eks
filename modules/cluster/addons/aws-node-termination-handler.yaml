@@ -6,16 +6,16 @@ metadata:
   name: aws-node-termination-handler
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.10.0
+    helm.sh/chart: aws-node-termination-handler-0.13.3
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.8.0"
+    app.kubernetes.io/version: "1.12.0"
   annotations:
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
 spec:
   privileged: false
   hostIPC: false
-  hostNetwork: true
+  hostNetwork: true 
   hostPID: false
   readOnlyRootFilesystem: false
   allowPrivilegeEscalation: false
@@ -40,10 +40,10 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.10.0
+    helm.sh/chart: aws-node-termination-handler-0.13.3
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.8.0"
+    app.kubernetes.io/version: "1.12.0"
 ---
 # Source: aws-node-termination-handler/templates/clusterrole.yaml
 kind: ClusterRole
@@ -57,6 +57,7 @@ rules:
     - nodes
   verbs:
     - get
+    - list
     - patch
     - update
 - apiGroups:
@@ -91,10 +92,10 @@ metadata:
   name: aws-node-termination-handler-psp
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.10.0
+    helm.sh/chart: aws-node-termination-handler-0.13.3
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.8.0"
+    app.kubernetes.io/version: "1.12.0"
 rules:
   - apiGroups: ['policy']
     resources: ['podsecuritypolicies']
@@ -123,10 +124,10 @@ metadata:
   name: aws-node-termination-handler-psp
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.10.0
+    helm.sh/chart: aws-node-termination-handler-0.13.3
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.8.0"
+    app.kubernetes.io/version: "1.12.0"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -144,10 +145,10 @@ metadata:
   namespace: kube-system
   labels:
     app.kubernetes.io/name: aws-node-termination-handler
-    helm.sh/chart: aws-node-termination-handler-0.10.0
+    helm.sh/chart: aws-node-termination-handler-0.13.3
     app.kubernetes.io/instance: aws-node-termination-handler
     k8s-app: aws-node-termination-handler
-    app.kubernetes.io/version: "1.8.0"
+    app.kubernetes.io/version: "1.12.0"
 spec:
   updateStrategy:
     rollingUpdate:
@@ -191,11 +192,11 @@ spec:
                   values:
                     - fargate
       serviceAccountName: aws-node-termination-handler
-      hostNetwork: true
+      hostNetwork: true 
       dnsPolicy: "ClusterFirstWithHostNet"
       containers:
         - name: aws-node-termination-handler
-          image: amazon/aws-node-termination-handler:v1.8.0
+          image: public.ecr.aws/aws-ec2/aws-node-termination-handler:v1.12.0
           imagePullPolicy: IfNotPresent
           securityContext:
             readOnlyRootFilesystem: true
@@ -248,6 +249,8 @@ spec:
             value: "true"
           - name: ENABLE_SCHEDULED_EVENT_DRAINING
             value: "true"
+          - name: ENABLE_REBALANCE_MONITORING
+            value: "false"
           - name: METADATA_TRIES
             value: "3"
           - name: CORDON_ONLY
@@ -256,6 +259,8 @@ spec:
             value: "false"
           - name: JSON_LOGGING
             value: "false"
+          - name: LOG_LEVEL
+            value: "info"
           - name: WEBHOOK_PROXY
             value: ""
           - name: UPTIME_FROM_FILE
