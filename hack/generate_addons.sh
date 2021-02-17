@@ -17,7 +17,7 @@ kustomize_build() {
   kustomize build $ADDONS_DIR/kustomize/overlays/$1 > $ADDONS_DIR/$1.yaml
 }
 
-helm_template eks aws-node-termination-handler 0.10.0
+helm_template eks aws-node-termination-handler 0.13.3
 helm_template autoscaler cluster-autoscaler 1.0.4 -chart
 helm_template nvdp nvidia-device-plugin 0.7.0
 
