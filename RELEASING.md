@@ -53,7 +53,7 @@ We expect to cherry-pick or backport essential changes to release branches.
 
 AWS release new major versions of EKS approximately once per quarter (see the [EKS Kubernetes release calendar](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-release-calendar)). We aim to release a stable version of `terraform-aws-eks` within one month of the upstream EKS release.
 
-We will continue to support the latest 3 major EKS versions. Small changes will be backported and released on a minor version.
+We will continue to support the latest 3 minor EKS versions. Security fixes will be back-ported and released on as a new patch version. Other major bugs may be back-ported based on user demand.
 
 # Release Procedure
 
