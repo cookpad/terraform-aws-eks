@@ -826,7 +826,7 @@ spec:
         env:
         - name: ADDRESS
           value: /var/lib/csi/sockets/pluginproxy/csi.sock
-        image: k8s.gcr.io/sig-storage/csi-provisioner:v2.0.2
+        image: quay.io/k8scsi/csi-provisioner:v2.0.2
         name: csi-provisioner
         volumeMounts:
         - mountPath: /var/lib/csi/sockets/pluginproxy/
@@ -838,14 +838,14 @@ spec:
         env:
         - name: ADDRESS
           value: /var/lib/csi/sockets/pluginproxy/csi.sock
-        image: k8s.gcr.io/sig-storage/csi-attacher:v3.0.0
+        image: quay.io/k8scsi/csi-attacher:v3.0.0
         name: csi-attacher
         volumeMounts:
         - mountPath: /var/lib/csi/sockets/pluginproxy/
           name: socket-dir
       - args:
         - --csi-address=/csi/csi.sock
-        image: k8s.gcr.io/sig-storage/livenessprobe:v2.1.0
+        image: quay.io/k8scsi/livenessprobe:v2.1.0
         name: liveness-probe
         volumeMounts:
         - mountPath: /csi
@@ -957,7 +957,7 @@ spec:
           value: /csi/csi.sock
         - name: DRIVER_REG_SOCK_PATH
           value: /var/lib/kubelet/plugins/ebs.csi.aws.com/csi.sock
-        image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.0.1
+        image: quay.io/k8scsi/csi-node-driver-registrar:v2.0.1
         lifecycle:
           preStop:
             exec:
@@ -973,7 +973,7 @@ spec:
           name: registration-dir
       - args:
         - --csi-address=/csi/csi.sock
-        image: k8s.gcr.io/sig-storage/livenessprobe:v2.1.0
+        image: quay.io/k8scsi/livenessprobe:v2.1.0
         name: liveness-probe
         volumeMounts:
         - mountPath: /csi
