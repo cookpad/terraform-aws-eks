@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# roll_nodes.sh TARGET_VERSION
+# roll_nodes.sh
 #
 # Replace Kubernetes Nodes, to roll out config changes
 #
