@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: alb-ingress-controller
-  namespace: kube-system
-  annotations:
-    eks.amazonaws.com/role-arn: ${iam_role_arn}

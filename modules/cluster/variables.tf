@@ -102,19 +102,19 @@ variable "aws_ebs_csi_driver_iam_permissions_boundary" {
   description = "The ARN of the policy that is used to set the permissions boundary for the role."
 }
 
-variable "aws_alb_ingress_controller" {
+variable "aws_load_balancer_controller" {
   type        = bool
   default     = false
-  description = "Should the ALB Ingress Controller be deployed"
+  description = "Should the AWS Load Balancer Ingress Controller be deployed"
 }
 
-variable "aws_alb_ingress_controller_iam_role_arn" {
+variable "aws_load_balancer_controller_iam_role_arn" {
   type        = string
   default     = ""
-  description = "The IAM role for the ALB Ingress Controller, if omitted then an IAM role will be created"
+  description = "The IAM role for the AWS Load Balancer Ingress Controller, if omitted then an IAM role will be created"
 }
 
-variable "aws_alb_ingress_controller_iam_permissions_boundary" {
+variable "aws_load_balancer_controller_iam_permissions_boundary" {
   type        = string
   default     = ""
   description = "The ARN of the policy that is used to set the permissions boundary for the role."
