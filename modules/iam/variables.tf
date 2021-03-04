@@ -1,6 +1,6 @@
-variable "service_role_name" {
+variable "cluster_role_name" {
   type    = string
-  default = "eksServiceRole"
+  default = "eksClusterRole"
 }
 
 variable "node_role_name" {
