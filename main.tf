@@ -9,7 +9,7 @@ module "vpc" {
 module "iam" {
   source = "./modules/iam"
 
-  service_role_name = "eksServiceRole-${var.cluster_name}"
+  cluster_role_name = "eksClusterRole-${var.cluster_name}"
   node_role_name    = "EKSNode-${var.cluster_name}"
 }
 

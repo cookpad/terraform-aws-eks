@@ -2,13 +2,13 @@
   EKS control plane
 */
 
-data "aws_iam_role" "service_role" {
-  name = var.iam_config.service_role
+data "aws_iam_role" "cluster_role" {
+  name = var.iam_config.cluster_role
 }
 
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
-  role_arn = data.aws_iam_role.service_role.arn
+  role_arn = data.aws_iam_role.cluster_role.arn
   tags     = var.tags
 
   version = var.k8s_version

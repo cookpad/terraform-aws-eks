@@ -30,12 +30,12 @@ variable "vpc_config" {
 
 variable "iam_config" {
   type = object({
-    service_role = string
+    cluster_role = string
     node_role    = string
   })
 
   default = {
-    service_role = "eksServiceRole"
+    cluster_role = "eksClusterRole"
     node_role    = "EKSNode"
   }
 
