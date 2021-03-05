@@ -3,7 +3,7 @@ tolerations:
   operator: Exists
 image:
   repository: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/amazon/aws-load-balancer-controller
-  tag: v2.1.0
+  tag: v2.1.3
   pullPolicy: IfNotPresent
 region: ${aws_region}
 clusterName: ${cluster_name}
