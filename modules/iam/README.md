@@ -21,5 +21,8 @@ module "cluster" {
   name       = "sal-9000"
   iam_config = module.iam.config
   ...
+  depends_on = [
+    module.iam,
+  ]
 }
 ```
