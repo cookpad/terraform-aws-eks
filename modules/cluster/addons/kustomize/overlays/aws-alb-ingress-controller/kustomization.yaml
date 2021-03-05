@@ -1,7 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-bases:
-- github.com/kubernetes-sigs/aws-alb-ingress-controller/docs/examples/?ref=v1.1.9
-patchesStrategicMerge:
-- eks_iam_for_sa.yaml
-- deployment_args.yaml

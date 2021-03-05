@@ -1,0 +1,15 @@
+tolerations:
+- key: CriticalAddonsOnly
+  operator: Exists
+image:
+  repository: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/amazon/aws-load-balancer-controller
+  tag: v2.1.3
+  pullPolicy: IfNotPresent
+region: ${aws_region}
+clusterName: ${cluster_name}
+vpcId: ${vpc_id}
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: ${iam_role_arn}
+  name: aws-load-balancer-controller

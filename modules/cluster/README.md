@@ -94,7 +94,7 @@ specify the arn of an existing key by setting `kms_cmk_arn`
 | [Prometheus Node Exporter](https://github.com/prometheus/node_exporter) | `prometheus_node_exporter` | ❌ disabled ||
 | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) | `metrics_server` | ❌ disabled ||
 | [Amazon Elastic Block Store (EBS) CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/) | `aws_ebs_csi_driver` | ❌ disabled | `aws_ebs_csi_driver_iam_role_arn` |
-| [AWS ALB Ingress Controller](https://github.com/kubernetes-sigs/aws-alb-ingress-controller) | `aws_alb_ingress_controller` | ❌ disabled | `aws_alb_ingress_controller_iam_role_arn` |
+| [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller) | `aws_load_balancer_controller` | ❌ disabled | `aws_load_balancer_controller_iam_role_arn` |
 
 Note that setting these variables to false will not remove provisioned add-ons from an existing cluster.
 
