@@ -12,6 +12,8 @@
 [#203](https://github.com/cookpad/terraform-aws-eks/pull/203) removes `failure-domain.beta.kubernetes.io/zone` label which is deprecated in favour of `topology.kubernetes.io/zone`. Use the new label in any affinity specs.
 
 
+[#202](https://github.com/cookpad/terraform-aws-eks/pull/202) deprecates `node_role` and `service_role` in the `iam_config` variable for the cluster module. Instead, you need to specify `node_role_arn` and `service_role_arn` via `iam_config`.
+
 ## 1.17 -> 1.18
 
 [#170](https://github.com/cookpad/terraform-aws-eks/pull/170) renames the cluster-module and root module outputs
