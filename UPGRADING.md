@@ -8,7 +8,7 @@
 ## 1.18 -> 1.19
 
 [#195](https://github.com/cookpad/terraform-aws-eks/pull/195) upgrades `aws-alb-ingress-controller` to [`aws-load-balancer-controller`](https://github.com/cookpad/terraform-aws-eks/pull/195) (the project was renamed with the v2 release). Check the [upgrade guide for this project](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.0/guide/upgrade/migrate_v1_v2/) if you are using `aws-alb-ingress-controller`, you may need to update your ingress definitions.
-[#204](https://github.com/cookpad/terraform-aws-eks/pull/204) EKS no longer adds `kubernetes.io/cluster/<cluster-name>` to subnets. They will not be removed on upgrading to 1.19, but we recommend to codify the tags yourself for completeness if you want to keep using auto-discovery with eks-load-balancer-controller.
+[#204](https://github.com/cookpad/terraform-aws-eks/pull/204) EKS no longer adds `kubernetes.io/cluster/<cluster-name>` to subnets. They will not be removed on upgrading to 1.19, but we recommend to codify the tags yourself for completeness if you are not using the vpc module and you want to keep using auto-discovery with eks-load-balancer-controller.
 
 ## 1.17 -> 1.18
 
