@@ -144,7 +144,7 @@ spec:
         operator: "Exists"
       containers:
       - name: coredns
-        image: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/eks/coredns:v1.7.0-eksbuild.1
+        image: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/eks/coredns:v1.8.0-eksbuild.1
         imagePullPolicy: IfNotPresent
         resources:
           limits:

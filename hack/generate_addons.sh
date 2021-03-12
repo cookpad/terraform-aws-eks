@@ -19,12 +19,12 @@ kustomize_build() {
 }
 
 helm_template eks aws-node-termination-handler 0.13.3
-helm_template autoscaler cluster-autoscaler 1.0.4 -chart
+helm_template autoscaler cluster-autoscaler 9.1
 helm_template nvdp nvidia-device-plugin 0.8.2
 helm_template eks aws-load-balancer-controller 1.1.5
 
-curl -o $ADDONS_DIR/kustomize/overlays/metrics-server/resources/metrics-server.yaml -L https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml
+curl -o $ADDONS_DIR/kustomize/overlays/metrics-server/resources/metrics-server.yaml -L https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.4.2/components.yaml
 kustomize_build metrics-server
-curl -o $ADDONS_DIR/kustomize/overlays/aws-ebs-csi-driver/resources/crd_snapshotter.yaml -L https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/v0.7.0/deploy/kubernetes/cluster/crd_snapshotter.yaml
+curl -o $ADDONS_DIR/kustomize/overlays/aws-ebs-csi-driver/resources/crd_snapshotter.yaml -L https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/v0.8.2/deploy/kubernetes/cluster/crd_snapshotter.yaml
 kustomize_build aws-ebs-csi-driver
 kustomize_build aws-load-balancer-controller-crds
