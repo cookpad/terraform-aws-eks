@@ -32,13 +32,11 @@ variable "iam_config" {
   type = object({
     service_role_arn = string
     node_role_arn    = string
-    node_role        = string
   })
 
   default = {
     service_role_arn = ""
     node_role_arn    = ""
-    node_role        = "EKSNode"
   }
 
   description = "The ARN of IAM roles used by the cluster, If you use the included IAM module you can provide it's config output variable."

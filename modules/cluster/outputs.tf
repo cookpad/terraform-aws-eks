@@ -6,7 +6,7 @@ locals {
     vpc_id                = var.vpc_config.vpc_id
     private_subnet_ids    = var.vpc_config.private_subnet_ids
     node_security_group   = aws_eks_cluster.control_plane.vpc_config.0.cluster_security_group_id
-    node_instance_profile = var.iam_config.node_role
+    node_instance_profile = regex("^arn:aws:iam::\\d+:role/*.*/(.+)?", var.iam_config.node_role_arn)[0]
     tags                  = var.tags
     dns_cluster_ip        = local.dns_cluster_ip
     aws_ebs_csi_driver    = var.aws_ebs_csi_driver
