@@ -8,6 +8,9 @@
 ## 1.18 -> 1.19
 
 [#195](https://github.com/cookpad/terraform-aws-eks/pull/195) upgrades `aws-alb-ingress-controller` to [`aws-load-balancer-controller`](https://github.com/cookpad/terraform-aws-eks/pull/195) (the project was renamed with the v2 release). Check the [upgrade guide for this project](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.0/guide/upgrade/migrate_v1_v2/) if you are using `aws-alb-ingress-controller`, you may need to update your ingress definitions.
+
+[#202](https://github.com/cookpad/terraform-aws-eks/pull/202) deprecates `node_role` and `service_role` in the `iam_config` variable for the cluster module. Instead, you need to specify `node_role_arn` and `service_role_arn` via `iam_config`.
+
 ## 1.17 -> 1.18
 
 [#170](https://github.com/cookpad/terraform-aws-eks/pull/170) renames the cluster-module and root module outputs
