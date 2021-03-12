@@ -1,7 +1,6 @@
 output "config" {
   value = {
     service_role_arn = aws_iam_role.eks_service_role.arn
-    node_role        = aws_iam_role.eks_node.name
     node_role_arn    = aws_iam_role.eks_node.arn
   }
 
