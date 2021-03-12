@@ -11,16 +11,10 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name                             = "${var.name}-public-${each.key}"
-    "kubernetes.io/role/elb"         = "1"
-    "kubernetes.io/role/alb-ingress" = "1"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to tags, eks adds the kubernetes.io/cluster/${cluster_name} tag
-      tags,
-    ]
+    Name                                        = "${var.name}-public-${each.key}"
+    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/role/alb-ingress"            = "1"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
 }
 
@@ -40,16 +34,10 @@ resource "aws_subnet" "private" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name                              = "${var.name}-private-${each.key}"
-    "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/role/alb-ingress"  = "1"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to tags, eks adds the kubernetes.io/cluster/${cluster_name} tag
-      tags,
-    ]
+    Name                                        = "${var.name}-private-${each.key}"
+    "kubernetes.io/role/internal-elb"           = "1"
+    "kubernetes.io/role/alb-ingress"            = "1"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
 }
 

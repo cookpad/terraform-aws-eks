@@ -11,3 +11,7 @@ variable "cidr_block" {
 variable "availability_zones" {
   description = "The availability zones to create subnets in"
 }
+
+variable "cluster_name" {
+  description = "The EKS cluster name."
+}
