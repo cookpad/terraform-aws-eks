@@ -7,7 +7,9 @@
 
 ## 1.18 -> 1.19
 
-[#195](https://github.com/cookpad/terraform-aws-eks/pull/195) upgrades `aws-alb-ingress-controller` to [`aws-load-balancer-controller`](https://github.com/cookpad/terraform-aws-eks/pull/195) (the project was renamed with the v2 release). Check the [upgrade guide for this project](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.0/guide/upgrade/migrate_v1_v2/) if you are using `aws-alb-ingress-controller`, you may need to update your ingress definitions.
+- [#195](https://github.com/cookpad/terraform-aws-eks/pull/195) upgrades `aws-alb-ingress-controller` to [`aws-load-balancer-controller`](https://github.com/cookpad/terraform-aws-eks/pull/195) (the project was renamed with the v2 release). Check the [upgrade guide for this project](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.0/guide/upgrade/migrate_v1_v2/) if you are using `aws-alb-ingress-controller`, you may need to update your ingress definitions.
+- [#203](https://github.com/cookpad/terraform-aws-eks/pull/203) removes `failure-domain.beta.kubernetes.io/zone` label which is deprecated in favour of `topology.kubernetes.io/zone`. Use the new label in any affinity specs.
+
 ## 1.17 -> 1.18
 
 [#170](https://github.com/cookpad/terraform-aws-eks/pull/170) renames the cluster-module and root module outputs
