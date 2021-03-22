@@ -4,7 +4,7 @@ module "vpc" {
   name               = var.cluster_name
   cidr_block         = var.cidr_block
   availability_zones = var.availability_zones
-  cluster_name       = var.cluster_name
+  cluster_names      = var.cluster_names
 }
 
 module "iam" {

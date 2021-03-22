@@ -8,6 +8,8 @@ variable "cidr_block" {
   default = "10.0.0.0/18"
 }
 
-variable "cluster name" {
-  type = string
+variable "cluster_names" {
+  description = "Names of the EKS clusters deployed in this VPC."
+  type        = list(string)
+  default     = []
 }
