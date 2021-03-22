@@ -1,6 +1,6 @@
 locals {
   az_subnet_numbers = zipmap(var.availability_zones, range(0, length(var.availability_zones)))
-  cluster_tags      = { for cluster_name in var.cluster_names : "kubernetes.io/cluster/${var.cluster_name}" => shared }
+  cluster_tags      = { for cluster_name in var.cluster_names : "kubernetes.io/cluster/${cluster_name}" => shared }
 }
 
 resource "aws_subnet" "public" {
