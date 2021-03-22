@@ -1,5 +1,6 @@
 locals {
-  az_subnet_numbers = zipmap(var.availability_zones, range(0, length(var.availability_zones)))
+  az_subnet_numbers   = zipmap(var.availability_zones, range(0, length(var.availability_zones)))
+  cluster_subnet_tags = { for cluster_name in var.cluster_names : "kubernetes.io/cluster/${var.cluster_name}" => shared }
 }
 
 resource "aws_subnet" "public" {
@@ -10,12 +11,15 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.network.id
   map_public_ip_on_launch = true
 
-  tags = {
-    Name                                        = "${var.name}-public-${each.key}"
-    "kubernetes.io/role/elb"                    = "1"
-    "kubernetes.io/role/alb-ingress"            = "1"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-  }
+  tags = merge(
+    local.cluster_subnet_tags,
+    {
+      Name                                        = "${var.name}-public-${each.key}"
+      "kubernetes.io/role/elb"                    = "1"
+      "kubernetes.io/role/alb-ingress"            = "1"
+      "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    }
+  )
 }
 
 resource "aws_route_table_association" "public" {
@@ -33,12 +37,15 @@ resource "aws_subnet" "private" {
   vpc_id                  = aws_vpc.network.id
   map_public_ip_on_launch = false
 
-  tags = {
-    Name                                        = "${var.name}-private-${each.key}"
-    "kubernetes.io/role/internal-elb"           = "1"
-    "kubernetes.io/role/alb-ingress"            = "1"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-  }
+  tags = merge(
+    local.cluster_subnet_tags,
+    {
+      Name                                        = "${var.name}-private-${each.key}"
+      "kubernetes.io/role/internal-elb"           = "1"
+      "kubernetes.io/role/alb-ingress"            = "1"
+      "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    }
+  )
 }
 
 resource "aws_route_table_association" "private" {
