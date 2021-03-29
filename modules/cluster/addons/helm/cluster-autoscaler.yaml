@@ -21,7 +21,7 @@ extraArgs:
   balance-similar-node-groups: true
 image:
   repository: us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler
-  tag: v1.18.2
+  tag: v1.19.1
 fullnameOverride: cluster-autoscaler
 nameOverride: aws-cluster-autoscaler
 resources:

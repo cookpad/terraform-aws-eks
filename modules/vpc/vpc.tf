@@ -1,9 +1,12 @@
 resource "aws_vpc" "network" {
   cidr_block           = var.cidr_block
   enable_dns_hostnames = true
-  tags = {
-    Name = var.name
-  }
+  tags = merge(
+    local.cluster_tags,
+    {
+      Name = var.name
+    }
+  )
 
   lifecycle {
     ignore_changes = [

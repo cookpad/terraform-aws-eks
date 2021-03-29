@@ -3,7 +3,7 @@ variable "name" {
 }
 
 variable "k8s_version" {
-  default = "1.18"
+  default = "1.19"
 }
 
 variable "endpoint_public_access" {

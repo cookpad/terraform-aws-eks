@@ -1,6 +1,8 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  labels:
+    k8s-app: metrics-server
   name: metrics-server
   namespace: kube-system
 ---
@@ -8,6 +10,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
+    k8s-app: metrics-server
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-view: "true"
@@ -26,6 +29,8 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  labels:
+    k8s-app: metrics-server
   name: system:metrics-server
 rules:
 - apiGroups:
@@ -44,6 +49,8 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
+  labels:
+    k8s-app: metrics-server
   name: metrics-server-auth-reader
   namespace: kube-system
 roleRef:
@@ -58,6 +65,8 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  labels:
+    k8s-app: metrics-server
   name: metrics-server:system:auth-delegator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -71,6 +80,8 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  labels:
+    k8s-app: metrics-server
   name: system:metrics-server
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -85,15 +96,15 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    kubernetes.io/cluster-service: "true"
-    kubernetes.io/name: Metrics-server
+    k8s-app: metrics-server
   name: metrics-server
   namespace: kube-system
 spec:
   ports:
-  - port: 443
+  - name: https
+    port: 443
     protocol: TCP
-    targetPort: main-port
+    targetPort: https
   selector:
     k8s-app: metrics-server
 ---
@@ -108,11 +119,13 @@ spec:
   selector:
     matchLabels:
       k8s-app: metrics-server
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         k8s-app: metrics-server
-      name: metrics-server
     spec:
       containers:
       - command:
@@ -148,13 +161,29 @@ spec:
       - args:
         - --cert-dir=/tmp
         - --secure-port=4443
-        image: k8s.gcr.io/metrics-server/metrics-server:v0.3.7
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-use-node-status-port
+        image: k8s.gcr.io/metrics-server/metrics-server:v0.4.2
         imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /livez
+            port: https
+            scheme: HTTPS
+          periodSeconds: 10
         name: metrics-server
         ports:
         - containerPort: 4443
-          name: main-port
+          name: https
           protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: https
+            scheme: HTTPS
+          periodSeconds: 10
         securityContext:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
@@ -164,6 +193,7 @@ spec:
           name: tmp-dir
       nodeSelector:
         kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
       serviceAccountName: metrics-server
       tolerations:
       - key: CriticalAddonsOnly
@@ -172,9 +202,11 @@ spec:
       - emptyDir: {}
         name: tmp-dir
 ---
-apiVersion: apiregistration.k8s.io/v1beta1
+apiVersion: apiregistration.k8s.io/v1
 kind: APIService
 metadata:
+  labels:
+    k8s-app: metrics-server
   name: v1beta1.metrics.k8s.io
 spec:
   group: metrics.k8s.io
