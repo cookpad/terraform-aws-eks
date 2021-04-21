@@ -486,7 +486,7 @@ spec:
       hostPID: true
       containers:
         - name: kube-bench
-          image: aquasec/kube-bench:latest
+          image: aquasec/kube-bench:0.4.0
           command: ["kube-bench", "node", "--benchmark", "eks-1.0", "--json"]
           volumeMounts:
             - name: var-lib-kubelet
