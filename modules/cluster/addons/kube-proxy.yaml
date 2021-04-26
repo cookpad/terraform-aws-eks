@@ -9,7 +9,8 @@ metadata:
 data:
   config: |-
     apiVersion: kubeproxy.config.k8s.io/v1alpha1
-    bindAddress: 0.0.0.0
+    # Advice from https://github.com/aws/amazon-vpc-cni-k8s/issues/1078#issuecomment-804655593
+    bindAddress: 127.0.0.1
     clientConnection:
       acceptContentTypes: ""
       burst: 10
