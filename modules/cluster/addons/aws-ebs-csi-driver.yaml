@@ -847,6 +847,10 @@ spec:
         env:
         - name: CSI_ENDPOINT
           value: unix:///var/lib/csi/sockets/pluginproxy/csi.sock
+        - name: CSI_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
@@ -894,7 +898,7 @@ spec:
         env:
         - name: ADDRESS
           value: /var/lib/csi/sockets/pluginproxy/csi.sock
-        image: k8s.gcr.io/sig-storage/csi-provisioner:v2.0.2
+        image: k8s.gcr.io/sig-storage/csi-provisioner:v2.1.1
         name: csi-provisioner
         volumeMounts:
         - mountPath: /var/lib/csi/sockets/pluginproxy/
@@ -906,7 +910,7 @@ spec:
         env:
         - name: ADDRESS
           value: /var/lib/csi/sockets/pluginproxy/csi.sock
-        image: k8s.gcr.io/sig-storage/csi-attacher:v3.0.0
+        image: k8s.gcr.io/sig-storage/csi-attacher:v3.1.0
         name: csi-attacher
         volumeMounts:
         - mountPath: /var/lib/csi/sockets/pluginproxy/
@@ -931,6 +935,17 @@ spec:
       volumes:
       - emptyDir: {}
         name: socket-dir
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: ebs-csi-controller-pod-disruption-budget
+  namespace: kube-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ebs-csi-controller
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -968,6 +983,10 @@ spec:
         env:
         - name: CSI_ENDPOINT
           value: unix:/csi/csi.sock
+        - name: CSI_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         image: k8s.gcr.io/provider-aws/aws-ebs-csi-driver:v1.0.0
         livenessProbe:
           failureThreshold: 5
@@ -1001,7 +1020,7 @@ spec:
           value: /csi/csi.sock
         - name: DRIVER_REG_SOCK_PATH
           value: /var/lib/kubelet/plugins/ebs.csi.aws.com/csi.sock
-        image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.0.1
+        image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.1.0
         name: node-driver-registrar
         volumeMounts:
         - mountPath: /csi
@@ -1018,7 +1037,7 @@ spec:
       hostNetwork: true
       nodeSelector:
         kubernetes.io/os: linux
-      priorityClassName: system-node-critical
+      priorityClassName: system-cluster-critical
       serviceAccountName: ebs-csi-node-sa
       tolerations:
       - key: CriticalAddonsOnly
@@ -1044,7 +1063,7 @@ spec:
           type: Directory
         name: device-dir
 ---
-apiVersion: storage.k8s.io/v1beta1
+apiVersion: storage.k8s.io/v1
 kind: CSIDriver
 metadata:
   labels:
