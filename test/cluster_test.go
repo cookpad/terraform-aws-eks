@@ -106,7 +106,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer cleanupTerraform(t, nodeGroupDir)
 		validateClusterAutoscaler(t, kubeconfig)
 		// https://github.com/bottlerocket-os/bottlerocket/pull/1295
-		validateKubeBenchExpectedFails(t, kubeconfig, 2)
+		validateKubeBenchExpectedFails(t, kubeconfig, 0)
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
