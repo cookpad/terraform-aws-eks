@@ -106,7 +106,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer cleanupTerraform(t, nodeGroupDir)
 		validateClusterAutoscaler(t, kubeconfig)
 		// https://github.com/bottlerocket-os/bottlerocket/pull/1295
-		validateKubeBenchExpectedFails(t, kubeconfig, 2)
+		validateKubeBenchExpectedFails(t, kubeconfig, 0)
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		validateIngress(t, kubeconfig)
@@ -785,7 +785,7 @@ spec:
       hostPID: true
       containers:
         - name: kube-bench
-          image: aquasec/kube-bench:latest
+          image: aquasec/kube-bench:0.5.0
           command: ["kube-bench", "node", "--benchmark", "eks-1.0", "--json"]
           volumeMounts:
             - name: var-lib-kubelet
