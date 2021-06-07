@@ -1749,6 +1749,8 @@ spec:
       - effect: NoExecute
         operator: Exists
         tolerationSeconds: 300
+      - effect: NoSchedule
+        operator: Exists
       volumes:
       - hostPath:
           path: /var/lib/kubelet
