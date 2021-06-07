@@ -9,3 +9,4 @@ resources:
 - resources/crd_snapshotter.yaml
 patchesStrategicMerge:
 - eks_iam_for_sa.yaml
+- daemonset_tolerations.yaml
