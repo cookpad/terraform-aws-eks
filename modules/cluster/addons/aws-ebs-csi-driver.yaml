@@ -999,6 +999,8 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  annotations:
+    eks.amazonaws.com/role-arn: ${iam_role_arn}
   labels:
     app.kubernetes.io/name: aws-ebs-csi-driver
   name: ebs-snapshot-controller

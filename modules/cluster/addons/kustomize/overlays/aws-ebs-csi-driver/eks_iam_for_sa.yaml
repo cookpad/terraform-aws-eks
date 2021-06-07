@@ -5,3 +5,11 @@ metadata:
   namespace: kube-system
   annotations:
     eks.amazonaws.com/role-arn: ${iam_role_arn}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ebs-snapshot-controller
+  namespace: kube-system
+  annotations:
+    eks.amazonaws.com/role-arn: ${iam_role_arn}
