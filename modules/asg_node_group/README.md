@@ -139,6 +139,7 @@ module "nodes" {
     "dedicated" = "gpu:PreferNoSchedule"
   }
 }
+```
 
 ### Volume size
 
