@@ -125,6 +125,13 @@ module "aws_ebs_csi_driver" {
   )
 }
 
+module "cert_manager" {
+  source   = "./kubectl"
+  config   = local.config
+  apply    = var.aws_load_balancer_controller
+  manifest = file("${path.module}/addons/cert-manager.yaml")
+}
+
 module "aws_load_balancer_controller_crds" {
   source   = "./kubectl"
   config   = local.config

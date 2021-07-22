@@ -8,6 +8,7 @@ helm repo add eks https://aws.github.io/eks-charts
 helm repo add autoscaler https://kubernetes.github.io/autoscaler
 helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
 helm repo add eks https://aws.github.io/eks-charts
+helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
 helm_template() {
@@ -22,6 +23,7 @@ helm_template eks aws-node-termination-handler 0.13.3
 helm_template autoscaler cluster-autoscaler 9.1
 helm_template nvdp nvidia-device-plugin 0.8.2
 helm_template eks aws-load-balancer-controller 1.1.5
+helm_template jetstack cert-manager 1.4.0
 
 curl -o $ADDONS_DIR/kustomize/overlays/metrics-server/resources/metrics-server.yaml -L https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.4.2/components.yaml
 kustomize_build metrics-server
