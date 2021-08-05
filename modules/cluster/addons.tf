@@ -124,25 +124,3 @@ module "aws_ebs_csi_driver" {
     { iam_role_arn = local.aws_ebs_csi_driver_iam_role_arn }
   )
 }
-
-module "aws_load_balancer_controller_crds" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.aws_load_balancer_controller
-  manifest = file("${path.module}/addons/aws-load-balancer-controller-crds.yaml")
-}
-
-module "aws_load_balancer_controller" {
-  source = "./kubectl"
-  config = local.config
-  apply  = var.aws_load_balancer_controller
-  manifest = templatefile(
-    "${path.module}/addons/aws-load-balancer-controller.yaml",
-    {
-      iam_role_arn = local.aws_load_balancer_controller_iam_role_arn,
-      cluster_name = var.name,
-      vpc_id       = var.vpc_config.vpc_id,
-      aws_region   = data.aws_region.current.name,
-    }
-  )
-}
