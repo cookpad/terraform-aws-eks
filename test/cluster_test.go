@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gruntwork-io/terratest/modules/aws"
-	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
@@ -87,7 +85,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateKubeBench(t, kubeconfig)
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
-		validateIngress(t, kubeconfig)
 		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
 			"aws_ebs_csi_driver": true,
 		})
@@ -109,7 +106,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateKubeBenchExpectedFails(t, kubeconfig, 0)
 		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
-		validateIngress(t, kubeconfig)
 	})
 
 	test_structure.RunTestStage(t, "validate_gpu_node_group", func() {
@@ -380,86 +376,6 @@ spec:
       - name: persistent-storage
         persistentVolumeClaim:
           claimName: ebs-claim
-`
-
-func validateIngress(t *testing.T, kubeconfig string) {
-	namespace := strings.ToLower(random.UniqueId())
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
-	workload := fmt.Sprintf(EXAMPLE_INGRESS_WORKLOAD, namespace, namespace, namespace, namespace)
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
-	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
-	url := retry.DoWithRetry(t, "get ingress url", 10, 10*time.Second, func() (string, error) {
-		ingress := k8s.GetIngress(t, kubectlOptions, "echoserver")
-		if len(ingress.Status.LoadBalancer.Ingress) == 0 {
-			return "", errors.New("ingress not ready")
-		}
-		return fmt.Sprintf("http://%s", ingress.Status.LoadBalancer.Ingress[0].Hostname), nil
-	})
-	validation := func(status int, _ string) bool {
-		return status == 200
-	}
-	http_helper.HttpGetWithRetryWithCustomValidation(t, url, nil, 20, time.Minute, validation)
-}
-
-const EXAMPLE_INGRESS_WORKLOAD = `---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: %s
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: echoserver
-  namespace: %s
-spec:
-  ports:
-    - port: 80
-      targetPort: 8080
-      protocol: TCP
-  type: NodePort
-  selector:
-    app: echoserver
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: echoserver
-  namespace: %s
-spec:
-  selector:
-    matchLabels:
-      app: echoserver
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        app: echoserver
-    spec:
-      containers:
-      - image: gcr.io/google_containers/echoserver:1.4
-        imagePullPolicy: Always
-        name: echoserver
-        ports:
-        - containerPort: 8080
----
-
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: echoserver
-  namespace: %s
-  annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /
-            backend:
-              serviceName: echoserver
-              servicePort: 80
 `
 
 func validateKubeBench(t *testing.T, kubeconfig string) {
