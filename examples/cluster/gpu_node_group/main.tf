@@ -15,7 +15,7 @@ module "gpu_nodes" {
   gpu             = true
   instance_family = "gpu"
   instance_size   = "2xlarge"
-  instance_types  = ["p3.2xlarge"]
+  instance_types  = ["p2.xlarge", "p3.2xlarge"]
   zone_awareness  = false
   min_size        = 1
 
