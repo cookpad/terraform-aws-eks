@@ -36,7 +36,7 @@ jobs:
         uses: rtCamp/action-slack-notify@master
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: "#k8s"
+          SLACK_CHANNEL: "#sig-k8s"
           SLACK_USERNAME: terraform-aws-eks release bot
           SLACK_ICON_EMOJI: ":rocket:"
           SLACK_TITLE: 🚨 Releasing terraform-aws-eks version ${{ github.event.inputs.releaseTag }}
