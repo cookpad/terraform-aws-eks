@@ -72,7 +72,7 @@ done
 for NODE in $NODES_TO_ROLL
 do
   detach $NODE
-  kubectl drain --delete-local-data --ignore-daemonsets $NODE
+  kubectl drain --delete-empty-dir --ignore-daemonsets $NODE
   aws $AWS_EXTRA_ARGS ec2 terminate-instances --instance-ids $(instance_id $NODE)
   wait_for_pods
 done
