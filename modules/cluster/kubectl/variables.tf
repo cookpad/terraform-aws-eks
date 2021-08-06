@@ -29,3 +29,9 @@ variable "replace" {
   description = "Fall back to replace --force if apply fails"
   default     = false
 }
+
+variable "role_arn" {
+  type        = string
+  description = "IAM role to assume when authenticating with the EKS cluster, defaults to role assumed by aws provider config"
+  default     = ""
+}
