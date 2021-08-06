@@ -37,7 +37,7 @@ or otherwise break a cluster.
 
 # Branching
 
-`master` is the main development branch for this module. Changes to the module
+`main` is the main development branch for this module. Changes to the module
 and updates should be merged here via pull request. Master should be maintained
 with the most up-to date working configuration.
 
