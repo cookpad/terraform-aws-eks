@@ -10,7 +10,7 @@ on:
       - '*.md'
       - 'docs/**'
     branches:
-      - master
+      - main
       - release-*
   schedule:
     - cron: "0 11 * * 1-5"

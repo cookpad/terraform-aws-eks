@@ -62,7 +62,7 @@ and nodes. To continue to use these (and avoid recreating the cluster) set
 Update terraform state:
 
 ```shell
-wget https://raw.githubusercontent.com/cookpad/terraform-aws-eks/master/hack/update_1_15.sh
+wget https://raw.githubusercontent.com/cookpad/terraform-aws-eks/main/hack/update_1_15.sh
 chmod +x update_1_15.sh
 ./update_1_15.sh example-cluster-module
 ```
