@@ -107,14 +107,6 @@ module "prometheus_node_exporter" {
   manifest = file("${path.module}/addons/prometheus-node-exporter.yaml")
 }
 
-module "nvidia_device_plugin" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.nvidia_device_plugin
-  manifest = file("${path.module}/addons/nvidia-device-plugin.yaml")
-  replace  = true
-}
-
 module "aws_ebs_csi_driver" {
   source = "./kubectl"
   config = local.config

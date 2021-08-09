@@ -108,17 +108,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateStorage(t, kubeconfig)
 	})
 
-	test_structure.RunTestStage(t, "validate_gpu_node_group", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
-		defer os.Remove(kubeconfig)
-		gpuNodeGroupDir := "../examples/cluster/gpu_node_group"
-		deployTerraform(t, gpuNodeGroupDir, map[string]interface{}{})
-		defer cleanupTerraform(t, gpuNodeGroupDir)
-		validateGPUNodes(t, kubeconfig)
-		validateKubeBench(t, kubeconfig)
-		validateNodeTerminationHandler(t, kubeconfig)
-	})
 }
 
 func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
@@ -281,48 +270,6 @@ func validateNodeTerminationHandler(t *testing.T, kubeconfig string) {
 	// Check that the handler is running on all the nodes
 	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "k8s-app=aws-node-termination-handler"}, len(nodes), 30, 6*time.Second)
 }
-
-func validateGPUNodes(t *testing.T, kubeconfig string) {
-	// Generate some example workload
-	namespace := strings.ToLower(random.UniqueId())
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
-	workload := fmt.Sprintf(EXAMPLE_GPU_WORKLOAD, namespace, namespace)
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
-	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
-	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=gpu-test-workload"}, 1, 30, 32*time.Second)
-}
-
-const EXAMPLE_GPU_WORKLOAD = `---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: %s
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: test-gpu-workload
-  namespace: %s
-spec:
-  template:
-    metadata:
-      labels:
-        app: gpu-test-workload
-    spec:
-      restartPolicy: OnFailure
-      containers:
-      - name: nvidia-smi
-        image: nvidia/cuda:9.2-devel
-        args:
-        - "nvidia-smi"
-        - "--list-gpus"
-        resources:
-          limits:
-            nvidia.com/gpu: 1
-      tolerations:
-        - key: nvidia.com/gpu
-          operator: Exists
-`
 
 func validateStorage(t *testing.T, kubeconfig string) {
 	// Generate some example workload
