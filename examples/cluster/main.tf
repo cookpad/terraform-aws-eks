@@ -12,10 +12,9 @@ module "cluster" {
   vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
   iam_config = data.terraform_remote_state.environment.outputs.iam_config
 
-  envelope_encryption_enabled  = false
-  metrics_server               = true
-  aws_load_balancer_controller = true
-  aws_ebs_csi_driver           = var.aws_ebs_csi_driver
+  envelope_encryption_enabled = false
+  metrics_server              = true
+  aws_ebs_csi_driver          = var.aws_ebs_csi_driver
 
   critical_addons_node_group_key_name = "development"
 
