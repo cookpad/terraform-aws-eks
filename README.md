@@ -78,7 +78,7 @@ to assume a common IAM role in the aws provider definition.
 ```hcl
 provider "aws" {
   region              = "us-east-1"
-  version             = "3.49.0"
+  version             = "3.53.0"
   assume_role {
     role_arn = "arn:aws:iam::<your account id>:role/Terraform"
   }
