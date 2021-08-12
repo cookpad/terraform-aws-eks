@@ -60,10 +60,9 @@ data "aws_region" "current" {}
 data "template_file" "cloud_config" {
   template = file("${path.module}/cloud_config.tpl")
   vars = {
-    cluster_name   = var.cluster_config.name
-    labels         = join(",", [for label, value in local.labels : "${label}=${value}"])
-    taints         = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
-    dns_cluster_ip = var.cluster_config.dns_cluster_ip
+    cluster_name = var.cluster_config.name
+    labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
+    taints       = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
   }
 }
 
@@ -92,7 +91,6 @@ data "template_file" "bottlerocket_config" {
     cluster_name                 = var.cluster_config.name
     cluster_endpoint             = var.cluster_config.endpoint
     cluster_ca_data              = var.cluster_config.ca_data
-    dns_cluster_ip               = var.cluster_config.dns_cluster_ip
     node_labels                  = join("\n", [for label, value in local.labels : "\"${label}\" = \"${value}\""])
     node_taints                  = join("\n", [for taint, value in var.taints : "\"${taint}\" = \"${value}\""])
     admin_container_enabled      = var.bottlerocket_admin_container_enabled
