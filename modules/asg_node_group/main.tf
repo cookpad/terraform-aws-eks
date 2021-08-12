@@ -53,9 +53,9 @@ data "aws_region" "current" {}
 data "template_file" "cloud_config" {
   template = file("${path.module}/cloud_config.tpl")
   vars = {
-    cluster_name   = var.cluster_config.name
-    labels         = join(",", [for label, value in local.labels : "${label}=${value}"])
-    taints         = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
+    cluster_name = var.cluster_config.name
+    labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
+    taints       = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
   }
 }
 
