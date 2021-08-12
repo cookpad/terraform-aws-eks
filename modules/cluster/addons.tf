@@ -32,21 +32,21 @@ resource "aws_eks_addon" "kube-proxy" {
   cluster_name      = local.config.name
   addon_name        = "kube-proxy"
   addon_version     = "v1.19.6-eksbuild.2"
-  resolve_conflicts = true
+  resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name      = local.config.name
   addon_name        = "vpc-cni"
   addon_version     = "v1.9.0-eksbuild.1"
-  resolve_conflicts = true
+  resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "coredns" {
   cluster_name      = local.config.name
   addon_name        = "coredns"
   addon_version     = "v1.8.3-eksbuild.1"
-  resolve_conflicts = true
+  resolve_conflicts = "OVERWRITE"
 }
 
 module "cluster_autoscaler" {
