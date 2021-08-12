@@ -8,7 +8,6 @@ locals {
     node_security_group   = aws_eks_cluster.control_plane.vpc_config.0.cluster_security_group_id
     node_instance_profile = var.iam_config.node_role
     tags                  = var.tags
-    dns_cluster_ip        = length(var.dns_cluster_ip) > 0 ? var.dns_cluster_ip : (split(".", data.aws_vpc.network.cidr_block)[0] == "10" ? "172.20.0.10" : "10.100.0.10")
     aws_ebs_csi_driver    = var.aws_ebs_csi_driver
   }
 }
