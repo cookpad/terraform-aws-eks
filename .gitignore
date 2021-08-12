@@ -2,3 +2,4 @@
 **/terraform.tfstate**
 **/.test-data/**
 !.terraform-version
+!**/.terraform.lock.hcl
