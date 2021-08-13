@@ -228,3 +228,9 @@ variable "critical_addons_node_group_bottlerocket_admin_container_source" {
   default     = ""
   description = "URI of a custom admin container image"
 }
+
+variable "security_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "A list of security group IDs for the cross-account elastic network interfaces that Amazon EKS creates to use to allow communication with the Kubernetes control plane. *WARNING* changes to this list will cause the cluster to be recreated."
+}
