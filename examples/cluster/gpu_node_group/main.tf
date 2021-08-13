@@ -12,12 +12,13 @@ module "gpu_nodes" {
   name     = "gpu-nodes"
   key_name = "development"
 
-  gpu             = true
-  instance_family = "gpu"
-  instance_size   = "2xlarge"
-  instance_types  = ["p3.2xlarge"]
-  zone_awareness  = false
-  min_size        = 1
+  gpu                = true
+  instance_family    = "gpu"
+  instance_size      = "xlarge"
+  instance_types     = ["g4dn.xlarge"]
+  zone_awareness     = false
+  min_size           = 1
+  instance_lifecycle = "on_demand"
 
   labels = {
     "k8s.amazonaws.com/accelerator" = "nvidia-tesla-v100"
