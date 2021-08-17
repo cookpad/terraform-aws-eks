@@ -159,7 +159,7 @@ func validateSecretsBehaviour(t *testing.T, kubeconfig string) {
 	namespace := strings.ToLower(random.UniqueId())
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
 	secretManifest := fmt.Sprintf(EXAMPLE_SECRET, namespace, namespace)
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, secretManifest)
+	defer k8s.DeleteNamespace(t, kubectlOptions, namespace)
 	k8s.KubectlApplyFromString(t, kubectlOptions, secretManifest)
 	secret := k8s.GetSecret(t, kubectlOptions, "keys-to-the-kingdom")
 	password := secret.Data["password"]
@@ -234,7 +234,7 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	namespace := strings.ToLower(random.UniqueId())
 	kubectlOptions = k8s.NewKubectlOptions("", kubeconfig, namespace)
 	workload := fmt.Sprintf(EXAMPLE_WORKLOAD, namespace, namespace)
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
+	defer k8s.DeleteNamespace(t, kubectlOptions, namespace)
 	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
 
 	// Check the cluster scales up
@@ -287,7 +287,7 @@ func validateGPUNodes(t *testing.T, kubeconfig string) {
 	namespace := strings.ToLower(random.UniqueId())
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
 	workload := fmt.Sprintf(EXAMPLE_GPU_WORKLOAD, namespace, namespace)
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
+	defer k8s.DeleteNamespace(t, kubectlOptions, namespace)
 	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
 	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=gpu-test-workload"}, 1, 30, 32*time.Second)
 }
@@ -329,7 +329,7 @@ func validateStorage(t *testing.T, kubeconfig string) {
 	namespace := strings.ToLower(random.UniqueId())
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
 	workload := fmt.Sprintf(EXAMPLE_STORAGE_WORKLOAD, namespace, namespace, namespace)
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, workload)
+	defer k8s.DeleteNamespace(t, kubectlOptions, namespace)
 	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
 	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=storage-test-workload"}, 1, 30, 10*time.Second)
 }
@@ -384,7 +384,7 @@ func validateKubeBench(t *testing.T, kubeconfig string) {
 
 func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedFails int) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-bench")
-	defer k8s.KubectlDeleteFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
+	defer k8s.DeleteNamespace(t, kubectlOptions, "kube-bench")
 	k8s.KubectlApplyFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
 	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=kube-bench"}, 1, 30, 5*time.Second)
 	output, err := k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "logs", "-l", "app=kube-bench")
