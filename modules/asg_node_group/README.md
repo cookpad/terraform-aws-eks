@@ -14,7 +14,7 @@ This module provisions nodes for your cluster by managing AWS auto scaling group
 
 ```hcl
 module "nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config     = module.cluster.config
   max_size           = 60
@@ -51,7 +51,7 @@ first instance type in a family is used.
 e.g.
 ```hcl
 module "nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config     = module.cluster.config
   instance_family    = "compute_optimized"
@@ -68,7 +68,7 @@ used in this case to provide part of the ASG name.
 e.g.
 ```hcl
 module "nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config     = module.cluster.config
   max_size           = 16
@@ -96,7 +96,7 @@ admission controller, see: https://github.com/aws/containers-roadmap/issues/739
 
 ```hcl
 module "gpu_nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config = module.cluster.config
 
@@ -126,7 +126,7 @@ control of where your workloads are scheduled.
 e.g.
 ```hcl
 module "nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config     = module.cluster.config
 
@@ -149,7 +149,7 @@ e.g.
 
 ```hcl
 module "nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config     = module.cluster.config
   root_volume_size   = 10
@@ -170,7 +170,7 @@ e.g.
 
 ```hcl
 module "nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config     = module.cluster.config
   zone_awareness     = false
@@ -208,7 +208,7 @@ To use bottlerocket set the bottlerocket variable.
 
 ```hcl
 module "bottlerocket_nodes" {
-  source = "cookpad/eks/aws//modules/aws_node_group"
+  source = "cookpad/eks/aws//modules/asg_node_group"
 
   cluster_config     = module.cluster.config
   bottlerocket       = true
