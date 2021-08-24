@@ -4,6 +4,10 @@ provider "aws" {
   allowed_account_ids = ["214219211678"]
 }
 
+data "http" "ip" {
+  url = "http://ipv4.icanhazip.com"
+}
+
 module "cluster" {
   source = "../../modules/cluster"
 
@@ -12,10 +16,14 @@ module "cluster" {
   vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
   iam_config = data.terraform_remote_state.environment.outputs.iam_config
 
-  metrics_server              = true
-  aws_ebs_csi_driver          = var.aws_ebs_csi_driver
+  metrics_server     = true
+  aws_ebs_csi_driver = var.aws_ebs_csi_driver
 
   critical_addons_node_group_key_name = "development"
+
+
+  endpoint_public_access       = true
+  endpoint_public_access_cidrs = ["${chomp(data.http.ip.body)}/32"]
 
 
   aws_auth_role_map = [

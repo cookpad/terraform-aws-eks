@@ -18,6 +18,7 @@ resource "aws_eks_cluster" "control_plane" {
   vpc_config {
     endpoint_private_access = true
     endpoint_public_access  = var.endpoint_public_access
+    public_access_cidrs     = var.endpoint_public_access_cidrs
     security_group_ids      = concat(aws_security_group.control_plane.*.id, var.security_group_ids)
     subnet_ids              = concat(values(var.vpc_config.public_subnet_ids), values(var.vpc_config.private_subnet_ids))
   }

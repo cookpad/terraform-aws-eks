@@ -9,7 +9,12 @@ variable "k8s_version" {
 variable "endpoint_public_access" {
   type        = bool
   description = "Indicates whether or not the Amazon EKS public API server endpoint is enabled."
-  default     = true
+  default     = false
+}
+
+variable "endpoint_public_access_cidrs" {
+  type    = list(string)
+  default = []
 }
 
 variable "cluster_log_types" {
