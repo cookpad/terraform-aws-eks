@@ -103,6 +103,7 @@ locals {
 }
 
 resource "aws_kms_key" "cmk" {
-  count       = local.create_key ? 1 : 0
-  description = "eks secrets cmk: ${var.name}"
+  count               = local.create_key ? 1 : 0
+  description         = "eks secrets cmk: ${var.name}"
+  enable_key_rotation = true
 }
