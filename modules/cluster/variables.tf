@@ -128,12 +128,6 @@ variable "aws_auth_user_map" {
   description = "A list of mappings from aws user arns to kubernetes users, and their groups"
 }
 
-variable "envelope_encryption_enabled" {
-  type        = bool
-  default     = true
-  description = "Should Cluster Envelope Encryption be enabled, if changed after provisioning - forces the cluster to be recreated"
-}
-
 variable "kms_cmk_arn" {
   type        = string
   default     = ""

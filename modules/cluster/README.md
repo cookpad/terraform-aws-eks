@@ -74,10 +74,9 @@ module "cluster" {
 
 ## Secret encryption
 
-This feature is enabled by default, but may be disabled by setting
-`envelope_encryption_enabled = false`
+This feature is enabled, and cannot be disabled.
 
-When enabled secrets are automatically encrypted with a Kubernetes-generated
+Secrets are automatically encrypted with a Kubernetes-generated
 data encryption key, which is then encrypted using a KMS master key.
 
 By default a new KMS customer master key is generated per cluster, but you may
