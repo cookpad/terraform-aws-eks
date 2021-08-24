@@ -49,6 +49,7 @@ resource "aws_cloudwatch_log_group" "control_plane" {
   name              = "/aws/eks/${var.name}/cluster"
   retention_in_days = 7
   tags              = var.tags
+  kms_key_id        = local.kms_cmk_arn
 }
 
 /*
@@ -102,8 +103,68 @@ locals {
   kms_cmk_arn = local.create_key ? aws_kms_key.cmk.*.arn[0] : var.kms_cmk_arn
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+
+data "aws_iam_policy_document" "cloudwatch" {
+  policy_id = "key-policy-cloudwatch"
+  statement {
+    sid = "Enable IAM User Permissions"
+    actions = [
+      "kms:*",
+    ]
+    effect = "Allow"
+    principals {
+      type = "AWS"
+      identifiers = [
+        format(
+          "arn:%s:iam::%s:root",
+          data.aws_partition.current.partition,
+          data.aws_caller_identity.current.account_id
+        )
+      ]
+    }
+    resources = ["*"]
+  }
+  statement {
+    sid = "AllowCloudWatchLogs"
+    actions = [
+      "kms:Encrypt*",
+      "kms:Decrypt*",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Describe*"
+    ]
+    effect = "Allow"
+    principals {
+      type = "Service"
+      identifiers = [
+        format(
+          "logs.%s.amazonaws.com",
+          data.aws_region.current.name
+        )
+      ]
+    }
+    resources = ["*"]
+    condition {
+      test     = "ArnEquals"
+      variable = "kms:EncryptionContext:aws:logs:arn"
+      values = [
+        format(
+          "arn:aws:logs:%s:%s:log-group:/aws/eks/%s/cluster",
+          data.aws_region.current.name,
+          data.aws_caller_identity.current.account_id,
+          var.name,
+        )
+      ]
+    }
+  }
+}
+
+
 resource "aws_kms_key" "cmk" {
   count               = local.create_key ? 1 : 0
   description         = "eks secrets cmk: ${var.name}"
   enable_key_rotation = true
+  policy              = data.aws_iam_policy_document.cloudwatch.json
 }
