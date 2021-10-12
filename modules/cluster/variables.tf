@@ -2,9 +2,6 @@ variable "name" {
   type = string
 }
 
-variable "k8s_version" {
-  default = "1.19"
-}
 
 variable "endpoint_public_access" {
   type        = bool
