@@ -32,6 +32,13 @@ rules:
   - nodes
   verbs:
   - get
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -144,7 +151,7 @@ spec:
         operator: "Exists"
       containers:
       - name: coredns
-        image: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/eks/coredns:v1.8.0-eksbuild.1
+        image: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/eks/coredns:v1.8.3-eksbuild.1
         imagePullPolicy: IfNotPresent
         resources:
           limits:
