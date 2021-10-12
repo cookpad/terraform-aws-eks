@@ -331,7 +331,7 @@ func validateStorage(t *testing.T, kubeconfig string) {
 	workload := fmt.Sprintf(EXAMPLE_STORAGE_WORKLOAD, namespace, namespace, namespace)
 	defer k8s.DeleteNamespace(t, kubectlOptions, namespace)
 	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
-	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=storage-test-workload"}, 1, 30, 10*time.Second)
+	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=storage-test-workload"}, 1, 60, 10*time.Second)
 }
 
 const EXAMPLE_STORAGE_WORKLOAD = `---
@@ -386,7 +386,7 @@ func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedFai
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-bench")
 	defer k8s.DeleteNamespace(t, kubectlOptions, "kube-bench")
 	k8s.KubectlApplyFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
-	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=kube-bench"}, 1, 30, 5*time.Second)
+	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=kube-bench"}, 1, 60, 5*time.Second)
 	output, err := k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "logs", "-l", "app=kube-bench")
 	require.NoError(t, err)
 	resultWrapper := KubeBenchResult{}
