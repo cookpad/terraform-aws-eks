@@ -5,13 +5,16 @@
 data "aws_iam_role" "service_role" {
   name = var.iam_config.service_role
 }
+locals {
+  k8s_version = "1.19"
+}
 
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
   role_arn = data.aws_iam_role.service_role.arn
   tags     = var.tags
 
-  version = var.k8s_version
+  version = local.k8s_version
 
   enabled_cluster_log_types = var.cluster_log_types
 
