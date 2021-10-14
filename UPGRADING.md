@@ -5,6 +5,8 @@
 * Check the notes for the Kubernetes version you are upgrading to at https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html
 * After upgrading the terraform module, remember to follow the [roll nodes](docs/roll_nodes.md) procedure to roll out upgraded nodes to your cluster.
 
+## 1.19 -> 1.20
+[247](https://github.com/cookpad/terraform-aws-eks/pull/247) 💥 Breaking Change. The `k8s_version` variable has been removed. Use the correct version of the module for the k8s version you want to use.
 
 ## 1.18 -> 1.19
 

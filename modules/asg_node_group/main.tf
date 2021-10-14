@@ -1,4 +1,5 @@
 locals {
+  k8s_version = "1.19"
   preset_instance_families = {
     memory_optimized  = ["r5", "r5d", "r5n", "r5dn", "r5a", "r5ad"]
     general_purpose   = ["m5", "m5d", "m5n", "m5dn", "m5a", "m5ad"]
@@ -25,7 +26,7 @@ locals {
 }
 
 data "aws_ssm_parameter" "image_id" {
-  name = "/aws/service/eks/optimized-ami/${var.k8s_version}/amazon-linux-2${var.gpu ? "-gpu" : ""}/recommended/image_id"
+  name = "/aws/service/eks/optimized-ami/${local.k8s_version}/amazon-linux-2${var.gpu ? "-gpu" : ""}/recommended/image_id"
 }
 
 data "aws_ami" "image" {
@@ -37,7 +38,7 @@ data "aws_ami" "image" {
 }
 
 data "aws_ssm_parameter" "bottlerocket_image_id" {
-  name = "/aws/service/bottlerocket/aws-k8s-${var.k8s_version}/x86_64/latest/image_id"
+  name = "/aws/service/bottlerocket/aws-k8s-${local.k8s_version}/x86_64/latest/image_id"
 }
 
 data "aws_ami" "bottlerocket_image" {
