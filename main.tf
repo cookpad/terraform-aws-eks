@@ -15,6 +15,9 @@ module "iam" {
 }
 
 module "cluster" {
+  depends_on = [
+    module.iam,
+  ]
   source = "./modules/cluster"
 
   name = var.cluster_name
@@ -29,6 +32,9 @@ module "cluster" {
 }
 
 module "node_group" {
+  depends_on = [
+    module.iam,
+  ]
   source = "./modules/asg_node_group"
 
   cluster_config = module.cluster.config
