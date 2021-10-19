@@ -43,6 +43,7 @@ resource "aws_iam_role_policy" "set_name_tag" {
   name = "set_name_tag"
   role = aws_iam_role.eks_node.id
 
+  #tfsec:ignore:AWS099
   policy = <<-EOF
   {
     "Version": "2012-10-17",
