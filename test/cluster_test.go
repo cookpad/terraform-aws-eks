@@ -37,7 +37,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 
 	test_structure.RunTestStage(t, "deploy_cluster", func() {
 		uniqueId := random.UniqueId()
-		clusterName := fmt.Sprintf("terraform-aws-eks-testing-longer-name-test-for-label-failure-%s", uniqueId)
+		clusterName := fmt.Sprintf("terraform-aws-eks-testing-name-test-%s", uniqueId)
 		deployTerraform(t, environmentDir, map[string]interface{}{})
 		deployTerraform(t, workingDir, map[string]interface{}{
 			"cluster_name":       clusterName,
