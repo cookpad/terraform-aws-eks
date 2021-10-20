@@ -27,8 +27,6 @@ module "cluster" {
 
   aws_auth_role_map = var.aws_auth_role_map
   aws_auth_user_map = var.aws_auth_user_map
-
-  envelope_encryption_enabled = var.envelope_encryption_enabled
 }
 
 module "node_group" {

@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "cluster_autoscaler_policy" {
       "autoscaling:SetDesiredCapacity",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
     ]
-    resources = ["*"]
+    resources = ["*"] #tfsec:ignore:AWS099
   }
 }
 resource "aws_iam_role_policy" "cluster_autoscaler" {

@@ -21,18 +21,16 @@ resource "aws_eks_cluster" "control_plane" {
   vpc_config {
     endpoint_private_access = true
     endpoint_public_access  = var.endpoint_public_access
+    public_access_cidrs     = var.endpoint_public_access_cidrs
     security_group_ids      = concat(aws_security_group.control_plane.*.id, var.security_group_ids)
     subnet_ids              = concat(values(var.vpc_config.public_subnet_ids), values(var.vpc_config.private_subnet_ids))
   }
 
-  dynamic "encryption_config" {
-    for_each = local.encryption_configs
-    content {
-      resources = ["secrets"]
+  encryption_config {
+    resources = ["secrets"]
 
-      provider {
-        key_arn = encryption_config.value
-      }
+    provider {
+      key_arn = local.kms_cmk_arn
     }
   }
 
@@ -55,6 +53,7 @@ resource "aws_cloudwatch_log_group" "control_plane" {
   name              = "/aws/eks/${var.name}/cluster"
   retention_in_days = 7
   tags              = var.tags
+  kms_key_id        = local.kms_cmk_arn
 }
 
 /*
@@ -104,12 +103,72 @@ module "storage_classes" {
 }
 
 locals {
-  create_key         = length(var.kms_cmk_arn) == 0 && var.envelope_encryption_enabled
-  kms_cmk_arn        = local.create_key ? aws_kms_key.cmk.*.arn : [var.kms_cmk_arn]
-  encryption_configs = var.envelope_encryption_enabled ? local.kms_cmk_arn : []
+  create_key  = length(var.kms_cmk_arn) == 0
+  kms_cmk_arn = local.create_key ? aws_kms_key.cmk.*.arn[0] : var.kms_cmk_arn
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+
+data "aws_iam_policy_document" "cloudwatch" {
+  policy_id = "key-policy-cloudwatch"
+  statement {
+    sid = "Enable IAM User Permissions"
+    actions = [
+      "kms:*",
+    ]
+    effect = "Allow"
+    principals {
+      type = "AWS"
+      identifiers = [
+        format(
+          "arn:%s:iam::%s:root",
+          data.aws_partition.current.partition,
+          data.aws_caller_identity.current.account_id
+        )
+      ]
+    }
+    resources = ["*"]
+  }
+  statement {
+    sid = "AllowCloudWatchLogs"
+    actions = [
+      "kms:Encrypt*",
+      "kms:Decrypt*",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Describe*"
+    ]
+    effect = "Allow"
+    principals {
+      type = "Service"
+      identifiers = [
+        format(
+          "logs.%s.amazonaws.com",
+          data.aws_region.current.name
+        )
+      ]
+    }
+    resources = ["*"]
+    condition {
+      test     = "ArnEquals"
+      variable = "kms:EncryptionContext:aws:logs:arn"
+      values = [
+        format(
+          "arn:aws:logs:%s:%s:log-group:/aws/eks/%s/cluster",
+          data.aws_region.current.name,
+          data.aws_caller_identity.current.account_id,
+          var.name,
+        )
+      ]
+    }
+  }
+}
+
+
 resource "aws_kms_key" "cmk" {
-  count       = local.create_key ? 1 : 0
-  description = "eks secrets cmk: ${var.name}"
+  count               = local.create_key ? 1 : 0
+  description         = "eks secrets cmk: ${var.name}"
+  enable_key_rotation = true
+  policy              = data.aws_iam_policy_document.cloudwatch.json
 }

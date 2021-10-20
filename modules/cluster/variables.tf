@@ -6,7 +6,12 @@ variable "name" {
 variable "endpoint_public_access" {
   type        = bool
   description = "Indicates whether or not the Amazon EKS public API server endpoint is enabled."
-  default     = true
+  default     = false
+}
+
+variable "endpoint_public_access_cidrs" {
+  type    = list(string)
+  default = []
 }
 
 variable "cluster_log_types" {
@@ -123,12 +128,6 @@ variable "aws_auth_user_map" {
   }))
   default     = []
   description = "A list of mappings from aws user arns to kubernetes users, and their groups"
-}
-
-variable "envelope_encryption_enabled" {
-  type        = bool
-  default     = true
-  description = "Should Cluster Envelope Encryption be enabled, if changed after provisioning - forces the cluster to be recreated"
 }
 
 variable "kms_cmk_arn" {
