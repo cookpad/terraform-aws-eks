@@ -2,16 +2,13 @@
   EKS control plane
 */
 
-data "aws_iam_role" "service_role" {
-  name = var.iam_config.service_role
-}
 locals {
   k8s_version = "1.19"
 }
 
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
-  role_arn = data.aws_iam_role.service_role.arn
+  role_arn = var.iam_config.service_role_arn
   tags     = var.tags
 
   version = local.k8s_version
@@ -60,15 +57,11 @@ resource "aws_cloudwatch_log_group" "control_plane" {
   Allow nodes to join the cluster
 */
 
-data "aws_iam_role" "node_role" {
-  name = var.iam_config.node_role
-}
-
 locals {
   aws_auth_role_map = concat(
     [
       {
-        rolearn  = data.aws_iam_role.node_role.arn
+        rolearn  = var.iam_config.node_role_arn
         username = "system:node:{{EC2PrivateDNSName}}"
         groups   = ["system:bootstrappers", "system:nodes"]
       },

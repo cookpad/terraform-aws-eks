@@ -32,13 +32,13 @@ variable "vpc_config" {
 
 variable "iam_config" {
   type = object({
-    service_role = string
-    node_role    = string
+    service_role_arn = string
+    node_role_arn    = string
   })
 
   default = {
-    service_role = "eksServiceRole"
-    node_role    = "EKSNode"
+    service_role_arn = ""
+    node_role_arn    = ""
   }
 
   description = "The IAM roles used by the cluster, If you use the included IAM module you can provide it's config output variable."
