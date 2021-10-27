@@ -8,6 +8,8 @@
 ## 1.19 -> 1.20
 [247](https://github.com/cookpad/terraform-aws-eks/pull/247) 💥 Breaking Change. The `k8s_version` variable has been removed. Use the correct version of the module for the k8s version you want to use.
 
+[#257](https://github.com/cookpad/terraform-aws-eks/pull/257) 💥 Breaking Change. This change deprecates `node_role` and `service_role` in the `iam_config` variable for the cluster module. Instead, you need to specify `node_role_arn` and `service_role_arn` via `iam_config`.
+
 ## 1.18 -> 1.19
 
 [#204](https://github.com/cookpad/terraform-aws-eks/pull/204) EKS no longer adds `kubernetes.io/cluster/<cluster-name>` to subnets. They will not be removed on upgrading to 1.19, but we recommend to codify the tags yourself for completeness if you are not using the vpc module and you want to keep using auto-discovery with eks-load-balancer-controller.
