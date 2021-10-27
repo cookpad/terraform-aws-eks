@@ -3,6 +3,11 @@ variable "cluster_name" {
   description = "A name for the EKS cluster, and the resources it depends on"
 }
 
+variable "cluster_names" {
+  type        = list(string)
+  description = ""
+}
+
 variable "cidr_block" {
   type        = string
   description = "The CIDR block for the VPC that EKS will run in"
