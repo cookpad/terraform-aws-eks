@@ -10,35 +10,55 @@ best practices employed by Cookpad's Global SRE team.
 
 ## Using this module
 
-The root module deploys a fully working EKS cluster in its own isolated
-network, the IAM resources required for the cluster to operate and a single
-pool of worker nodes.
+We recommend setting up your cluster(s) using the submodules.
 
-This could be useful if you quickly want to launch a Kubernetes cluster with
-minimal extra configuration, for example for testing and development purposes.
+This will allow you to flexibly manage and grow the configuration of your
+cluster(s) over time, you can also pick and choose the parts of the configuration
+you want to manage with these modules.
 
+This setup allows you to:
+
+* Easily add (and remove) additional node groups to your cluster.
+* Easily add additional clusters to your VPC.
+* Provision a cluster to an existing VPC (assuming it has the correct subnets setup)
 
 ```hcl
-module "eks" {
-  source = "cookpad/eks/aws"
-  version = "~> 1.16"
+module "vpc" {
+  source  = "cookpad/eks/aws//modules/vpc"
+  version = "~> 1.19"
 
-  cluster_name       = "hal-9000"
+  name               = "us-east-1"
   cidr_block         = "10.4.0.0/16"
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
+
+module "iam" {
+  source  = "cookpad/eks/aws//modules/iam"
+  version = "~> 1.19"
+}
+
+
+module "cluster" {
+  source  = "cookpad/eks/aws//modules/cluster"
+  version = "~> 1.19"
+
+  name       = "hal-9000"
+
+  vpc_config = module.vpc.config
+  iam_config = module.iam.config
+}
+
+module "node_group" {
+  source  = "cookpad/eks/aws//modules/asg_node_group"
+  version = "~> 1.19"
+
+  cluster_config = module.cluster.config
+
+  max_size           = 60
+  instance_family    = "burstable"
+  instance_size      = "medium"
+}
 ```
-For more advanced uses, we recommend that you construct and configure
-your clusters using the submodules.
-
-[see example](https://github.com/cookpad/terraform-aws-eks/blob/main/examples/cluster/main.tf)
-
-This allows for much more flexibility, in order to for example:
-
-* Provision a cluster in an existing VPC.
-* Provision multiple clusters in the same VPC.
-* Provision several different node types for use by the same cluster.
-* To use existing IAM roles.
 
 ## Requirements
 
