@@ -17,6 +17,11 @@ variable "name" {
   type        = string
   default     = ""
   description = "An optional identifier for this node group"
+
+  validation {
+    condition     = length(var.name) < 64
+    error_message = "Name must be 63 characters or less."
+  }
 }
 
 variable "zone_awareness" {
