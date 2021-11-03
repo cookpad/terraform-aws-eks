@@ -17,12 +17,18 @@ locals {
   autoscaler_tags      = var.cluster_autoscaler ? { "k8s.io/cluster-autoscaler/enabled" = "true", "k8s.io/cluster-autoscaler/${var.cluster_config.name}" = "owned" } : {}
   bottlerocket_tags    = var.bottlerocket ? { "Name" = "eks-node-${var.cluster_config.name}" } : {}
   tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags, local.bottlerocket_tags)
+  node_group_label     = var.name != "" ? var.name : local.name_prefix
 
   labels = merge(
-    var.name != "" ? { "node-group.k8s.cookpad.com/name" = var.name } : { "node-group.k8s.cookpad.com/name" = local.name_prefix },
+    { "node-group.k8s.cookpad.com/name" = local.node_group_label },
     var.gpu ? { "nvidia.com/gpu" = "true" } : {},
     var.labels,
   )
+}
+
+data "assert_test" "node_group_label" {
+  test  = length(local.node_group_label) < 64
+  throw = "node-group.k8s.cookpad.com/name label must be 63 characters or less"
 }
 
 data "aws_ssm_parameter" "image_id" {
