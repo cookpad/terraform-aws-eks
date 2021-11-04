@@ -7,13 +7,13 @@ changelog:
     authors:
       - octocat
   categories:
-    - title: New Features 🎉
+    - title: Enhancements 🎉
       labels:
         - enhancement
     - title: Breaking Changes 💥
       labels:
         - breaking change
-    - title: Bug Fix 🚧
+    - title: Bug Fixes 🚧
       labels:
         - bug
     - title: Other Changes
