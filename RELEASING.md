@@ -57,5 +57,7 @@ We will continue to support the latest 3 minor EKS versions. Security fixes will
 
 # Release Procedure
 
-* Manually trigger the [Create Release](https://github.com/cookpad/terraform-aws-eks//actions?query=workflow%3A%22Create+Release%22) workflow - follow the [versioning guide](#versioning) when filling out the version input.
+We use GitHub's [automated release note](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes) feature to generate release notes for this module. Please follows the steps below to enforce our release policies described in this page.
+
+* Run `cd scripts/create_github_releases && go run main.go` and follow instructions to open a new GitHub Release page.
 * Check the version has been published at https://registry.terraform.io/modules/cookpad/eks/aws
