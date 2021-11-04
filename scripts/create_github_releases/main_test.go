@@ -7,18 +7,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+type input struct {
+	tag        string
+	preRelease string
+}
+
+type expect struct {
+	target string
+	err    error
+}
+
 func TestMain_validateRelease(t *testing.T) {
 	t.Parallel()
-
-	type input struct {
-		tag        string
-		preRelease string
-	}
-
-	type expect struct {
-		target string
-		err    error
-	}
 
 	tests := map[string]struct {
 		input  *input
