@@ -46,7 +46,7 @@ func validateRelease(tag, preRelease string) (string, error) {
 		if preRelease == "false" {
 			return "", errors.New("[ERROR] Prerelease must be true for release candidates")
 		}
-		// naming convention for release branch is release-{major}-{minor}
+		// release candidates must use main branch as a target
 		return "main", nil
 	} else {
 		versions := strings.Split(tag, ".")
