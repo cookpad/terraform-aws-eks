@@ -9,28 +9,13 @@ changelog:
   categories:
     - title: New Features 🎉
       labels:
-        - new feature
-    - title: New Features with Breaking Changes 🎉
-      labels:
-        - new feature
-        - breaking change
+        - enhancement
     - title: Breaking Changes 💥
       labels:
         - breaking change
     - title: Bug Fix 🚧
       labels:
         - bug
-    - title: Bug Fix with Breaking Changes 🚧
-      labels:
-        - bug
-        - breaking change
-    - title: Enhancements 📈
-      labels:
-        - enhancement
-    - title: Enhancements with Breaking Changes 📈
-      labels:
-        - enhancement
-        - breaking change
     - title: Other Changes
       labels:
         - "*"
