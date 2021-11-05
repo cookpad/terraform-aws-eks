@@ -1,18 +1,8 @@
 resource "aws_vpc" "network" {
   cidr_block           = var.cidr_block
   enable_dns_hostnames = true
-  tags = merge(
-    local.cluster_tags,
-    {
-      Name = var.name
-    }
-  )
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to tags: eks adds the kubernetes.io/cluster/${cluster_name} tag
-      tags,
-    ]
+  tags = {
+    Name = var.name
   }
 }
 
