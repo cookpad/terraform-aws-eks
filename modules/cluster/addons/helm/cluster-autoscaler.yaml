@@ -27,7 +27,7 @@ nameOverride: aws-cluster-autoscaler
 resources:
   limits:
     cpu: 100m
-    memory: 500Mi
+    memory: 300Mi
   requests:
     cpu: 100m
-    memory: 500Mi
+    memory: 300Mi
