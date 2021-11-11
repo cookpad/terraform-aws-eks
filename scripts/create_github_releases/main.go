@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pkg/browser"
 	"github.com/pkg/errors"
 )
 
@@ -84,6 +83,10 @@ func main() {
 	}
 
 	title := fmt.Sprintf("Release %s", tag)
+	// Encode white space with percent encoding
+	// because url.QueryEscape does not support
+	// percent encoding.
+	title = strings.Replace(title, " ", "%20", -1)
 
 	repositoryURL := "https://github.com/cookpad/terraform-aws-eks"
 
@@ -116,10 +119,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := browser.OpenURL(url.String()); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Input for GitHub Releases are successfully passed.")
-	fmt.Println("Please click 'Auto-generate release notes' button on your GitHub Release page and check the generated contents before you publish this release.")
+	fmt.Println("Input for GitHub Releases are successfully passed. Please follow the steps below\n")
+	fmt.Printf("Step 1: Access %s\n", url.String())
+	fmt.Println("Step 2: Click 'Auto-generate release notes' button on your GitHub Release page and check the generated contents before you publish this release.\n")
 }
