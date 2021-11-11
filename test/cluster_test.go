@@ -230,6 +230,11 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	// Check that the autoscaler pods are running
 	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app.kubernetes.io/name=aws-cluster-autoscaler"}, 1, 30, 6*time.Second)
 
+	nodes, err := k8s.GetNodesE(t, kubectlOptions)
+	if err != nil {
+		t.Fatal("Couldn't get node count")
+	}
+
 	// Generate some example workload
 	namespace := strings.ToLower(random.UniqueId())
 	kubectlOptions = k8s.NewKubectlOptions("", kubeconfig, namespace)
@@ -238,7 +243,7 @@ func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
 
 	// Check the cluster scales up
-	waitForNodes(t, kubectlOptions, 2)
+	waitForNodes(t, kubectlOptions, len(nodes)+1)
 
 	// Check that the example workload pods can all run
 	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=test-workload"}, 2, 50, 32*time.Second)
