@@ -85,10 +85,6 @@ func main() {
 	}
 
 	title := fmt.Sprintf("Release %s", tag)
-	// Encode white space with percent encoding
-	// because url.QueryEscape does not support
-	// percent encoding.
-	title = strings.Replace(title, " ", "%20", -1)
 
 	// Check inputs
 	fmt.Println("# Check input to be used for a GitHub Release")
@@ -113,7 +109,7 @@ func main() {
 
 	// https://docs.github.com/en/repositories/releasing-projects-on-github/automation-for-release-forms-with-query-parameters
 	url, err := url.Parse(
-		fmt.Sprintf("%s/releases/new?tag=%s&target=%s&title=%s&prerelease=%s", repositoryURL, tag, target, title, preRelease),
+		fmt.Sprintf("%s/releases/new?tag=%s&target=%s&title=%s&prerelease=%s", repositoryURL, tag, target, url.QueryEscape(title), preRelease),
 	)
 	if err != nil {
 		log.Fatal(err)
