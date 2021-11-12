@@ -11,6 +11,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const repositoryURL = "https://github.com/cookpad/terraform-aws-eks"
+
 var (
 	// tag must specify major.minor.patch or major.minor.patch-rc#
 	// (e.g. 1.12.1, 1.12.1-rc1)
@@ -87,8 +89,6 @@ func main() {
 	// because url.QueryEscape does not support
 	// percent encoding.
 	title = strings.Replace(title, " ", "%20", -1)
-
-	repositoryURL := "https://github.com/cookpad/terraform-aws-eks"
 
 	// Check inputs
 	fmt.Println("# Check input to be used for a GitHub Release")
