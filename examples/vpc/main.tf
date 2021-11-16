@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-east-1"
-  version             = "3.5.0"
+  version             = "3.49.0"
   allowed_account_ids = ["214219211678"]
 }
 
