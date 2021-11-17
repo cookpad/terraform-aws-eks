@@ -21,13 +21,13 @@ extraArgs:
   balance-similar-node-groups: true
 image:
   repository: us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler
-  tag: v1.19.1
+  tag: v1.21.1
 fullnameOverride: cluster-autoscaler
 nameOverride: aws-cluster-autoscaler
 resources:
   limits:
     cpu: 100m
-    memory: 500Mi
+    memory: 300Mi
   requests:
     cpu: 100m
-    memory: 500Mi
+    memory: 300Mi
