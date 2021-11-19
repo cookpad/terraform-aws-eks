@@ -40,6 +40,21 @@ jobs:
       - name: 'Terraform Validate cluster'
         run: terraform validate
         working-directory: 'examples/cluster'
+  local-test:
+    name: Run local tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+      - name: 'Install Go'
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.2
+      - name: 'Local Tests'
+        run: | 
+          cd test
+          go get ./...
+          go test -v ./local_test.go
   cluster-test:
     name: Test cluster module
     if: "!contains(github.event.head_commit.message, '[skip ci]')"

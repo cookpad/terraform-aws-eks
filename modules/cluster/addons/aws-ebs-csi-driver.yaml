@@ -983,6 +983,7 @@ kind: ServiceAccount
 metadata:
   annotations:
     eks.amazonaws.com/role-arn: ${iam_role_arn}
+    eks.amazonaws.com/sts-regional-endpoints: "true"
   labels:
     app.kubernetes.io/name: aws-ebs-csi-driver
   name: ebs-csi-controller-sa
@@ -1001,6 +1002,7 @@ kind: ServiceAccount
 metadata:
   annotations:
     eks.amazonaws.com/role-arn: ${iam_role_arn}
+    eks.amazonaws.com/sts-regional-endpoints: "true"
   labels:
     app.kubernetes.io/name: aws-ebs-csi-driver
   name: ebs-snapshot-controller

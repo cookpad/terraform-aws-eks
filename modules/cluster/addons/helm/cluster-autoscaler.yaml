@@ -11,6 +11,7 @@ rbac:
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: ${iam_role_arn}
+      eks.amazonaws.com/sts-regional-endpoints: "true"
 extraArgs:
   v: 4
   stderrthreshold: info

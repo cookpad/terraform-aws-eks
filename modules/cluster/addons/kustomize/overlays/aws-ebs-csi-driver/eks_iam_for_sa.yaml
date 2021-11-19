@@ -5,6 +5,7 @@ metadata:
   namespace: kube-system
   annotations:
     eks.amazonaws.com/role-arn: ${iam_role_arn}
+    eks.amazonaws.com/sts-regional-endpoints: "true"
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -13,3 +14,4 @@ metadata:
   namespace: kube-system
   annotations:
     eks.amazonaws.com/role-arn: ${iam_role_arn}
+    eks.amazonaws.com/sts-regional-endpoints: "true"
