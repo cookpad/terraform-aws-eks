@@ -71,6 +71,7 @@ metadata:
   name: cluster-autoscaler
   annotations: 
     eks.amazonaws.com/role-arn: ${iam_role_arn}
+    eks.amazonaws.com/sts-regional-endpoints: "true"
 automountServiceAccountToken: true
 ---
 # Source: cluster-autoscaler/templates/clusterrole.yaml

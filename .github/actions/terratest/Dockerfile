@@ -1,14 +1,18 @@
-FROM alpine:3.13.5
+FROM golang:1.17.3-alpine3.13
+
+WORKDIR /
 
 ARG TERRAFORM_VERSION=0.12.31
 ARG KUBECTL_VERSION=1.20.5
 ARG KUBECTL_SHA=7f9dbb80190945a5077dc5f4230202c22f68f9bd7f20c213c3cf5a74abf55e56
 
+
 RUN apk add --no-cache \
       bash \
+      gcc \
+      musl-dev \
       curl \
       git \
-      go \
       jq \
       perl-utils \
       aws-cli && \
