@@ -21,8 +21,10 @@ module "cluster" {
   vpc_config = module.vpc.config
   iam_config = module.iam.config
 
-  aws_auth_role_map = var.aws_auth_role_map
-  aws_auth_user_map = var.aws_auth_user_map
+  aws_auth_role_map            = var.aws_auth_role_map
+  aws_auth_user_map            = var.aws_auth_user_map
+  endpoint_public_access       = var.endpoint_public_access
+  endpoint_public_access_cidrs = var.endpoint_public_access_cidrs
 }
 
 module "node_group" {
