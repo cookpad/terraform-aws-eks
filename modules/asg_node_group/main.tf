@@ -147,7 +147,7 @@ resource "aws_autoscaling_group" "nodes" {
   vpc_zone_identifier       = each.value
   termination_policies      = var.termination_policies
   enabled_metrics           = var.enabled_metrics
-  wait_for_capacity_timeout = 0
+  wait_for_capacity_timeout = "10m"
 
   mixed_instances_policy {
     launch_template {
