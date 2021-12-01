@@ -25,42 +25,28 @@ module "critical_addons_node_group" {
 
 data "aws_region" "current" {}
 
-module "aws_k8s_cni" {
-  source = "./kubectl"
-  config = local.config
-  manifest = templatefile(
-    "${path.module}/addons/aws-k8s-cni.yaml",
-    { aws_region = data.aws_region.current.name }
-  )
+
+// When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get addon_version numbers
+
+resource "aws_eks_addon" "kube-proxy" {
+  cluster_name      = local.config.name
+  addon_name        = "kube-proxy"
+  addon_version     = "v1.19.6-eksbuild.2"
+  resolve_conflicts = "OVERWRITE"
 }
 
-data "aws_vpc" "network" {
-  id = var.vpc_config.vpc_id
+resource "aws_eks_addon" "vpc-cni" {
+  cluster_name      = local.config.name
+  addon_name        = "vpc-cni"
+  addon_version     = "v1.9.0-eksbuild.1"
+  resolve_conflicts = "OVERWRITE"
 }
 
-locals {
-  dns_cluster_ip = length(var.dns_cluster_ip) > 0 ? var.dns_cluster_ip : (split(".", data.aws_vpc.network.cidr_block)[0] == "10" ? "172.20.0.10" : "10.100.0.10")
-}
-
-module "coredns" {
-  source = "./kubectl"
-  config = local.config
-  manifest = templatefile(
-    "${path.module}/addons/coredns.yaml",
-    {
-      aws_region     = data.aws_region.current.name
-      dns_cluster_ip = local.dns_cluster_ip
-    },
-  )
-}
-
-module "kube_proxy" {
-  source = "./kubectl"
-  config = local.config
-  manifest = templatefile(
-    "${path.module}/addons/kube-proxy.yaml",
-    { aws_region = data.aws_region.current.name },
-  )
+resource "aws_eks_addon" "coredns" {
+  cluster_name      = local.config.name
+  addon_name        = "coredns"
+  addon_version     = "v1.8.3-eksbuild.1"
+  resolve_conflicts = "OVERWRITE"
 }
 
 module "cluster_autoscaler" {

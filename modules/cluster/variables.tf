@@ -154,12 +154,6 @@ variable "tags" {
   description = "A map of tags to assign to cluster AWS resources"
 }
 
-variable "dns_cluster_ip" {
-  type        = string
-  default     = ""
-  description = "Overrides the IP address to use for DNS queries within the cluster. Defaults to 10.100.0.10 or 172.20.0.10 based on the VPC cidr"
-}
-
 variable "critical_addons_node_group_min_size" {
   type        = number
   default     = 2
