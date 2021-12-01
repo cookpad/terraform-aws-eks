@@ -14,7 +14,7 @@ This module provisions nodes for your cluster by managing AWS auto scaling group
 
 ```hcl
 module "nodes" {
-  source = "cookpad/eks/aws//modules/asg_node_group"
+  source = "cookpad/eks/aws/modules/asg_node_group"
 
   cluster_config     = module.cluster.config
   max_size           = 60
