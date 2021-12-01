@@ -31,14 +31,14 @@ data "aws_region" "current" {}
 resource "aws_eks_addon" "kube-proxy" {
   cluster_name      = local.config.name
   addon_name        = "kube-proxy"
-  addon_version     = "v1.19.6-eksbuild.2"
+  addon_version     = "v1.20.7-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name      = local.config.name
   addon_name        = "vpc-cni"
-  addon_version     = "v1.9.0-eksbuild.1"
+  addon_version     = "v1.10.1-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
 }
 
