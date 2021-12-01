@@ -12,13 +12,15 @@ helm repo update
 
 helm_template() {
   helm template --no-hooks --namespace=kube-system --version $3 -f $ADDONS_DIR/helm/$2.yaml $2 $1/$2${4:-} | grep -v Helm > $ADDONS_DIR/$2.yaml
+  echo "foobar"
+  echo $2 $1/$2${4:-}
 }
 
 kustomize_build() {
   kustomize build $ADDONS_DIR/kustomize/overlays/$1 > $ADDONS_DIR/$1.yaml
 }
 
-helm_template eks aws-node-termination-handler 0.13.3
+helm_template eks aws-node-termination-handler 0.16.0
 helm_template autoscaler cluster-autoscaler 9.10
 helm_template nvdp nvidia-device-plugin 0.8.2
 

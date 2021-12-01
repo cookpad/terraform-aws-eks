@@ -5,3 +5,5 @@ enableSpotInterruptionDraining: true
 enableScheduledEventDraining: true
 ignoreDaemonSets: true
 enablePrometheusServer: true
+image:
+  tag: 1.14.0
