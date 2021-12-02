@@ -26,5 +26,5 @@ helm_template nvdp nvidia-device-plugin 0.10.0
 
 curl -o $ADDONS_DIR/kustomize/overlays/metrics-server/resources/metrics-server.yaml -L https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.5.2/components.yaml
 kustomize_build metrics-server
-curl -o $ADDONS_DIR/kustomize/overlays/aws-ebs-csi-driver/resources/crd_snapshotter.yaml -L https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/v1.0.0/deploy/kubernetes/cluster/crd_snapshotter.yaml
+
 kustomize_build aws-ebs-csi-driver

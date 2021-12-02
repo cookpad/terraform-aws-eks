@@ -1,12 +1,11 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 bases:
-- github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=v1.1.0
+- github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/ecr/?ref=v1.4.0
+
 images:
-- name: k8s.gcr.io/provider-aws/aws-ebs-csi-driver
-  newTag: v1.0.0
-resources:
-- resources/crd_snapshotter.yaml
+- name: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/aws-ebs-csi-driver
+  newTag: v1.4.0
 patchesStrategicMerge:
 - eks_iam_for_sa.yaml
 - daemonset_tolerations.yaml
