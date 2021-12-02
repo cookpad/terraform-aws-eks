@@ -30,7 +30,6 @@ module "cluster" {
 * Provisions a node group dedicated to running critical cluster level services:
   * [cluster-autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)
   * [metrics-server](https://github.com/kubernetes-sigs/metrics-server)
-  * [prometheus-node-exporter](https://github.com/prometheus/node_exporter)
   * [aws-node-termination-handler](https://github.com/aws/aws-node-termination-handler)
 * Configures EKS [cluster authentication](https://docs.aws.amazon.com/eks/latest/userguide/managing-auth.html)
 * Provisions security groups for node to cluster and infra node communication.
@@ -90,7 +89,6 @@ specify the arn of an existing key by setting `kms_cmk_arn`
 | [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) | `cluster_autoscaler` | ✅ enabled | `cluster_autoscaler_iam_role_arn` |
 | [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) | `aws_node_termination_handler` | ✅ enabled ||
 | [NVIDIA device plugin for Kubernetes](https://github.com/NVIDIA/k8s-device-plugin) | `nvidia_device_plugin` | ✅ enabled (but only schedules to gpu nodes) ||
-| [Prometheus Node Exporter](https://github.com/prometheus/node_exporter) | `prometheus_node_exporter` | ❌ disabled ||
 | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) | `metrics_server` | ❌ disabled ||
 | [Amazon Elastic Block Store (EBS) CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/) | `aws_ebs_csi_driver` | ❌ disabled | `aws_ebs_csi_driver_iam_role_arn` |
 

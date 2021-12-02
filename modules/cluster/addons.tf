@@ -86,13 +86,6 @@ module "aws_node_termination_handler" {
   replace  = true
 }
 
-module "prometheus_node_exporter" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.prometheus_node_exporter
-  manifest = file("${path.module}/addons/prometheus-node-exporter.yaml")
-}
-
 module "nvidia_device_plugin" {
   source   = "./kubectl"
   config   = local.config
