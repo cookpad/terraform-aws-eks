@@ -80,12 +80,6 @@ variable "aws_node_termination_handler" {
   description = "Should the AWS node termination handler be deployed"
 }
 
-variable "prometheus_node_exporter" {
-  type        = bool
-  default     = false
-  description = "Should the prometheus node exporter be deployed"
-}
-
 variable "aws_ebs_csi_driver" {
   type        = bool
   default     = false
