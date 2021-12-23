@@ -25,15 +25,16 @@ module "critical_addons_node_group" {
 
 data "aws_region" "current" {}
 
-
-// When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get addon_version numbers
-
-resource "aws_eks_addon" "kube-proxy" {
-  cluster_name      = local.config.name
-  addon_name        = "kube-proxy"
-  addon_version     = "v1.20.7-eksbuild.1"
-  resolve_conflicts = "OVERWRITE"
+# The kube-proxy EKS addon introduced regressions of #124 and #209. We will move to the EKS addon when these are fixed.
+module "kube_proxy" {
+  source = "./kubectl"
+  config = local.config
+  manifest = templatefile(
+    "${path.module}/addons/kube-proxy.yaml",
+    { aws_region = data.aws_region.current.name },
+  )
 }
+// When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get addon_version numbers
 
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name      = local.config.name
