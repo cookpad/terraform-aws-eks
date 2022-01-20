@@ -1,7 +1,7 @@
 # cluster module
 
 This module provisions an EKS cluster, including the EKS Kubernetes control
-plane, and several important cluster services (critial addons), and nodes to
+plane, and several important cluster services (critical addons), and nodes to
 run these services.
 
 It will **not** provision any nodes that can be used to run non cluster services.
