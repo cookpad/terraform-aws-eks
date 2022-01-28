@@ -11,7 +11,7 @@ variable "endpoint_public_access" {
 
 variable "endpoint_public_access_cidrs" {
   type    = list(string)
-  default = []
+  default = null
 }
 
 variable "cluster_log_types" {
