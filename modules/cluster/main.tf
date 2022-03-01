@@ -6,7 +6,7 @@ data "aws_iam_role" "service_role" {
   name = var.iam_config.service_role
 }
 locals {
-  k8s_version = "1.20"
+  k8s_version = "1.21"
 }
 
 resource "aws_eks_cluster" "control_plane" {
