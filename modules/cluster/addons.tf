@@ -39,14 +39,14 @@ module "kube_proxy" {
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name      = local.config.name
   addon_name        = "vpc-cni"
-  addon_version     = "v1.10.1-eksbuild.1"
+  addon_version     = "v1.10.2-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "coredns" {
   cluster_name      = local.config.name
   addon_name        = "coredns"
-  addon_version     = "v1.8.3-eksbuild.1"
+  addon_version     = "v1.8.4-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
 }
 
