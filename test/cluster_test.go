@@ -119,6 +119,18 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateKubeBench(t, kubeconfig)
 		validateNodeTerminationHandler(t, kubeconfig)
 	})
+
+	test_structure.RunTestStage(t, "validate_bottlerocket_gpu_node_group", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
+		defer os.Remove(kubeconfig)
+		gpuNodeGroupDir := "../examples/cluster/bottlerocket_gpu_node_group"
+		deployTerraform(t, gpuNodeGroupDir, map[string]interface{}{})
+		defer cleanupTerraform(t, gpuNodeGroupDir)
+		validateGPUNodes(t, kubeconfig)
+		validateKubeBench(t, kubeconfig)
+		validateNodeTerminationHandler(t, kubeconfig)
+	})
 }
 
 func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
