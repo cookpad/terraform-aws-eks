@@ -1,4 +1,4 @@
-name: tfsec-pr-commenter
+name: test-tfsec-pr-commenter-latest-fix
 on:
   pull_request:
 jobs:
@@ -9,7 +9,6 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@master
       - name: tfsec
-        uses: tfsec/tfsec-pr-commenter-action@main
+        uses: aidy/tfsec-pr-commenter-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tfsec_version: v1.13.0
