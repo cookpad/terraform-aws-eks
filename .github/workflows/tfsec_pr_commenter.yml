@@ -12,3 +12,4 @@ jobs:
         uses: tfsec/tfsec-pr-commenter-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          tfsec_version: v1.13.0
