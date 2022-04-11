@@ -18,6 +18,27 @@ locals {
   bottlerocket_tags    = var.bottlerocket ? { "Name" = "eks-node-${var.cluster_config.name}" } : {}
   tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags, local.bottlerocket_tags)
   node_group_label     = var.name != "" ? var.name : local.name_prefix
+  cloud_config = templatefile(
+    "${path.module}/cloud_config.tpl",
+    {
+      cluster_name = var.cluster_config.name
+      labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
+      taints       = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
+    }
+  )
+  bottlerocket_config = templatefile(
+    "${path.module}/bottlerocket_config.toml.tpl",
+    {
+      cluster_name                 = var.cluster_config.name
+      cluster_endpoint             = var.cluster_config.endpoint
+      cluster_ca_data              = var.cluster_config.ca_data
+      node_labels                  = join("\n", [for label, value in local.labels : "\"${label}\" = \"${value}\""])
+      node_taints                  = join("\n", [for taint, value in var.taints : "\"${taint}\" = \"${value}\""])
+      admin_container_enabled      = var.bottlerocket_admin_container_enabled
+      admin_container_superpowered = var.bottlerocket_admin_container_superpowered
+      admin_container_source       = var.bottlerocket_admin_container_source
+    }
+  )
 
   labels = merge(
     { "node-group.k8s.cookpad.com/name" = local.node_group_label },
@@ -57,22 +78,13 @@ data "aws_ami" "bottlerocket_image" {
 
 data "aws_region" "current" {}
 
-data "template_file" "cloud_config" {
-  template = file("${path.module}/cloud_config.tpl")
-  vars = {
-    cluster_name = var.cluster_config.name
-    labels       = join(",", [for label, value in local.labels : "${label}=${value}"])
-    taints       = join(",", [for taint, value_effect in var.taints : "${taint}=${value_effect}"])
-  }
-}
-
 data "template_cloudinit_config" "config" {
   gzip          = true
   base64_encode = true
 
   part {
     content_type = "text/plain"
-    content      = data.template_file.cloud_config.rendered
+    content      = local.cloud_config
   }
 
   dynamic "part" {
@@ -85,25 +97,11 @@ data "template_cloudinit_config" "config" {
   }
 }
 
-data "template_file" "bottlerocket_config" {
-  template = file("${path.module}/bottlerocket_config.toml.tpl")
-  vars = {
-    cluster_name                 = var.cluster_config.name
-    cluster_endpoint             = var.cluster_config.endpoint
-    cluster_ca_data              = var.cluster_config.ca_data
-    node_labels                  = join("\n", [for label, value in local.labels : "\"${label}\" = \"${value}\""])
-    node_taints                  = join("\n", [for taint, value in var.taints : "\"${taint}\" = \"${value}\""])
-    admin_container_enabled      = var.bottlerocket_admin_container_enabled
-    admin_container_superpowered = var.bottlerocket_admin_container_superpowered
-    admin_container_source       = var.bottlerocket_admin_container_source
-  }
-}
-
 resource "aws_launch_template" "config" {
   image_id               = var.bottlerocket ? data.aws_ami.bottlerocket_image.id : data.aws_ami.image.id
   name                   = local.name_prefix
   vpc_security_group_ids = concat([var.cluster_config.node_security_group], var.security_groups)
-  user_data              = var.bottlerocket ? base64encode(data.template_file.bottlerocket_config.rendered) : data.template_cloudinit_config.config.rendered
+  user_data              = var.bottlerocket ? base64encode(local.bottlerocket_config) : data.template_cloudinit_config.config.rendered
 
   instance_type = local.instance_types.0
 
