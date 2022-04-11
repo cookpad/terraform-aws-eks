@@ -22,6 +22,7 @@ locals {
   labels = merge(
     { "node-group.k8s.cookpad.com/name" = local.node_group_label },
     var.gpu ? { "nvidia.com/gpu" = "true" } : {},
+    var.bottlerocket ? { "bottlerocket" = "true" } : {},
     var.labels,
   )
 }
