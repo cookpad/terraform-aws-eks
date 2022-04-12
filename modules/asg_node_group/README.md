@@ -218,7 +218,7 @@ module "bottlerocket_nodes" {
 enable the [AWS EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver) by setting `aws_ebs_csi_driver = true` on the cluster module.
 see: https://github.com/bottlerocket-os/bottlerocket/blob/develop/QUICKSTART-EKS.md#csi-plugin
 
-⚠️ Bottlerocket does not yet [support GPU nodes](https://github.com/bottlerocket-os/bottlerocket/issues/769), do not set `gpu = true` when `bottlerocket = true`, as this may result in an invalid configuration!
+⚠️ Bottlerocket now [supports GPU nodes](https://github.com/bottlerocket-os/bottlerocket/blob/develop/QUICKSTART-EKS.md#aws-k8s--nvidia-variants), set `gpu = true` to enable them. Ensure that you set `instance_types` to a GPU instance type.
 
 📝 If you want to get a shell session on your instances via Bottlerocket's SSM agent
 you will need to attach the `arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore` policy

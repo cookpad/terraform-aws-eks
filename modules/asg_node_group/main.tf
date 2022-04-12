@@ -43,6 +43,7 @@ locals {
   labels = merge(
     { "node-group.k8s.cookpad.com/name" = local.node_group_label },
     var.gpu ? { "nvidia.com/gpu" = "true" } : {},
+    var.bottlerocket ? { "bottlerocket" = "true" } : {},
     var.labels,
   )
 }
@@ -65,7 +66,7 @@ data "aws_ami" "image" {
 }
 
 data "aws_ssm_parameter" "bottlerocket_image_id" {
-  name = "/aws/service/bottlerocket/aws-k8s-${local.k8s_version}/x86_64/latest/image_id"
+  name = "/aws/service/bottlerocket/aws-k8s-${local.k8s_version}${var.gpu ? "-nvidia" : ""}/x86_64/latest/image_id"
 }
 
 data "aws_ami" "bottlerocket_image" {
