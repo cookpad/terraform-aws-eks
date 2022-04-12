@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 0.14.11
+          terraform_version: 1.0.11
       - name: 'Terraform Format'
         run: terraform fmt -check -recursive
       - name: 'Terraform Init cluster'
