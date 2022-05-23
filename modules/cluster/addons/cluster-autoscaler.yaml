@@ -330,7 +330,7 @@ spec:
       dnsPolicy: "ClusterFirst"
       containers:
         - name: aws-cluster-autoscaler
-          image: "us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.21.1"
+          image: "us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.22.2"
           imagePullPolicy: "IfNotPresent"
           command:
             - ./cluster-autoscaler

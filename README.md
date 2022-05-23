@@ -25,7 +25,7 @@ This setup allows you to:
 ```hcl
 module "vpc" {
   source  = "cookpad/eks/aws//modules/vpc"
-  version = "~> 1.21"
+  version = "~> 1.22"
 
   name               = "us-east-1"
   cidr_block         = "10.4.0.0/16"
@@ -34,13 +34,13 @@ module "vpc" {
 
 module "iam" {
   source  = "cookpad/eks/aws//modules/iam"
-  version = "~> 1.21"
+  version = "~> 1.22"
 }
 
 
 module "cluster" {
   source  = "cookpad/eks/aws//modules/cluster"
-  version = "~> 1.21"
+  version = "~> 1.22"
 
   name       = "hal-9000"
 
@@ -50,7 +50,7 @@ module "cluster" {
 
 module "node_group" {
   source  = "cookpad/eks/aws//modules/asg_node_group"
-  version = "~> 1.21"
+  version = "~> 1.22"
 
   cluster_config = module.cluster.config
 
