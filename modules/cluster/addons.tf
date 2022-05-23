@@ -35,9 +35,10 @@ resource "aws_eks_addon" "vpc-cni" {
 }
 
 resource "aws_eks_addon" "kube-proxy" {
-  cluster_name  = local.config.name
-  addon_name    = "kube-proxy"
-  addon_version = "v1.21.2-eksbuild.2"
+  cluster_name      = local.config.name
+  addon_name        = "kube-proxy"
+  addon_version     = "v1.21.2-eksbuild.2"
+  resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "coredns" {
