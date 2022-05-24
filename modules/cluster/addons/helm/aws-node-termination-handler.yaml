@@ -5,3 +5,6 @@ enableSpotInterruptionDraining: true
 enableScheduledEventDraining: true
 ignoreDaemonSets: true
 enablePrometheusServer: true
+enableSqsTerminationDraining: false
+targetNodeOs: linux
+enableProbesServer: true
