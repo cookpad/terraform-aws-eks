@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
 spec:
   # Prevents running in privileged mode
   privileged: false
@@ -44,14 +44,15 @@ spec:
   readOnlyRootFilesystem: false
 ---
 # Source: cluster-autoscaler/templates/pdb.yaml
-apiVersion: policy/v1beta1
+apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
+  namespace: kube-system
 spec:
   selector:
     matchLabels:
@@ -67,8 +68,9 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
+  namespace: kube-system
   annotations: 
     eks.amazonaws.com/role-arn: ${iam_role_arn}
     eks.amazonaws.com/sts-regional-endpoints: "true"
@@ -81,7 +83,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
 rules:
   - apiGroups:
@@ -230,7 +232,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -248,8 +250,9 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
+  namespace: kube-system
 rules:
   - apiGroups:
       - ""
@@ -275,8 +278,9 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
+  namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -293,8 +297,9 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
+  namespace: kube-system
 spec:
   ports:
     - port: 8085
@@ -310,11 +315,14 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    {}
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.10.8"
+    helm.sh/chart: "cluster-autoscaler-9.18.1"
   name: cluster-autoscaler
+  namespace: kube-system
 spec:
   replicas: 1
   selector:
@@ -327,6 +335,7 @@ spec:
         app.kubernetes.io/instance: "cluster-autoscaler"
         app.kubernetes.io/name: "aws-cluster-autoscaler"
     spec:
+      priorityClassName: "system-cluster-critical"
       dnsPolicy: "ClusterFirst"
       containers:
         - name: aws-cluster-autoscaler
