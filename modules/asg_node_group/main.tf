@@ -79,30 +79,11 @@ data "aws_ami" "bottlerocket_image" {
 
 data "aws_region" "current" {}
 
-data "template_cloudinit_config" "config" {
-  gzip          = true
-  base64_encode = true
-
-  part {
-    content_type = "text/plain"
-    content      = local.cloud_config
-  }
-
-  dynamic "part" {
-    for_each = var.cloud_config
-    content {
-      content_type = "text/plain"
-      content      = part.value
-      merge_type   = "list(append)+dict(recurse_list)+str()"
-    }
-  }
-}
-
 resource "aws_launch_template" "config" {
   image_id               = var.bottlerocket ? data.aws_ami.bottlerocket_image.id : data.aws_ami.image.id
   name                   = local.name_prefix
   vpc_security_group_ids = concat([var.cluster_config.node_security_group], var.security_groups)
-  user_data              = var.bottlerocket ? base64encode(local.bottlerocket_config) : data.template_cloudinit_config.config.rendered
+  user_data              = var.bottlerocket ? base64gzip(local.bottlerocket_config) : base64gzip(local.cloud_config)
 
   instance_type = local.instance_types.0
 
