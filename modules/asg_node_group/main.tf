@@ -120,6 +120,13 @@ resource "aws_launch_template" "config" {
     }
   }
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = var.nodes_metadata_http_tokens
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "disabled"
+  }
+
   tag_specifications {
     resource_type = "instance"
     tags          = local.tags
