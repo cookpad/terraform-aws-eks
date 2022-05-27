@@ -48,6 +48,13 @@ resource "aws_eks_addon" "coredns" {
   resolve_conflicts = "OVERWRITE"
 }
 
+resource "aws_eks_addon" "ebs-csi" {
+  cluster_name      = local.config.name
+  addon_name        = "aws-ebs-csi-driver"
+  addon_version     = "v1.5.2-eksbuild.1"
+  resolve_conflicts = "OVERWRITE"
+}
+
 module "cluster_autoscaler" {
   source = "./kubectl"
   config = local.config
