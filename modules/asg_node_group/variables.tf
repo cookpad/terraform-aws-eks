@@ -77,12 +77,6 @@ variable "gpu" {
   description = "Set if using GPU instance types"
 }
 
-variable "cloud_config" {
-  type        = list(string)
-  default     = []
-  description = "Provide additional cloud-config(s), will be merged with the default config"
-}
-
 variable "labels" {
   type        = map(string)
   default     = {}

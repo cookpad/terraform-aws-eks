@@ -172,12 +172,6 @@ variable "critical_addons_node_group_instance_family" {
   description = "The family of instances that this group will launch, should be one of: memory_optimized, general_purpose, compute_optimized or burstable. Defaults to general_purpose"
 }
 
-variable "critical_addons_node_group_cloud_config" {
-  type        = list(string)
-  default     = []
-  description = "Provide additional cloud-config(s) for the critical addons node group, will be merged with the default config"
-}
-
 variable "critical_addons_node_group_key_name" {
   type    = string
   default = ""
