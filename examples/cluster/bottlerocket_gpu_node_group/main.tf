@@ -24,6 +24,8 @@ module "node_group" {
   instance_types = ["g4dn.xlarge"]
   min_size       = 1
 
+  imdsv2_enabled = true
+
   labels = {
     "cookpad.com/terraform-aws-eks-test-environment" = data.terraform_remote_state.cluster.outputs.cluster_name
   }
