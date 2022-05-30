@@ -42,6 +42,8 @@ module "cluster" {
     }
   ]
 
+  imdsv2_enabled = true
+
   tags = {
     Project = "terraform-aws-eks"
   }
