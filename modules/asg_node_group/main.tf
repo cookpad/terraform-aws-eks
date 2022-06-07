@@ -103,7 +103,7 @@ resource "aws_launch_template" "config" {
 
   metadata_options {
     http_endpoint               = "enabled"
-    http_tokens                 = var.imdsv2_enabled ? "required" : "optional"
+    http_tokens                 = var.imdsv2_required ? "required" : "optional"
     http_put_response_hop_limit = 2
     instance_metadata_tags      = "disabled" # Bug https://github.com/terraform-aws-modules/terraform-aws-eks/blob/7d3c714c5195c5358deb8279e130435241f61271/CHANGELOG.md
   }

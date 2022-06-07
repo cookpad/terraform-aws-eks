@@ -28,7 +28,7 @@ module "gpu_nodes" {
   min_size           = 1
   instance_lifecycle = "on_demand"
 
-  imdsv2_enabled = true
+  imdsv2_required = true
 
   labels = {
     "k8s.amazonaws.com/accelerator" = "nvidia-tesla-v100"

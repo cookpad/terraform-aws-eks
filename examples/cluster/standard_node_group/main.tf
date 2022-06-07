@@ -20,7 +20,7 @@ module "node_group" {
   name     = "standard-nodes"
   key_name = "development"
 
-  imdsv2_enabled = true
+  imdsv2_required = true
 
   labels = {
     "cookpad.com/terraform-aws-eks-test-environment" = data.terraform_remote_state.cluster.outputs.cluster_name
