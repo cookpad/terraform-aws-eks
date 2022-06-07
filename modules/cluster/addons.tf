@@ -49,7 +49,7 @@ resource "aws_eks_addon" "coredns" {
 }
 
 resource "aws_eks_addon" "ebs-csi" {
-  count                    = local.aws_ebs_csi_driver_iam_role_count
+  count                    = var.aws_ebs_csi_driver
   cluster_name             = local.config.name
   addon_name               = "aws-ebs-csi-driver"
   addon_version            = "v1.6.1-eksbuild.1"
