@@ -5,5 +5,5 @@ variable "cluster_name" {
 
 variable "aws_ebs_csi_driver" {
   type    = bool
-  default = false
+  default = true
 }

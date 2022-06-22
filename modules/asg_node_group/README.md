@@ -224,3 +224,10 @@ see: https://github.com/bottlerocket-os/bottlerocket/blob/develop/QUICKSTART-EKS
 you will need to attach the `arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore` policy
 to your node instance profile. If you use the `cookpad/eks/aws//modules/iam` module to
 provision your node role, then this is done by default!
+
+### IMDSv2 instead of v1 to secure nodes from a hacker to obtain AWS credentials
+
+By default, IMDSv2 will be enabled through the variable nodes_metadata_http_tokens.
+
+⚠️ If you are using kube2iam change the default value to "optional". [terraform IMDSv2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template#metadata-options)
+Once we don't have any cluster using kube2iam, this variable can be removed and forced to be required the token.
