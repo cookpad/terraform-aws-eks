@@ -24,29 +24,36 @@ module "critical_addons_node_group" {
 
 data "aws_region" "current" {}
 
-# The kube-proxy EKS addon introduced regressions of #124 and #209. We will move to the EKS addon when these are fixed.
-module "kube_proxy" {
-  source = "./kubectl"
-  config = local.config
-  manifest = templatefile(
-    "${path.module}/addons/kube-proxy.yaml",
-    { aws_region = data.aws_region.current.name },
-  )
-}
 // When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get addon_version numbers
 
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name      = local.config.name
   addon_name        = "vpc-cni"
-  addon_version     = "v1.10.2-eksbuild.1"
+  addon_version     = "v1.11.0-eksbuild.1"
+  resolve_conflicts = "OVERWRITE"
+}
+
+resource "aws_eks_addon" "kube-proxy" {
+  cluster_name      = local.config.name
+  addon_name        = "kube-proxy"
+  addon_version     = "v1.22.6-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "coredns" {
   cluster_name      = local.config.name
   addon_name        = "coredns"
-  addon_version     = "v1.8.4-eksbuild.1"
+  addon_version     = "v1.8.7-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
+}
+
+resource "aws_eks_addon" "ebs-csi" {
+  count                    = var.aws_ebs_csi_driver ? 1 : 0
+  cluster_name             = local.config.name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = "v1.6.1-eksbuild.1"
+  service_account_role_arn = local.aws_ebs_csi_driver_iam_role_arn
+  resolve_conflicts        = "OVERWRITE"
 }
 
 module "cluster_autoscaler" {
@@ -94,12 +101,3 @@ module "nvidia_device_plugin" {
   replace  = true
 }
 
-module "aws_ebs_csi_driver" {
-  source = "./kubectl"
-  config = local.config
-  apply  = var.aws_ebs_csi_driver
-  manifest = templatefile(
-    "${path.module}/addons/aws-ebs-csi-driver.yaml",
-    { iam_role_arn = local.aws_ebs_csi_driver_iam_role_arn }
-  )
-}
