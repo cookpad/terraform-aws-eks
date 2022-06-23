@@ -101,6 +101,12 @@ resource "aws_launch_template" "config" {
     }
   }
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = var.imdsv2_required ? "required" : "optional"
+    http_put_response_hop_limit = 2
+  }
+
   tag_specifications {
     resource_type = "instance"
     tags          = local.tags
