@@ -212,3 +212,9 @@ variable "security_group_ids" {
   default     = []
   description = "A list of security group IDs for the cross-account elastic network interfaces that Amazon EKS creates to use to allow communication with the Kubernetes control plane. *WARNING* changes to this list will cause the cluster to be recreated."
 }
+
+variable "enable_install_k8s_yaml_addons_manifests" {
+  type = bool
+  default = true
+  description = "Will install yml k8s manifests like autoscaler, ..."
+}
