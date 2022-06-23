@@ -57,7 +57,7 @@ resource "aws_eks_addon" "ebs-csi" {
 }
 
 module "cluster_autoscaler" {
-  count  = var.enable_install_k8s_yaml_addons_manifests
+  count  = var.enable_install_k8s_yaml_addons_manifests ? 1 : 0
   source = "./kubectl"
   config = local.config
   apply  = var.cluster_autoscaler
@@ -72,7 +72,7 @@ module "cluster_autoscaler" {
 }
 
 module "metrics_server" {
-  count    = var.enable_install_k8s_yaml_addons_manifests
+  count    = var.enable_install_k8s_yaml_addons_manifests ? 1 : 0
   source   = "./kubectl"
   config   = local.config
   apply    = var.metrics_server
@@ -81,7 +81,7 @@ module "metrics_server" {
 }
 
 module "pod_nanny" {
-  count    = var.enable_install_k8s_yaml_addons_manifests
+  count    = var.enable_install_k8s_yaml_addons_manifests ? 1 : 0
   source   = "./kubectl"
   config   = local.config
   apply    = var.metrics_server
@@ -89,7 +89,7 @@ module "pod_nanny" {
 }
 
 module "aws_node_termination_handler" {
-  count    = var.enable_install_k8s_yaml_addons_manifests
+  count    = var.enable_install_k8s_yaml_addons_manifests ? 1 : 0
   source   = "./kubectl"
   config   = local.config
   apply    = var.aws_node_termination_handler
@@ -98,7 +98,7 @@ module "aws_node_termination_handler" {
 }
 
 module "nvidia_device_plugin" {
-  count    = var.enable_install_k8s_yaml_addons_manifests
+  count    = var.enable_install_k8s_yaml_addons_manifests ? 1 : 0
   source   = "./kubectl"
   config   = local.config
   apply    = var.nvidia_device_plugin
