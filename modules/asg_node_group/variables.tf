@@ -178,3 +178,9 @@ variable "bottlerocket_admin_container_source" {
   default     = ""
   description = "URI of a custom admin container image"
 }
+
+variable "imdsv2_required" {
+  type        = bool
+  default     = true
+  description = "Security - whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). If you re using kube2iam make it false"
+}
