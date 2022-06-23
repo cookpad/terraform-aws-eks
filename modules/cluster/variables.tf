@@ -214,7 +214,7 @@ variable "security_group_ids" {
 }
 
 variable "enable_install_k8s_yaml_addons_manifests" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "Will install yml k8s manifests like autoscaler, ..."
 }
