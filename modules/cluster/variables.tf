@@ -68,12 +68,6 @@ variable "cluster_autoscaler_iam_role_arn" {
   description = "The IAM role for the cluster_autoscaler, if omitted then an IAM role will be created"
 }
 
-variable "aws_node_termination_handler" {
-  type        = bool
-  default     = true
-  description = "Should the AWS node termination handler be deployed"
-}
-
 variable "aws_ebs_csi_driver" {
   type        = bool
   default     = false

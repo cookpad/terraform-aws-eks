@@ -81,7 +81,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer cleanupTerraform(t, nodeGroupDir)
 		validateClusterAutoscaler(t, kubeconfig)
 		validateKubeBench(t, kubeconfig)
-		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
 			"aws_ebs_csi_driver": true,
@@ -102,7 +101,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateClusterAutoscaler(t, kubeconfig)
 		// https://github.com/bottlerocket-os/bottlerocket/pull/1295
 		validateKubeBenchExpectedFails(t, kubeconfig, 0)
-		validateNodeTerminationHandler(t, kubeconfig)
 		validateStorage(t, kubeconfig)
 	})
 
@@ -115,7 +113,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer cleanupTerraform(t, gpuNodeGroupDir)
 		validateGPUNodes(t, kubeconfig)
 		validateKubeBench(t, kubeconfig)
-		validateNodeTerminationHandler(t, kubeconfig)
 	})
 
 	test_structure.RunTestStage(t, "validate_bottlerocket_gpu_node_group", func() {
@@ -127,7 +124,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		defer cleanupTerraform(t, gpuNodeGroupDir)
 		validateGPUNodes(t, kubeconfig)
 		validateKubeBench(t, kubeconfig)
-		validateNodeTerminationHandler(t, kubeconfig)
 	})
 }
 
@@ -280,13 +276,6 @@ spec:
           requests:
             cpu: "1100m"
 `
-
-func validateNodeTerminationHandler(t *testing.T, kubeconfig string) {
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
-	nodes := k8s.GetNodes(t, kubectlOptions)
-	// Check that the handler is running on all the nodes
-	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "k8s-app=aws-node-termination-handler"}, len(nodes), 30, 6*time.Second)
-}
 
 func validateGPUNodes(t *testing.T, kubeconfig string) {
 	// Generate some example workload
