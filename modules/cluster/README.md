@@ -29,7 +29,6 @@ module "cluster" {
   * Configures [envelope encryption](https://aws.amazon.com/about-aws/whats-new/2020/03/amazon-eks-adds-envelope-encryption-for-secrets-with-aws-kms/) for Kubernetes secrets with KMS
 * Provisions a node group dedicated to running critical cluster level services:
   * [cluster-autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)
-  * [metrics-server](https://github.com/kubernetes-sigs/metrics-server)
   * [aws-node-termination-handler](https://github.com/aws/aws-node-termination-handler)
 * Configures EKS [cluster authentication](https://docs.aws.amazon.com/eks/latest/userguide/managing-auth.html)
 * Provisions security groups for node to cluster and infra node communication.

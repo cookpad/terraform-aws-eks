@@ -70,21 +70,6 @@ module "cluster_autoscaler" {
   )
 }
 
-module "metrics_server" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.metrics_server
-  manifest = file("${path.module}/addons/metrics-server.yaml")
-  replace  = true
-}
-
-module "pod_nanny" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.metrics_server
-  manifest = file("${path.module}/addons/pod-nanny.yaml")
-}
-
 module "aws_node_termination_handler" {
   source   = "./kubectl"
   config   = local.config

@@ -68,12 +68,6 @@ variable "cluster_autoscaler_iam_role_arn" {
   description = "The IAM role for the cluster_autoscaler, if omitted then an IAM role will be created"
 }
 
-variable "metrics_server" {
-  type        = bool
-  default     = false
-  description = "Should the metrics server be deployed"
-}
-
 variable "aws_node_termination_handler" {
   type        = bool
   default     = true

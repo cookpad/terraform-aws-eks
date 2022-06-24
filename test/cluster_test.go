@@ -11,7 +11,6 @@ import (
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 
@@ -67,7 +66,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateCluster(t, kubeconfig)
 		validateSecretsBehaviour(t, kubeconfig)
 		validateDNS(t, kubeconfig)
-		validateMetricsServer(t, kubeconfig)
 		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
 		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
 		defer os.Remove(admin_kubeconfig)
@@ -225,15 +223,6 @@ spec:
           operator: Exists
   backoffLimit: 4
 `
-
-func validateMetricsServer(t *testing.T, kubeconfig string) {
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
-	maxRetries := 20
-	sleepBetweenRetries := 6 * time.Second
-	retry.DoWithRetry(t, "wait for kubectl top pods to work", maxRetries, sleepBetweenRetries, func() (string, error) {
-		return k8s.RunKubectlAndGetOutputE(t, kubectlOptions, "top", "pods")
-	})
-}
 
 func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
 

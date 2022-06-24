@@ -21,7 +21,3 @@ kustomize_build() {
 helm_template eks aws-node-termination-handler 0.18.4
 helm_template autoscaler cluster-autoscaler 9.18.1
 helm_template nvdp nvidia-device-plugin 0.11.0
-
-curl -o $ADDONS_DIR/kustomize/overlays/metrics-server/resources/metrics-server.yaml -L https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.5.2/components.yaml
-kustomize_build metrics-server
-
