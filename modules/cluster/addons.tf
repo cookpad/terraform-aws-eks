@@ -69,11 +69,3 @@ module "cluster_autoscaler" {
     }
   )
 }
-module "nvidia_device_plugin" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.nvidia_device_plugin
-  manifest = file("${path.module}/addons/nvidia-device-plugin.yaml")
-  replace  = true
-}
-

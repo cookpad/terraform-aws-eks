@@ -118,12 +118,6 @@ variable "kms_cmk_arn" {
   description = "The ARN of the KMS (CMK) customer master key, to be used for Envelope Encryption of Kubernetes secrets, if not set a key will be generated"
 }
 
-variable "nvidia_device_plugin" {
-  type        = bool
-  default     = true
-  description = "Should the nvidia device plugin be installed, required for GPU nodes"
-}
-
 variable "legacy_security_groups" {
   type        = bool
   default     = false
