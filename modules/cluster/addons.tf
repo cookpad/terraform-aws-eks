@@ -69,35 +69,3 @@ module "cluster_autoscaler" {
     }
   )
 }
-
-module "metrics_server" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.metrics_server
-  manifest = file("${path.module}/addons/metrics-server.yaml")
-  replace  = true
-}
-
-module "pod_nanny" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.metrics_server
-  manifest = file("${path.module}/addons/pod-nanny.yaml")
-}
-
-module "aws_node_termination_handler" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.aws_node_termination_handler
-  manifest = file("${path.module}/addons/aws-node-termination-handler.yaml")
-  replace  = true
-}
-
-module "nvidia_device_plugin" {
-  source   = "./kubectl"
-  config   = local.config
-  apply    = var.nvidia_device_plugin
-  manifest = file("${path.module}/addons/nvidia-device-plugin.yaml")
-  replace  = true
-}
-

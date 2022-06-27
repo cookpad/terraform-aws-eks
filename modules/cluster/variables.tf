@@ -68,18 +68,6 @@ variable "cluster_autoscaler_iam_role_arn" {
   description = "The IAM role for the cluster_autoscaler, if omitted then an IAM role will be created"
 }
 
-variable "metrics_server" {
-  type        = bool
-  default     = false
-  description = "Should the metrics server be deployed"
-}
-
-variable "aws_node_termination_handler" {
-  type        = bool
-  default     = true
-  description = "Should the AWS node termination handler be deployed"
-}
-
 variable "aws_ebs_csi_driver" {
   type        = bool
   default     = false
@@ -128,12 +116,6 @@ variable "kms_cmk_arn" {
   type        = string
   default     = ""
   description = "The ARN of the KMS (CMK) customer master key, to be used for Envelope Encryption of Kubernetes secrets, if not set a key will be generated"
-}
-
-variable "nvidia_device_plugin" {
-  type        = bool
-  default     = true
-  description = "Should the nvidia device plugin be installed, required for GPU nodes"
 }
 
 variable "legacy_security_groups" {
