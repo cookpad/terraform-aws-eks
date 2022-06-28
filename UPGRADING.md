@@ -5,6 +5,9 @@
 * Check the notes for the Kubernetes version you are upgrading to at https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html
 * After upgrading the terraform module, remember to follow the [roll nodes](docs/roll_nodes.md) procedure to roll out upgraded nodes to your cluster.
 
+## 1.21 -> 1.22
+ * Removed yaml k8s addons: nvidia, aws-node-termination-handler, metrics-server, pod_nanny (PR) only remains cluster-autoscaler, The idea is that terraform doesn't manage anymore k8s components in future releases, just the AWS Addons. So Flux or any GitOps system should manage k8s components.
+
 ## 1.20 -> 1.21
  * [261](https://github.com/cookpad/terraform-aws-eks/issues/267/) 💥 Breaking Change. Modules now require terraform version >=1.0.
 
