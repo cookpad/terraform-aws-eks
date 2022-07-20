@@ -397,9 +397,6 @@ type KubeBenchResultTotals struct {
 	TotalInfo int `json:"total_info"`
 }
 
-// Override kube-bench config.yaml for bottlerocket support
-// This should be fixed with kube-bench 0.6.0
-// https://github.com/aquasecurity/kube-bench/issues/808
 const KUBEBENCH_MANIFEST = `---
 apiVersion: v1
 kind: Namespace
@@ -420,8 +417,8 @@ spec:
       hostPID: true
       containers:
         - name: kube-bench
-          image: aquasec/kube-bench:v0.6.5
-          command: ["kube-bench", "run", "--targets=node", "--benchmark", "eks-1.0", "--json"]
+          image: aquasec/kube-bench:v0.6.8
+          command: ["kube-bench", "run", "--targets=node", "--benchmark", "eks-1.0.1", "--json"]
           volumeMounts:
             - name: var-lib-kubelet
               mountPath: /var/lib/kubelet
