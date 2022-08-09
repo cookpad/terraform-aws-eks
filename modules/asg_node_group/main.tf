@@ -13,7 +13,7 @@ locals {
   asg_subnets          = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
   max_size             = floor(var.max_size / length(local.asg_subnets))
   min_size             = ceil(var.min_size / length(local.asg_subnets))
-  root_device_mappings = var.bottlerocket ? tolist(data.aws_ami.bottlerocket_image.block_device_mappings)[0] : tolist(data.aws_ami.image.block_device_mappings)[0]
+  root_device_mappings = var.bottlerocket ? tolist(data.aws_ami.bottlerocket_image.block_device_mappings)[1] : tolist(data.aws_ami.image.block_device_mappings)[0]
   autoscaler_tags      = var.cluster_autoscaler ? { "k8s.io/cluster-autoscaler/enabled" = "true", "k8s.io/cluster-autoscaler/${var.cluster_config.name}" = "owned" } : {}
   bottlerocket_tags    = var.bottlerocket ? { "Name" = "eks-node-${var.cluster_config.name}" } : {}
   tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags, local.bottlerocket_tags)
