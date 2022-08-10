@@ -13,7 +13,7 @@ locals {
   asg_subnets          = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
   max_size             = floor(var.max_size / length(local.asg_subnets))
   min_size             = ceil(var.min_size / length(local.asg_subnets))
-  root_device_mappings = var.bottlerocket ? tolist(data.aws_ami.bottlerocket_image.block_device_mappings)[0] : tolist(data.aws_ami.image.block_device_mappings)[0]
+  root_device_mappings = reverse(tolist(data.aws_ami.image.block_device_mappings))[0]
   autoscaler_tags      = var.cluster_autoscaler ? { "k8s.io/cluster-autoscaler/enabled" = "true", "k8s.io/cluster-autoscaler/${var.cluster_config.name}" = "owned" } : {}
   bottlerocket_tags    = var.bottlerocket ? { "Name" = "eks-node-${var.cluster_config.name}" } : {}
   tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags, local.bottlerocket_tags)
@@ -54,7 +54,7 @@ data "assert_test" "node_group_label" {
 }
 
 data "aws_ssm_parameter" "image_id" {
-  name = "/aws/service/eks/optimized-ami/${local.k8s_version}/amazon-linux-2${var.gpu ? "-gpu" : ""}/recommended/image_id"
+  name = var.bottlerocket ? "/aws/service/bottlerocket/aws-k8s-${local.k8s_version}${var.gpu ? "-nvidia" : ""}/x86_64/latest/image_id" : "/aws/service/eks/optimized-ami/${local.k8s_version}/amazon-linux-2${var.gpu ? "-gpu" : ""}/recommended/image_id"
 }
 
 data "aws_ami" "image" {
@@ -65,22 +65,10 @@ data "aws_ami" "image" {
   }
 }
 
-data "aws_ssm_parameter" "bottlerocket_image_id" {
-  name = "/aws/service/bottlerocket/aws-k8s-${local.k8s_version}${var.gpu ? "-nvidia" : ""}/x86_64/latest/image_id"
-}
-
-data "aws_ami" "bottlerocket_image" {
-  owners = ["amazon"]
-  filter {
-    name   = "image-id"
-    values = [data.aws_ssm_parameter.bottlerocket_image_id.value]
-  }
-}
-
 data "aws_region" "current" {}
 
 resource "aws_launch_template" "config" {
-  image_id               = var.bottlerocket ? data.aws_ami.bottlerocket_image.id : data.aws_ami.image.id
+  image_id               = data.aws_ami.image.id
   name                   = local.name_prefix
   vpc_security_group_ids = concat([var.cluster_config.node_security_group], var.security_groups)
   user_data              = var.bottlerocket ? base64gzip(local.bottlerocket_config) : base64gzip(local.cloud_config)
