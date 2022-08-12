@@ -29,29 +29,29 @@ data "aws_region" "current" {}
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name      = local.config.name
   addon_name        = "vpc-cni"
-  addon_version     = "v1.11.0-eksbuild.1"
+  addon_version     = "v1.11.2-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "kube-proxy" {
   cluster_name      = local.config.name
   addon_name        = "kube-proxy"
-  addon_version     = "v1.22.6-eksbuild.1"
+  addon_version     = "v1.23.7-eksbuild.1"
   resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "coredns" {
   cluster_name      = local.config.name
   addon_name        = "coredns"
-  addon_version     = "v1.8.7-eksbuild.1"
+  addon_version     = "v1.8.7-eksbuild.2"
   resolve_conflicts = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "ebs-csi" {
-  count                    = var.aws_ebs_csi_driver ? 1 : 0
+  count                    = 1
   cluster_name             = local.config.name
   addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.6.1-eksbuild.1"
+  addon_version            = "v1.10.0-eksbuild.1"
   service_account_role_arn = local.aws_ebs_csi_driver_iam_role_arn
   resolve_conflicts        = "OVERWRITE"
 }

@@ -6,7 +6,7 @@ data "aws_iam_role" "service_role" {
   name = var.iam_config.service_role
 }
 locals {
-  k8s_version = "1.22"
+  k8s_version = "1.23"
 }
 
 resource "aws_eks_cluster" "control_plane" {
@@ -96,8 +96,8 @@ module "storage_classes" {
   manifest = templatefile(
     "${path.module}/storage_classes.yaml.tmpl",
     {
-      provisioner = var.aws_ebs_csi_driver ? "ebs.csi.aws.com" : "kubernetes.io/aws-ebs",
-      fstype      = var.aws_ebs_csi_driver ? "csi.storage.k8s.io/fstype: ${var.pv_fstype}" : "fsType: ${var.pv_fstype}"
+      provisioner = "ebs.csi.aws.com",
+      fstype      = "csi.storage.k8s.io/fstype: ${var.pv_fstype}",
     }
   )
 }

@@ -21,8 +21,8 @@ extraArgs:
   expander: least-waste
   balance-similar-node-groups: true
 image:
-  repository: us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler
-  tag: v1.22.2
+  repository: k8s.gcr.io/autoscaling/cluster-autoscaler
+  tag: v1.23.1
 fullnameOverride: cluster-autoscaler
 nameOverride: aws-cluster-autoscaler
 resources:

@@ -8,7 +8,6 @@ variable "cluster_config" {
     node_security_group   = string
     node_instance_profile = string
     tags                  = map(string)
-    aws_ebs_csi_driver    = bool
   })
 }
 

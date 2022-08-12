@@ -68,12 +68,6 @@ variable "cluster_autoscaler_iam_role_arn" {
   description = "The IAM role for the cluster_autoscaler, if omitted then an IAM role will be created"
 }
 
-variable "aws_ebs_csi_driver" {
-  type        = bool
-  default     = false
-  description = "Should the Amazon Elastic Block Store (EBS) CSI driver be deployed"
-}
-
 variable "aws_ebs_csi_driver_iam_role_arn" {
   type        = string
   default     = ""

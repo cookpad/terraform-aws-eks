@@ -1,5 +1,5 @@
 locals {
-  aws_ebs_csi_driver_iam_role_count = length(var.aws_ebs_csi_driver_iam_role_arn) == 0 && var.aws_ebs_csi_driver ? 1 : 0
+  aws_ebs_csi_driver_iam_role_count = length(var.aws_ebs_csi_driver_iam_role_arn) == 0 ? 1 : 0
   aws_ebs_csi_driver_iam_role_arn   = length(var.aws_ebs_csi_driver_iam_role_arn) > 0 ? var.aws_ebs_csi_driver_iam_role_arn : join("", aws_iam_role.aws_ebs_csi_driver.*.arn)
 }
 
