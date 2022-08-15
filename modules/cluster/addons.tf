@@ -20,6 +20,10 @@ module "critical_addons_node_group" {
   taints = {
     "CriticalAddonsOnly" = "true:NoSchedule"
   }
+
+  depends_on = [
+    module.aws_auth
+  ]
 }
 
 data "aws_region" "current" {}
@@ -45,6 +49,9 @@ resource "aws_eks_addon" "coredns" {
   addon_name        = "coredns"
   addon_version     = "v1.8.7-eksbuild.2"
   resolve_conflicts = "OVERWRITE"
+  depends_on = [
+    module.critical_addons_node_group
+  ]
 }
 
 resource "aws_eks_addon" "ebs-csi" {
@@ -54,6 +61,9 @@ resource "aws_eks_addon" "ebs-csi" {
   addon_version            = "v1.10.0-eksbuild.1"
   service_account_role_arn = local.aws_ebs_csi_driver_iam_role_arn
   resolve_conflicts        = "OVERWRITE"
+  depends_on = [
+    module.critical_addons_node_group
+  ]
 }
 
 module "cluster_autoscaler" {
@@ -68,4 +78,7 @@ module "cluster_autoscaler" {
       aws_region   = data.aws_region.current.name
     }
   )
+  depends_on = [
+    module.critical_addons_node_group
+  ]
 }
