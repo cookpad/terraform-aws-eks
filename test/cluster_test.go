@@ -40,7 +40,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		deployTerraform(t, environmentDir, map[string]interface{}{})
 		deployTerraform(t, workingDir, map[string]interface{}{
 			"cluster_name":       clusterName,
-			"aws_ebs_csi_driver": false,
 		})
 	})
 
@@ -82,10 +81,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		validateClusterAutoscaler(t, kubeconfig)
 		validateKubeBench(t, kubeconfig)
 		validateStorage(t, kubeconfig)
-		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
-			"aws_ebs_csi_driver": true,
-		})
-		validateStorage(t, kubeconfig)
 	})
 
 	test_structure.RunTestStage(t, "validate_bottlerocket_node_group", func() {
@@ -93,9 +88,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
 		defer os.Remove(kubeconfig)
 		nodeGroupDir := "../examples/cluster/bottlerocket_node_group"
-		overideAndApplyTerraform(t, workingDir, map[string]interface{}{
-			"aws_ebs_csi_driver": true,
-		})
 		deployTerraform(t, nodeGroupDir, map[string]interface{}{})
 		defer cleanupTerraform(t, nodeGroupDir)
 		validateClusterAutoscaler(t, kubeconfig)

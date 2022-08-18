@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
 spec:
   # Prevents running in privileged mode
   privileged: false
@@ -50,7 +50,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
   namespace: kube-system
 spec:
@@ -68,7 +68,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
   namespace: kube-system
   annotations: 
@@ -83,7 +83,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
 rules:
   - apiGroups:
@@ -232,7 +232,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -250,7 +250,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
   namespace: kube-system
 rules:
@@ -278,7 +278,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
   namespace: kube-system
 roleRef:
@@ -297,7 +297,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
   namespace: kube-system
 spec:
@@ -320,7 +320,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: "cluster-autoscaler"
     app.kubernetes.io/name: "aws-cluster-autoscaler"
-    helm.sh/chart: "cluster-autoscaler-9.18.1"
+    helm.sh/chart: "cluster-autoscaler-9.19.3"
   name: cluster-autoscaler
   namespace: kube-system
 spec:
@@ -339,7 +339,7 @@ spec:
       dnsPolicy: "ClusterFirst"
       containers:
         - name: aws-cluster-autoscaler
-          image: "us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.22.2"
+          image: "k8s.gcr.io/autoscaling/cluster-autoscaler:v1.23.1"
           imagePullPolicy: "IfNotPresent"
           command:
             - ./cluster-autoscaler
