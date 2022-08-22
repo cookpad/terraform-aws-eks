@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "aws_ebs_csi_driver_assume_role_policy" {
 
 resource "aws_iam_role" "aws_ebs_csi_driver" {
   count                = local.aws_ebs_csi_driver_iam_role_count
-  name                 = "EksEBSCSIDriver-${var.name}"
+  name                 = "${var.iam_role_name_prefix}EksEBSCSIDriver-${var.name}"
   assume_role_policy   = data.aws_iam_policy_document.aws_ebs_csi_driver_assume_role_policy.json
   permissions_boundary = var.aws_ebs_csi_driver_iam_permissions_boundary
 }

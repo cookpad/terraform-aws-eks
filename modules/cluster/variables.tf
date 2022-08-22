@@ -44,6 +44,11 @@ variable "iam_config" {
   description = "The IAM roles used by the cluster, If you use the included IAM module you can provide it's config output variable."
 }
 
+variable "iam_role_name_prefix" {
+  default = ""
+  description = "An optional prefix to any IAM Roles created by this module"
+}
+
 variable "cluster_autoscaler_iam_permissions_boundary" {
   type        = string
   default     = ""
