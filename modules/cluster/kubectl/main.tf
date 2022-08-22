@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  caller_role_info = regexall("arn:aws:sts::(?P<account>\\d+):assumed-role/(?P<role>\\w+)/\\d+", data.aws_caller_identity.current.arn)
+  caller_role_info = regexall("arn:aws:sts::(?P<account>\\d+):assumed-role/(?P<role>\\w+)/\\S+", data.aws_caller_identity.current.arn)
   caller_role_arn  = length(local.caller_role_info) > 0 ? "arn:aws:iam::${local.caller_role_info[0]["account"]}:role/${local.caller_role_info[0]["role"]}" : ""
   role_arn         = var.role_arn != "" ? var.role_arn : local.caller_role_arn
 }
