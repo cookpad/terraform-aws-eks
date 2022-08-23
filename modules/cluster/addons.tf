@@ -10,6 +10,7 @@ module "critical_addons_node_group" {
   instance_family = var.critical_addons_node_group_instance_family
   key_name        = var.critical_addons_node_group_key_name
   security_groups = var.critical_addons_node_group_security_groups
+  architecture    = var.critical_addons_node_group_architecture
 
   bottlerocket                              = var.critical_addons_node_group_bottlerocket
   bottlerocket_admin_container_enabled      = var.critical_addons_node_group_bottlerocket_admin_container_enabled

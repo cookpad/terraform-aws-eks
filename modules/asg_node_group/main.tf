@@ -1,13 +1,18 @@
 locals {
   k8s_version = "1.23"
   preset_instance_families = {
-    memory_optimized  = ["r5", "r5d", "r5n", "r5dn", "r5a", "r5ad"]
-    general_purpose   = ["m5", "m5d", "m5n", "m5dn", "m5a", "m5ad"]
-    compute_optimized = ["c5", "c5n", "c5d"]
-    burstable         = ["t3", "t3a"]
+    x86_64__memory_optimized  = ["r5", "r5d", "r5n", "r5dn", "r5a", "r5ad"]
+    x86_64__general_purpose   = ["m5", "m5d", "m5n", "m5dn", "m5a", "m5ad"]
+    x86_64__compute_optimized = ["c5", "c5n", "c5d"]
+    x86_64__burstable         = ["t3", "t3a"]
+
+    arm64__memory_optimized  = ["r6g", "r6gd"]
+    arm64__general_purpose   = ["m6g", "m6gd"]
+    arm64__compute_optimized = ["c6g", "c6gn", "c6gd", "c7g"]
+    arm64__burstable         = ["t4g"]
   }
 
-  instance_types       = length(var.instance_types) > 0 ? var.instance_types : [for instance_family in local.preset_instance_families[var.instance_family] : "${instance_family}.${var.instance_size}"]
+  instance_types       = length(var.instance_types) > 0 ? var.instance_types : [for instance_family in local.preset_instance_families["${var.architecture}__${var.instance_family}"] : "${instance_family}.${var.instance_size}"]
   instance_overrides   = var.instance_lifecycle == "spot" ? local.instance_types : [local.instance_types[0]]
   name_prefix          = replace(join("-", compact(["eks-node", var.cluster_config.name, var.name, var.instance_family, var.instance_size, var.instance_lifecycle])), "_", "-")
   asg_subnets          = var.zone_awareness ? { for az, subnet in var.cluster_config.private_subnet_ids : az => [subnet] } : { "multi-zone" = values(var.cluster_config.private_subnet_ids) }
@@ -54,7 +59,7 @@ data "assert_test" "node_group_label" {
 }
 
 data "aws_ssm_parameter" "image_id" {
-  name = var.bottlerocket ? "/aws/service/bottlerocket/aws-k8s-${local.k8s_version}${var.gpu ? "-nvidia" : ""}/x86_64/latest/image_id" : "/aws/service/eks/optimized-ami/${local.k8s_version}/amazon-linux-2${var.gpu ? "-gpu" : ""}/recommended/image_id"
+  name = var.bottlerocket ? "/aws/service/bottlerocket/aws-k8s-${local.k8s_version}${var.gpu ? "-nvidia" : ""}/${var.architecture}/latest/image_id" : "/aws/service/eks/optimized-ami/${local.k8s_version}/amazon-linux-2${var.gpu ? "-gpu" : ""}${var.architecture == "arm64" ? "-arm64" : ""}/recommended/image_id"
 }
 
 data "aws_ami" "image" {
