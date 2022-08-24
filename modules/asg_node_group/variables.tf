@@ -70,6 +70,17 @@ variable "spot_allocation_strategy" {
   description = "How to allocate capacity across the Spot pools. Valid values: 'lowest-price' or 'capacity-optimized'."
 }
 
+variable "architecture" {
+  type        = string
+  default     = "x86_64"
+  description = "CPU Architecture to launch. This parameter is used for predefined instance type set selection and AMI selection. Valid values: 'x86_64' or 'arm64'."
+
+  validation {
+    condition     = var.architecture == "x86_64" || var.architecture == "arm64"
+    error_message = "Architecture must be 'x86_64' or 'arm64'."
+  }
+}
+
 variable "gpu" {
   type        = bool
   default     = false

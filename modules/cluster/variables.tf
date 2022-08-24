@@ -165,6 +165,12 @@ variable "critical_addons_node_group_bottlerocket" {
   description = "Use Bottlerocket OS, rather than Amazon Linux for the critical addons node group"
 }
 
+variable "critical_addons_node_group_architecture" {
+  type        = string
+  default     = "x86_64"
+  description = "Specify CPU architecture to use on the critical addons node group. Default to 'x86_64'. Valid values: 'x86_64' and 'arm64'"
+}
+
 variable "critical_addons_node_group_bottlerocket_admin_container_enabled" {
   type        = bool
   default     = false

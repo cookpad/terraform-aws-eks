@@ -32,12 +32,12 @@ groups:
 
 The module has 4 preset instance families to choose from (the default is `general_purpose`) :
 
-| family | instance types |
+| family | instance types (x86_64) | (arm64) |
 |--------|----------------|
-| `memory_optimized`  | `r5`, `r5d`, `r5n`, `r5dn`, `r5a`, `r5ad` |
-| `general_purpose`   | `m5`, `m5d`, `m5n`, `m5dn`, `m5a`, `m5ad` |
-| `compute_optimized` | `c5`, `c5n`, `c5d` |
-| `burstable`         | `t3`, `t3a` |
+| `memory_optimized`  | `r5`, `r5d`, `r5n`, `r5dn`, `r5a`, `r5ad` | `r6g`, `r6gd` |
+| `general_purpose`   | `m5`, `m5d`, `m5n`, `m5dn`, `m5a`, `m5ad` | `m6g`, `m6gd` |
+| `compute_optimized` | `c5`, `c5n`, `c5d` | `c6g`, `c6gn`, `c6gd`, `c7g` |
+| `burstable`         | `t3`, `t3a` | `t4g` |
 
 This is combined with `instance_size` to choose the instance types that the
 group will launch.
