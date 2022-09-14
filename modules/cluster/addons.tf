@@ -17,6 +17,8 @@ module "critical_addons_node_group" {
   bottlerocket_admin_container_superpowered = var.critical_addons_node_group_bottlerocket_admin_container_superpowered
   bottlerocket_admin_container_source       = var.critical_addons_node_group_bottlerocket_admin_container_source
 
+  imdsv2_required = var.critical_addons_imdsv2_required
+
   zone_awareness = false
   taints = {
     "CriticalAddonsOnly" = "true:NoSchedule"
