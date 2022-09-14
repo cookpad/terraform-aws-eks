@@ -195,7 +195,7 @@ variable "security_group_ids" {
   description = "A list of security group IDs for the cross-account elastic network interfaces that Amazon EKS creates to use to allow communication with the Kubernetes control plane. *WARNING* changes to this list will cause the cluster to be recreated."
 }
 
-variable "imdsv2_required" {
+variable "critical_addons_imdsv2_required" {
   type        = bool
   default     = true
   description = "Security - whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). If you re using kube2iam make it false"
