@@ -8,8 +8,8 @@ terraform {
 }
 
 provider "aws" {
-  region              = "us-east-1"
-  allowed_account_ids = ["214219211678"]
+  region              = "us-east-2"
+  allowed_account_ids = ["082166409290"]
 }
 
 data "http" "ip" {
