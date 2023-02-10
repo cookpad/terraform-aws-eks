@@ -196,8 +196,8 @@ variable "critical_addons_coredns_preserve" {
 }
 
 variable "critical_addons_coredns_enabled" {
-  type = string
-  default = true
+  type        = string
+  default     = true
   description = "Whether to enable CoreDNS addon. Recommended for cluster creation, but can be disabled to migrate to self-managed CoreDNS."
 }
 
