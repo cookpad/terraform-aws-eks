@@ -189,6 +189,18 @@ variable "critical_addons_node_group_bottlerocket_admin_container_source" {
   description = "URI of a custom admin container image"
 }
 
+variable "critical_addons_coredns_preserve" {
+  type        = string
+  default     = true
+  description = "Whether to preserve CoreDNS resources when deleting the addon. This can be used to migrate to self-managed CoreDNS."
+}
+
+variable "critical_addons_coredns_enabled" {
+  type = string
+  default = true
+  description = "Whether to enable CoreDNS addon. Recommended for cluster creation, but can be disabled to migrate to self-managed CoreDNS."
+}
+
 variable "security_group_ids" {
   type        = list(string)
   default     = []

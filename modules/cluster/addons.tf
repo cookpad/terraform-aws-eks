@@ -46,10 +46,12 @@ resource "aws_eks_addon" "kube-proxy" {
 }
 
 resource "aws_eks_addon" "coredns" {
+  count             = var.critical_addons_coredns_enabled == true ? 1 : 0
   cluster_name      = local.config.name
   addon_name        = "coredns"
   addon_version     = "v1.8.7-eksbuild.2"
   resolve_conflicts = "OVERWRITE"
+  preserve          = var.critical_addons_coredns_preserve
   depends_on = [
     module.critical_addons_node_group
   ]
