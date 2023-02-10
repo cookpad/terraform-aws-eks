@@ -189,6 +189,30 @@ variable "critical_addons_node_group_bottlerocket_admin_container_source" {
   description = "URI of a custom admin container image"
 }
 
+variable "critical_addons_vpc-cni_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the vpc-cni EKS addon."
+}
+
+variable "critical_addons_kube-proxy_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the kube-proxy EKS addon."
+}
+
+variable "critical_addons_coredns_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the coredns EKS addon."
+}
+
+variable "critical_addons_ebs-csi_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the ebs-csi EKS addon."
+}
+
 variable "security_group_ids" {
   type        = list(string)
   default     = []
