@@ -29,9 +29,15 @@ module "critical_addons_node_group" {
 
 data "aws_region" "current" {}
 
-// When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get addon_version numbers
-// You should then check the configuration values schema, and update the structured type in variables.tf
-// `eks describe-addon-configuration --addon-name <addon-name> --addon-version <addon-version> | jq -r '.configurationSchema' | jq
+/* When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get possible
+addon_version numbers.
+
+If upgrading EKS addon versions, check the configuration values schema using the command below, and make a note of any
+breaking changes in `UPGRADING.md`.
+
+eks describe-addon-configuration --addon-name <addon-name> --addon-version <addon-version> | jq -r '.configurationSchema' | jq
+
+*/
 
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name         = local.config.name
