@@ -30,13 +30,15 @@ module "critical_addons_node_group" {
 data "aws_region" "current" {}
 
 // When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get addon_version numbers
+// You should then check the configuration values schema, and update the structured type in variables.tf
+// `eks describe-addon-configuration --addon-name <addon-name> --addon-version <addon-version> | jq -r '.configurationSchema' | jq
 
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name         = local.config.name
   addon_name           = "vpc-cni"
   addon_version        = "v1.11.2-eksbuild.1"
   resolve_conflicts    = "OVERWRITE"
-  configuration_values = var.critical_addons_vpc-cni_configuration_values
+  configuration_values = jsonencode(var.critical_addons_vpc-cni_configuration_values)
 }
 
 resource "aws_eks_addon" "kube-proxy" {
@@ -44,7 +46,7 @@ resource "aws_eks_addon" "kube-proxy" {
   addon_name           = "kube-proxy"
   addon_version        = "v1.23.7-eksbuild.1"
   resolve_conflicts    = "OVERWRITE"
-  configuration_values = var.critical_addons_kube-proxy_configuration_values
+  configuration_values = jsonencode(var.critical_addons_kube-proxy_configuration_values)
 }
 
 resource "aws_eks_addon" "coredns" {
@@ -52,7 +54,7 @@ resource "aws_eks_addon" "coredns" {
   addon_name           = "coredns"
   addon_version        = "v1.8.7-eksbuild.2"
   resolve_conflicts    = "OVERWRITE"
-  configuration_values = var.critical_addons_coredns_configuration_values
+  configuration_values = jsonencode(var.critical_addons_coredns_configuration_values)
   depends_on = [
     module.critical_addons_node_group
   ]
@@ -65,7 +67,7 @@ resource "aws_eks_addon" "ebs-csi" {
   addon_version            = "v1.10.0-eksbuild.1"
   service_account_role_arn = local.aws_ebs_csi_driver_iam_role_arn
   resolve_conflicts        = "OVERWRITE"
-  configuration_values     = var.critical_addons_ebs-csi_configuration_values
+  configuration_values     = jsonencode(var.critical_addons_ebs-csi_configuration_values)
   depends_on = [
     module.critical_addons_node_group
   ]

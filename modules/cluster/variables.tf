@@ -190,25 +190,72 @@ variable "critical_addons_node_group_bottlerocket_admin_container_source" {
 }
 
 variable "critical_addons_vpc-cni_configuration_values" {
-  type        = string
+  type = object(
+    {
+      resources = object({ limits = object({ cpu = string, memory = string }), requests = object({ cpu = string, memory = string }) }),
+      env = object(
+        {
+          ADDITIONAL_ENI_TAGS                   = string,
+          ANNOTATE_POD_IP                       = string,
+          AWS_VPC_CNI_NODE_PORT_SUPPORT         = string,
+          AWS_VPC_ENI_MTU                       = string,
+          AWS_VPC_K8S_CNI_CONFIGURE_RPFILTER    = string,
+          AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG    = string,
+          AWS_VPC_K8S_CNI_EXTERNALSNAT          = string,
+          AWS_VPC_K8S_CNI_LOGLEVEL              = string,
+          AWS_VPC_K8S_CNI_LOG_FILE              = string,
+          AWS_VPC_K8S_CNI_RANDOMIZESNAT         = string,
+          AWS_VPC_K8S_CNI_VETHPREFIX            = string,
+          AWS_VPC_K8S_PLUGIN_LOG_FILE           = string,
+          AWS_VPC_K8S_PLUGIN_LOG_LEVEL          = string,
+          DISABLE_INTROSPECTION                 = string,
+          DISABLE_METRICS                       = string,
+          DISABLE_NETWORK_RESOURCE_PROVISIONING = string,
+          ENABLE_POD_ENI                        = string,
+          ENABLE_PREFIX_DELEGATION              = string,
+          WARM_ENI_TARGET                       = string,
+          WARM_PREFIX_TARGET                    = string
+        }
+      )
+    }
+  )
   default     = null
   description = "Configuration values passed to the vpc-cni EKS addon."
 }
 
 variable "critical_addons_kube-proxy_configuration_values" {
-  type        = string
+  type = object(
+    {
+      ipvs      = object({ scheduler = string }),
+      mode      = string, # "iptables" or "ipvs"
+      resources = object({ limits = object({ cpu = string, memory = string }), requests = object({ cpu = string, memory = string }) })
+    }
+  )
   default     = null
   description = "Configuration values passed to the kube-proxy EKS addon."
 }
 
 variable "critical_addons_coredns_configuration_values" {
-  type        = string
+  type = object(
+    {
+      computeType  = string,
+      corefile     = string,
+      nodeSelector = map(string),
+      replicaCount = number,
+      resources    = object({ limits = object({ cpu = string, memory = string }), requests = object({ cpu = string, memory = string }) })
+    }
+  )
   default     = null
   description = "Configuration values passed to the coredns EKS addon."
 }
 
 variable "critical_addons_ebs-csi_configuration_values" {
-  type        = string
+  type = object(
+    {
+      controller = object({ extraVolumeTags = map(string) }),
+      node       = object({ tolerateAllTaints = bool, volumeAttachLimit = number })
+    }
+  )
   default     = null
   description = "Configuration values passed to the ebs-csi EKS addon."
 }
