@@ -24,36 +24,48 @@ module "critical_addons_node_group" {
 
 data "aws_region" "current" {}
 
-// When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get addon_version numbers
+/* When upgrading k8s version run `aws eks describe-addon-versions --kubernetes-version <version>` to get possible
+addon_version numbers.
+
+If upgrading EKS addon versions, check the configuration values schema using the command below, and make a note of any
+breaking changes in `UPGRADING.md`.
+
+eks describe-addon-configuration --addon-name <addon-name> --addon-version <addon-version> | jq -r '.configurationSchema' | jq
+
+*/
 
 resource "aws_eks_addon" "vpc-cni" {
-  cluster_name      = local.config.name
-  addon_name        = "vpc-cni"
-  addon_version     = "v1.11.0-eksbuild.1"
-  resolve_conflicts = "OVERWRITE"
+  cluster_name         = local.config.name
+  addon_name           = "vpc-cni"
+  addon_version        = "v1.11.0-eksbuild.1"
+  resolve_conflicts    = "OVERWRITE"
+  configuration_values = var.critical_addons_vpc-cni_configuration_values
 }
 
 resource "aws_eks_addon" "kube-proxy" {
-  cluster_name      = local.config.name
-  addon_name        = "kube-proxy"
-  addon_version     = "v1.22.6-eksbuild.1"
-  resolve_conflicts = "OVERWRITE"
+  cluster_name         = local.config.name
+  addon_name           = "kube-proxy"
+  addon_version        = "v1.22.6-eksbuild.1"
+  resolve_conflicts    = "OVERWRITE"
+  configuration_values = var.critical_addons_kube-proxy_configuration_values
 }
 
 resource "aws_eks_addon" "coredns" {
-  cluster_name      = local.config.name
-  addon_name        = "coredns"
-  addon_version     = "v1.8.7-eksbuild.1"
-  resolve_conflicts = "OVERWRITE"
+  cluster_name         = local.config.name
+  addon_name           = "coredns"
+  addon_version        = "v1.8.7-eksbuild.1"
+  resolve_conflicts    = "OVERWRITE"
+  configuration_values = var.critical_addons_coredns_configuration_values
 }
 
 resource "aws_eks_addon" "ebs-csi" {
   count                    = var.aws_ebs_csi_driver ? 1 : 0
   cluster_name             = local.config.name
   addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.6.1-eksbuild.1"
+  addon_version            = "v1.10.0-eksbuild.1"
   service_account_role_arn = local.aws_ebs_csi_driver_iam_role_arn
   resolve_conflicts        = "OVERWRITE"
+  configuration_values     = var.critical_addons_ebs-csi_configuration_values
 }
 
 module "cluster_autoscaler" {
