@@ -27,7 +27,7 @@ module "cluster" {
   critical_addons_node_group_key_name = "development"
 
   critical_addons_coredns_configuration_values = jsonencode({ replicaCount = 3 })
-  critical_addons_ebs-csi_configuration_value  = jsonencode({ node = { tolerateAllTaints = true } })
+  critical_addons_ebs-csi_configuration_values = jsonencode({ node = { tolerateAllTaints = true } })
   endpoint_public_access                       = true
   endpoint_public_access_cidrs                 = ["${chomp(data.http.ip.body)}/32"]
 
