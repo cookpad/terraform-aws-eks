@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.20.1"
+      version = "4.47.0"
     }
   }
 }
@@ -26,8 +26,10 @@ module "cluster" {
 
   critical_addons_node_group_key_name = "development"
 
-  endpoint_public_access       = true
-  endpoint_public_access_cidrs = ["${chomp(data.http.ip.body)}/32"]
+  critical_addons_coredns_configuration_values = jsonencode({ replicaCount = 3 })
+  critical_addons_ebs-csi_configuration_values = jsonencode({ node = { tolerateAllTaints = true } })
+  endpoint_public_access                       = true
+  endpoint_public_access_cidrs                 = ["${chomp(data.http.ip.body)}/32"]
 
 
   aws_auth_role_map = [
