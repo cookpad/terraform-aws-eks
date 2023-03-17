@@ -45,7 +45,7 @@ variable "iam_config" {
 }
 
 variable "iam_role_name_prefix" {
-  default = ""
+  default     = ""
   description = "An optional prefix to any IAM Roles created by this module"
 }
 
