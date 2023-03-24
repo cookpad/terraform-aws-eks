@@ -35,12 +35,6 @@ resource "aws_eks_cluster" "control_plane" {
   }
 
   depends_on = [aws_cloudwatch_log_group.control_plane]
-
-  provisioner "local-exec" {
-    # wait for api to be avalible for use before continuing
-    command     = "until curl --output /dev/null --insecure --silent ${self.endpoint}/healthz; do sleep 1; done"
-    working_dir = path.module
-  }
 }
 
 resource "aws_iam_openid_connect_provider" "cluster_oidc" {
