@@ -6,6 +6,9 @@
 * After upgrading the terraform module, remember to follow the [roll nodes](docs/roll_nodes.md) procedure to roll out upgraded nodes to your cluster.
 * If providing custom `configuration_values` for any EKS addons, check for compatibility with the upgraded EKS addon version, using `aws eks describe-addon-configuration`. You can find the EKS addon versions in [addons.tf](modules/cluster/addons.tf)
 
+## 1.22 -> 1.23
+ * [324](https://github.com/cookpad/terraform-aws-eks/pull/324) EBS CSI driver is now non-optional. Check your cluster module's `aws_ebs_csi_driver` variable. Refer to [this AWS FAQ](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi-migration-faq.html).
+
 ## 1.21 -> 1.22
  * Removed yaml k8s addons: nvidia, aws-node-termination-handler, metrics-server, pod_nanny (PR) only remains cluster-autoscaler, The idea is that terraform doesn't manage anymore k8s components in future releases, just the AWS Addons. So Flux or any GitOps system should manage k8s components.
 
