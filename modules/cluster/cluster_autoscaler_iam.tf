@@ -38,6 +38,9 @@ data "aws_iam_policy_document" "cluster_autoscaler_policy" {
       "autoscaling:DescribeTags",
       "autoscaling:SetDesiredCapacity",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeLaunchTemplateVersions",
+      "eks:DescribeNodegroup",
     ]
     resources = ["*"] #tfsec:ignore:AWS099
   }
