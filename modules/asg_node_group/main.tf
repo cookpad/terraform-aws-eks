@@ -1,3 +1,5 @@
+data "aws_default_tags" "current" {}
+
 locals {
   k8s_version = "1.23"
   preset_instance_families = {
@@ -21,7 +23,7 @@ locals {
   root_device_mappings = reverse(tolist(data.aws_ami.image.block_device_mappings))[0]
   autoscaler_tags      = var.cluster_autoscaler ? { "k8s.io/cluster-autoscaler/enabled" = "true", "k8s.io/cluster-autoscaler/${var.cluster_config.name}" = "owned" } : {}
   bottlerocket_tags    = var.bottlerocket ? { "Name" = "eks-node-${var.cluster_config.name}" } : {}
-  tags                 = merge(var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags, local.bottlerocket_tags)
+  tags                 = merge(data.aws_default_tags.current.tags, var.cluster_config.tags, var.tags, { "kubernetes.io/cluster/${var.cluster_config.name}" = "owned" }, local.autoscaler_tags, local.bottlerocket_tags)
   node_group_label     = var.name != "" ? var.name : local.name_prefix
   cloud_config = templatefile(
     "${path.module}/cloud_config.tpl",
