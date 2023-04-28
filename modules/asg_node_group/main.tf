@@ -102,6 +102,9 @@ resource "aws_launch_template" "config" {
     http_put_response_hop_limit = 2
   }
 
+  # https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RequestLaunchTemplateData.html
+  # https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_LaunchTemplateTagSpecificationRequest.html
+
   tag_specifications {
     resource_type = "instance"
     tags          = local.tags
@@ -110,6 +113,20 @@ resource "aws_launch_template" "config" {
   tag_specifications {
     resource_type = "volume"
     tags          = local.tags
+  }
+
+  tag_specifications {
+    resource_type = "network-interface"
+    tags          = local.tags
+  }
+
+  # Unnecessary tag_specification results into launch error (e.g. for resources which will not be created by a launch template)
+  dynamic "tag_specifications" {
+    for_each = var.instance_lifecycle == "spot" ? toset(["spot-instances-request"]) : toset([])
+    content {
+      resource_type = tag_specifications.value
+      tags          = local.tags
+    }
   }
 
   tags = local.tags
