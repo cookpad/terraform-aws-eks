@@ -22,7 +22,7 @@ extraArgs:
   balance-similar-node-groups: true
 image:
   repository: registry.k8s.io/autoscaling/cluster-autoscaler
-  tag: v1.23.1
+  tag: v1.24.0
 fullnameOverride: cluster-autoscaler
 nameOverride: aws-cluster-autoscaler
 resources:

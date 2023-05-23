@@ -11,4 +11,4 @@ helm_template() {
   helm template --no-hooks --namespace=kube-system --version $3 -f $ADDONS_DIR/helm/$2.yaml $2 $1/$2${4:-} | grep -v Helm > $ADDONS_DIR/$2.yaml
 }
 
-helm_template autoscaler cluster-autoscaler 9.19.3
+helm_template autoscaler cluster-autoscaler 9.27.0

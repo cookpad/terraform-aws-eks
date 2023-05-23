@@ -1,5 +1,5 @@
 locals {
-  k8s_version = "1.23"
+  k8s_version = "1.24"
   preset_instance_families = {
     x86_64__memory_optimized  = ["r5", "r5d", "r5n", "r5dn", "r5a", "r5ad"]
     x86_64__general_purpose   = ["m5", "m5d", "m5n", "m5dn", "m5a", "m5ad"]
