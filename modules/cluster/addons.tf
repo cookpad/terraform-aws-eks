@@ -42,7 +42,7 @@ eks describe-addon-configuration --addon-name <addon-name> --addon-version <addo
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name         = local.config.name
   addon_name           = "vpc-cni"
-  addon_version        = "v1.12.6-eksbuild.1"
+  addon_version        = "v1.12.6-eksbuild.2"
   resolve_conflicts    = "OVERWRITE"
   configuration_values = var.critical_addons_vpc-cni_configuration_values
 }
@@ -58,7 +58,7 @@ resource "aws_eks_addon" "kube-proxy" {
 resource "aws_eks_addon" "coredns" {
   cluster_name         = local.config.name
   addon_name           = "coredns"
-  addon_version        = "v1.9.3-eksbuild.2"
+  addon_version        = "v1.9.3-eksbuild.3"
   resolve_conflicts    = "OVERWRITE"
   configuration_values = var.critical_addons_coredns_configuration_values
   depends_on = [
@@ -70,7 +70,7 @@ resource "aws_eks_addon" "ebs-csi" {
   count                    = 1
   cluster_name             = local.config.name
   addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.17.0-eksbuild.1"
+  addon_version            = "v1.18.0-eksbuild.1"
   service_account_role_arn = local.aws_ebs_csi_driver_iam_role_arn
   resolve_conflicts        = "OVERWRITE"
   configuration_values     = var.critical_addons_ebs-csi_configuration_values
