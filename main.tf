@@ -2,16 +2,13 @@
   EKS control plane
 */
 
-data "aws_iam_role" "service_role" {
-  name = var.iam_config.service_role
-}
 locals {
-  k8s_version = "1.24"
+  k8s_version = "1.25"
 }
 
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
-  role_arn = data.aws_iam_role.service_role.arn
+  role_arn = aws_iam_role.eks_cluster_role.arn
   tags     = var.tags
 
   version = local.k8s_version
@@ -37,6 +34,8 @@ resource "aws_eks_cluster" "control_plane" {
   depends_on = [aws_cloudwatch_log_group.control_plane]
 }
 
+
+
 resource "aws_iam_openid_connect_provider" "cluster_oidc" {
   url             = aws_eks_cluster.control_plane.identity.0.oidc.0.issuer
   thumbprint_list = var.oidc_root_ca_thumbprints
@@ -54,45 +53,16 @@ resource "aws_cloudwatch_log_group" "control_plane" {
   Allow nodes to join the cluster
 */
 
-data "aws_iam_role" "node_role" {
-  name = var.iam_config.node_role
-}
-
 locals {
   aws_auth_role_map = concat(
     [
-      {
-        rolearn  = data.aws_iam_role.node_role.arn
-        username = "system:node:{{EC2PrivateDNSName}}"
-        groups   = ["system:bootstrappers", "system:nodes"]
-      },
+      #{
+        #rolearn  = data.aws_iam_role.node_role.arn
+        #username = "system:node:{{EC2PrivateDNSName}}"
+        #groups   = ["system:bootstrappers", "system:nodes"]
+      #},
     ],
     var.aws_auth_role_map,
-  )
-}
-
-module "aws_auth" {
-  source = "./kubectl"
-  config = local.config
-  manifest = templatefile(
-    "${path.module}/aws-auth-cm.yaml.tmpl",
-    {
-      role_map = jsonencode(local.aws_auth_role_map)
-      user_map = jsonencode(var.aws_auth_user_map)
-    }
-  )
-}
-
-module "storage_classes" {
-  source  = "./kubectl"
-  config  = local.config
-  replace = true
-  manifest = templatefile(
-    "${path.module}/storage_classes.yaml.tmpl",
-    {
-      provisioner = "ebs.csi.aws.com",
-      fstype      = "csi.storage.k8s.io/fstype: ${var.pv_fstype}",
-    }
   )
 }
 
@@ -101,8 +71,6 @@ locals {
   kms_cmk_arn = local.create_key ? aws_kms_key.cmk.*.arn[0] : var.kms_cmk_arn
 }
 
-data "aws_caller_identity" "current" {}
-data "aws_partition" "current" {}
 
 data "aws_iam_policy_document" "cloudwatch" {
   policy_id = "key-policy-cloudwatch"

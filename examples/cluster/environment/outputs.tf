@@ -13,7 +13,3 @@ output "private_subnet_ids" {
 output "vpc_config" {
   value = module.vpc.config
 }
-
-output "iam_config" {
-  value = module.iam.config
-}

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.47.0"
+      version = "4.67.0"
     }
   }
 }
@@ -17,17 +17,12 @@ data "http" "ip" {
 }
 
 module "cluster" {
-  source = "../../modules/cluster"
+  source = "../../"
 
   name = var.cluster_name
 
   vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
-  iam_config = data.terraform_remote_state.environment.outputs.iam_config
 
-  critical_addons_node_group_key_name = "development"
-
-  critical_addons_coredns_configuration_values = jsonencode({ replicaCount = 3 })
-  critical_addons_ebs-csi_configuration_values = jsonencode({ node = { tolerateAllTaints = true } })
   endpoint_public_access                       = true
   endpoint_public_access_cidrs                 = ["${chomp(data.http.ip.body)}/32"]
 

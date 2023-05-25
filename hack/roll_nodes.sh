@@ -12,9 +12,11 @@ set -euo pipefail
 # them here!
 AWS_EXTRA_ARGS=""
 
-NODES_TO_ROLL=$(kubectl get nodes -o json |\
-  jq -r ".items | .[].metadata.name"
-)
+#NODES_TO_ROLL=$(kubectl get nodes -o json |\
+  #jq -r ".items | .[].metadata.name"
+#)
+
+NODES_TO_ROLL="ip-10-3-50-131.ec2.internal"
 
 instance_id() {
   kubectl get nodes/$1 -o json |\
