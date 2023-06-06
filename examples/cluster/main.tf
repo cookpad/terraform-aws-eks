@@ -10,7 +10,7 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args = ["eks", "get-token", "--cluster-name", module.cluster.config.name]
+    args        = ["eks", "get-token", "--cluster-name", module.cluster.config.name]
   }
 }
 
@@ -25,8 +25,8 @@ module "cluster" {
 
   vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
 
-  endpoint_public_access                       = true
-  endpoint_public_access_cidrs                 = ["${chomp(data.http.ip.body)}/32"]
+  endpoint_public_access       = true
+  endpoint_public_access_cidrs = ["${chomp(data.http.ip.body)}/32"]
 
 
   aws_auth_role_map = [

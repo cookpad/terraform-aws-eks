@@ -1,7 +1,7 @@
 resource "aws_iam_role" "karpenter_controller" {
-  name                 = "${var.iam_role_name_prefix}Karpenter-${var.name}"
-  assume_role_policy   = data.aws_iam_policy_document.karpenter_controller_assume_role_policy.json
-  description          = "Karpenter controller role for ${var.name} cluster"
+  name               = "${var.iam_role_name_prefix}Karpenter-${var.name}"
+  assume_role_policy = data.aws_iam_policy_document.karpenter_controller_assume_role_policy.json
+  description        = "Karpenter controller role for ${var.name} cluster"
 }
 
 data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
@@ -29,8 +29,8 @@ data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
 }
 
 resource "aws_iam_role_policy" "karpenter_controller" {
-  name = "KarpenterController"
-  role = aws_iam_role.karpenter_controller.id
+  name   = "KarpenterController"
+  role   = aws_iam_role.karpenter_controller.id
   policy = data.aws_iam_policy_document.karpenter_controller.json
 }
 
@@ -63,12 +63,12 @@ data "aws_iam_policy_document" "karpenter_controller" {
   }
 
   statement {
-    actions = ["iam:PassRole"]
+    actions   = ["iam:PassRole"]
     resources = [aws_iam_role.karpenter_node.arn]
   }
 
   statement {
-    actions = ["eks:DescribeCluster"]
+    actions   = ["eks:DescribeCluster"]
     resources = [aws_eks_cluster.control_plane.arn]
   }
 

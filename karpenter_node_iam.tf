@@ -1,12 +1,12 @@
 resource "aws_iam_role" "karpenter_node" {
-  name                 = "${var.iam_role_name_prefix}KarpenterNode-${var.name}"
-  assume_role_policy   = data.aws_iam_policy_document.karpenter_node_assume_role_policy.json
-  description          = "Karpenter node role for ${var.name} cluster"
+  name               = "${var.iam_role_name_prefix}KarpenterNode-${var.name}"
+  assume_role_policy = data.aws_iam_policy_document.karpenter_node_assume_role_policy.json
+  description        = "Karpenter node role for ${var.name} cluster"
 }
 
 data "aws_iam_policy_document" "karpenter_node_assume_role_policy" {
   statement {
-    sid = "EKSNodeAssumeRole"
+    sid     = "EKSNodeAssumeRole"
     actions = ["sts:AssumeRole"]
 
     principals {
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy_attachment" "karpenter_node_managed_policies" {
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
   ])
 
-  role = aws_iam_role.karpenter_node.id
+  role       = aws_iam_role.karpenter_node.id
   policy_arn = each.value
 }
 

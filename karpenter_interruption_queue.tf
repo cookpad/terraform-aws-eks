@@ -1,7 +1,7 @@
 resource "aws_sqs_queue" "karpenter_interruption" {
-  name                              = "Karpenter-${var.name}"
-  message_retention_seconds         = 300
-  sqs_managed_sse_enabled           = true
+  name                      = "Karpenter-${var.name}"
+  message_retention_seconds = 300
+  sqs_managed_sse_enabled   = true
 }
 
 resource "aws_sqs_queue_policy" "karpenter_interruption" {
@@ -67,7 +67,7 @@ resource "aws_cloudwatch_event_rule" "karpenter" {
 }
 
 resource "aws_cloudwatch_event_target" "karpenter" {
-  for_each = local.karpenter_events
+  for_each  = local.karpenter_events
   rule      = aws_cloudwatch_event_rule.karpenter[each.key].name
   target_id = "KarpenterInterruptionQueueTarget"
   arn       = aws_sqs_queue.karpenter_interruption.arn

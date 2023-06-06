@@ -1,7 +1,7 @@
 resource "aws_iam_role" "aws_ebs_csi_driver" {
-  name                 = "${var.iam_role_name_prefix}EksEBSCSIDriver-${var.name}"
-  assume_role_policy   = data.aws_iam_policy_document.aws_ebs_csi_driver_assume_role_policy.json
-  description          = "EKS CSI driver role for ${var.name} cluster"
+  name               = "${var.iam_role_name_prefix}EksEBSCSIDriver-${var.name}"
+  assume_role_policy = data.aws_iam_policy_document.aws_ebs_csi_driver_assume_role_policy.json
+  description        = "EKS CSI driver role for ${var.name} cluster"
 }
 
 data "aws_iam_policy_document" "aws_ebs_csi_driver_assume_role_policy" {
@@ -29,6 +29,6 @@ data "aws_iam_policy_document" "aws_ebs_csi_driver_assume_role_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "aws_ebs_csi_driver" {
-  role   = aws_iam_role.aws_ebs_csi_driver.id
+  role       = aws_iam_role.aws_ebs_csi_driver.id
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }

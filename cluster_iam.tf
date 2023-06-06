@@ -1,5 +1,5 @@
 resource "aws_iam_role" "eks_cluster_role" {
-  name                 = "${var.iam_role_name_prefix}EksCluster-${var.name}"
+  name               = "${var.iam_role_name_prefix}EksCluster-${var.name}"
   assume_role_policy = data.aws_iam_policy_document.eks_assume_role_policy.json
 
   # Resources running on the cluster are still generating logs when destroying the module resources
@@ -9,15 +9,15 @@ resource "aws_iam_role" "eks_cluster_role" {
   inline_policy {
     name = "DenyLogGroupCreation"
     policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Action   = ["logs:CreateLogGroup"]
-            Effect   = "Deny"
-            Resource = "*"
-          },
-        ]
-      })
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["logs:CreateLogGroup"]
+          Effect   = "Deny"
+          Resource = "*"
+        },
+      ]
+    })
   }
 }
 
