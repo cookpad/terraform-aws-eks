@@ -48,22 +48,67 @@ resource "aws_cloudwatch_log_group" "control_plane" {
   tags              = var.tags
   kms_key_id        = local.kms_cmk_arn
 }
-
 /*
   Allow nodes to join the cluster
 */
 
 locals {
-  aws_auth_role_map = concat(
-    [
-      #{
-        #rolearn  = data.aws_iam_role.node_role.arn
-        #username = "system:node:{{EC2PrivateDNSName}}"
-        #groups   = ["system:bootstrappers", "system:nodes"]
-      #},
-    ],
-    var.aws_auth_role_map,
-  )
+  aws_auth_configmap_data = {
+    mapRoles = yamlencode(concat(
+      [
+        {
+          rolearn = aws_iam_role.karpenter_fargate.arn
+          username = "system:node:{{SessionName}}"
+          groups = [
+            "system:bootstrappers",
+            "system:nodes",
+            "system:node-proxier",
+          ]
+        },
+        {
+          rolearn = aws_iam_role.karpenter_node.arn
+          username = "system:node:{{EC2PrivateDNSName}}"
+          groups = [
+            "system:bootstrappers",
+            "system:nodes",
+          ]
+        },
+      ],
+      var.aws_auth_role_map,
+    ))
+    mapUsers = yamlencode(var.aws_auth_user_map)
+  }
+}
+
+resource "kubernetes_config_map" "aws_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = local.aws_auth_configmap_data
+
+  lifecycle {
+    # We are ignoring the data here since we will manage it with the resource below
+    # This is only intended to be used in scenarios where the configmap does not exist
+    ignore_changes = [data, metadata[0].labels, metadata[0].annotations]
+  }
+}
+
+resource "kubernetes_config_map_v1_data" "aws_auth" {
+  force = true
+
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = local.aws_auth_configmap_data
+
+  depends_on = [
+    # Required for instances where the configmap does not exist yet to avoid race condition
+    kubernetes_config_map.aws_auth,
+  ]
 }
 
 locals {

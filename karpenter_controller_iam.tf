@@ -58,6 +58,7 @@ data "aws_iam_policy_document" "karpenter_controller" {
       "ssm:GetParameter",
     ]
 
+    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = ["*"]
   }
 
@@ -69,5 +70,16 @@ data "aws_iam_policy_document" "karpenter_controller" {
   statement {
     actions = ["eks:DescribeCluster"]
     resources = [aws_eks_cluster.control_plane.arn]
+  }
+
+  statement {
+    actions = [
+      "sqs:DeleteMessage",
+      "sqs:GetQueueUrl",
+      "sqs:GetQueueAttributes",
+      "sqs:ReceiveMessage",
+    ]
+
+    resources = [aws_sqs_queue.karpenter_interruption.arn]
   }
 }

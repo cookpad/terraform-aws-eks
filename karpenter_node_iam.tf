@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "karpenter_node_assume_role_policy" {
 }
 
 
-resource "aws_iam_role_policy_attachment" "managed_policies" {
+resource "aws_iam_role_policy_attachment" "karpenter_node_managed_policies" {
   for_each = toset([
     "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
     "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
