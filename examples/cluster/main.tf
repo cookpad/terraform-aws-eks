@@ -41,3 +41,7 @@ module "cluster" {
     Project = "terraform-aws-eks"
   }
 }
+
+data "aws_security_group" "nodes" {
+  id = module.cluster.config.node_security_group
+}

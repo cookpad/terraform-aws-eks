@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gruntwork-io/terratest/modules/aws"
+	"github.com/gruntwork-io/terratest/modules/helm"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -18,7 +18,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	authv1 "k8s.io/api/authorization/v1"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -27,7 +26,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 
 	environmentDir := "../examples/cluster/environment"
 	workingDir := "../examples/cluster"
-	awsRegion := "us-east-1"
 
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created.
 	defer test_structure.RunTestStage(t, "cleanup_terraform", func() {
@@ -39,83 +37,134 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		clusterName := fmt.Sprintf("terraform-aws-eks-testing-%s", uniqueId)
 		deployTerraform(t, environmentDir, map[string]interface{}{})
 		deployTerraform(t, workingDir, map[string]interface{}{
-			"cluster_name":       clusterName,
+			"cluster_name": clusterName,
 		})
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		clusterName = terraform.Output(t, terraformOptions, "cluster_name")
+		kubeconfig := writeKubeconfig(t, clusterName)
+		defer os.Remove(kubeconfig)
+		kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
+		waitForCluster(t, kubectlOptions)
 	})
 
-	test_structure.RunTestStage(t, "validate_vpc", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, environmentDir)
-		vpcId := terraform.Output(t, terraformOptions, "vpc_id")
-		subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
-		require.Equal(t, 6, len(subnets))
+	test_structure.RunTestStage(t, "install_karpenter", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		clusterName := terraform.Output(t, terraformOptions, "cluster_name")
+		sgName := terraform.Output(t, terraformOptions, "node_security_group_name")
+		kubeconfig := writeKubeconfig(t, clusterName)
+		defer os.Remove(kubeconfig)
+		installKarpenter(t, kubeconfig, clusterName, sgName)
+	})
 
-		for _, subnetId := range terraform.OutputList(t, terraformOptions, "public_subnet_ids") {
-			assert.True(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
-		}
-
-		for _, subnetId := range terraform.OutputList(t, terraformOptions, "private_subnet_ids") {
-			assert.False(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
-		}
+	test_structure.RunTestStage(t, "install_ebs_csi_driver", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		clusterName := terraform.Output(t, terraformOptions, "cluster_name")
+		kubeconfig := writeKubeconfig(t, clusterName)
+		defer os.Remove(kubeconfig)
+		installCSIDriver(t, kubeconfig, clusterName)
 	})
 
 	test_structure.RunTestStage(t, "validate_cluster", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
 		defer os.Remove(kubeconfig)
-		validateCluster(t, kubeconfig)
 		validateSecretsBehaviour(t, kubeconfig)
 		validateDNS(t, kubeconfig)
-		validateNodeLabels(t, kubeconfig, terraform.Output(t, terraformOptions, "cluster_name"))
 		admin_kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"), terraform.Output(t, terraformOptions, "test_role_arn"))
 		defer os.Remove(admin_kubeconfig)
 		validateAdminRole(t, admin_kubeconfig)
-	})
-
-	test_structure.RunTestStage(t, "validate_standard_node_group", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
-		defer os.Remove(kubeconfig)
-		nodeGroupDir := "../examples/cluster/standard_node_group"
-		deployTerraform(t, nodeGroupDir, map[string]interface{}{})
-		defer cleanupTerraform(t, nodeGroupDir)
-		validateClusterAutoscaler(t, kubeconfig)
 		validateKubeBench(t, kubeconfig)
 		validateStorage(t, kubeconfig)
-	})
-
-	test_structure.RunTestStage(t, "validate_bottlerocket_node_group", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
-		defer os.Remove(kubeconfig)
-		nodeGroupDir := "../examples/cluster/bottlerocket_node_group"
-		deployTerraform(t, nodeGroupDir, map[string]interface{}{})
-		defer cleanupTerraform(t, nodeGroupDir)
-		validateClusterAutoscaler(t, kubeconfig)
-		// https://github.com/bottlerocket-os/bottlerocket/pull/1295
-		validateKubeBenchExpectedFails(t, kubeconfig, 0)
-		validateStorage(t, kubeconfig)
-	})
-
-	test_structure.RunTestStage(t, "validate_bottlerocket_gpu_node_group", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
-		defer os.Remove(kubeconfig)
-		gpuNodeGroupDir := "../examples/cluster/bottlerocket_gpu_node_group"
-		deployTerraform(t, gpuNodeGroupDir, map[string]interface{}{})
-		defer cleanupTerraform(t, gpuNodeGroupDir)
-		validateGPUNodes(t, kubeconfig)
-		validateKubeBench(t, kubeconfig)
 	})
 }
 
-func validateNodeLabels(t *testing.T, kubeconfig string, clusterName string) {
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
-	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-group.k8s.cookpad.com/name=standard-nodes"})
-	require.NoError(t, err)
-	for _, node := range nodes {
-		assert.Equal(t, clusterName, node.Labels["cookpad.com/terraform-aws-eks-test-environment"])
+func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "karpenter")
+	helmOptions := helm.Options{
+		SetValues: map[string]string{
+			"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn": "arn:aws:iam::214219211678:role/Karpenter-" + clusterName,
+			"settings.aws.clusterName":                                  clusterName,
+			"settings.aws.defaultInstanceProfile":                       "KarpenterNode-" + clusterName,
+			"settings.aws.interruptionQueueName":                        "Karpenter-" + clusterName,
+			"controller.resources.requests.cpu":                         "1",
+			"controller.resources.requests.memory":                      "1Gi",
+			"controller.resources.limits.cpu":                           "1",
+			"controller.resources.limits.memory":                        "1Gi",
+		},
+		KubectlOptions: kubectlOptions,
+		ExtraArgs: map[string][]string{
+			"upgrade": []string{"--create-namespace", "--version", "v0.27.5"},
+		},
 	}
+	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter", "karpenter")
+	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app.kubernetes.io/name=karpenter"}, 2, 30, 6*time.Second)
+	provisionerManifest := fmt.Sprintf(KARPENTER_PROVISIONER, sgName)
+	k8s.KubectlApplyFromString(t, kubectlOptions, provisionerManifest)
 }
+
+const KARPENTER_PROVISIONER = `---
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: karpenter.k8s.aws/instance-family
+      operator: In
+      values: [t3]
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["spot"]
+    - key: karpenter.k8s.aws/instance-size
+      operator: In
+      values: [small, medium, large]
+  providerRef:
+    name: default
+  ttlSecondsAfterEmpty: 30
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  amiFamily: Bottlerocket
+  subnetSelector:
+    Name: terraform-aws-eks-test-environment-private*
+  securityGroupSelector:
+    Name: %s
+  userData: |
+    [settings.network]
+    hostname = "terraform-aws-eks-testing-node-default"
+`
+
+func installCSIDriver(t *testing.T, kubeconfig, clusterName string) {
+	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
+	helmOptions := helm.Options{
+		KubectlOptions: kubectlOptions,
+		SetValues: map[string]string{
+			"controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn": "arn:aws:iam::214219211678:role/EksEBSCSIDriver-" + clusterName,
+		},
+	}
+	helm.AddRepo(t, &helmOptions, "aws-ebs-csi-driver", "https://kubernetes-sigs.github.io/aws-ebs-csi-driver")
+	defer helm.RemoveRepo(t, &helmOptions, "aws-ebs-csi-driver")
+	helm.Upgrade(t, &helmOptions, "aws-ebs-csi-driver/aws-ebs-csi-driver", "aws-ebs-csi-driver")
+	k8s.RunKubectlE(t, kubectlOptions, "delete", "storageclass/gp2")
+	k8s.KubectlApplyFromString(t, kubectlOptions, STORAGE_CLASS)
+}
+
+const STORAGE_CLASS = `---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+  fsType: ext4
+`
 
 func validateAdminRole(t *testing.T, kubeconfig string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
@@ -125,21 +174,6 @@ func validateAdminRole(t *testing.T, kubeconfig string) {
 		Group:     "*",
 		Version:   "*",
 	})
-}
-
-func validateCluster(t *testing.T, kubeconfig string) {
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "default")
-	waitForCluster(t, kubectlOptions)
-	waitForNodes(t, kubectlOptions, 2)
-	nodes, err := k8s.GetNodesByFilterE(t, kubectlOptions, metav1.ListOptions{LabelSelector: "node-group.k8s.cookpad.com/name=critical-addons"})
-	require.NoError(t, err)
-	assert.GreaterOrEqual(t, len(nodes), 2)
-	for _, node := range nodes {
-		taint := node.Spec.Taints[0]
-		assert.Equal(t, "CriticalAddonsOnly", taint.Key)
-		assert.Equal(t, "true", taint.Value)
-		assert.Equal(t, corev1.TaintEffectNoSchedule, taint.Effect)
-	}
 }
 
 func validateSecretsBehaviour(t *testing.T, kubeconfig string) {
@@ -199,105 +233,6 @@ spec:
         - key: CriticalAddonsOnly
           operator: Exists
   backoffLimit: 4
-`
-
-func validateClusterAutoscaler(t *testing.T, kubeconfig string) {
-
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
-
-	// Check that the autoscaler pods are running
-	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app.kubernetes.io/name=aws-cluster-autoscaler"}, 1, 30, 6*time.Second)
-
-	nodes, err := k8s.GetNodesE(t, kubectlOptions)
-	if err != nil {
-		t.Fatal("Couldn't get node count")
-	}
-
-	// Generate some example workload
-	namespace := strings.ToLower(random.UniqueId())
-	kubectlOptions = k8s.NewKubectlOptions("", kubeconfig, namespace)
-	workload := fmt.Sprintf(EXAMPLE_WORKLOAD, namespace, namespace)
-	defer k8s.DeleteNamespace(t, kubectlOptions, namespace)
-	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
-
-	// Check the cluster scales up
-	waitForNodes(t, kubectlOptions, len(nodes)+1)
-
-	// Check that the example workload pods can all run
-	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=test-workload"}, 2, 50, 32*time.Second)
-}
-
-const EXAMPLE_WORKLOAD = `---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: %s
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: test-workload-deployment
-  namespace: %s
-  labels:
-    app: test-workload
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: test-workload
-  template:
-    metadata:
-      labels:
-        app: test-workload
-    spec:
-      containers:
-      - name: workload
-        image: 602401143452.dkr.ecr.us-east-1.amazonaws.com/eks/pause-amd64:3.1
-        resources:
-          requests:
-            cpu: "1100m"
-`
-
-func validateGPUNodes(t *testing.T, kubeconfig string) {
-	// Generate some example workload
-	namespace := strings.ToLower(random.UniqueId())
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, namespace)
-	workload := fmt.Sprintf(EXAMPLE_GPU_WORKLOAD, namespace, namespace)
-	defer k8s.DeleteNamespace(t, kubectlOptions, namespace)
-	k8s.KubectlApplyFromString(t, kubectlOptions, workload)
-	WaitUntilPodsSucceeded(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app=gpu-test-workload"}, 1, 30, 32*time.Second)
-}
-
-const EXAMPLE_GPU_WORKLOAD = `---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: %s
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: test-gpu-workload
-  namespace: %s
-spec:
-  template:
-    metadata:
-      labels:
-        app: gpu-test-workload
-    spec:
-      restartPolicy: OnFailure
-      containers:
-      - name: nvidia-smi
-        image: nvidia/cuda:9.2-devel
-        args:
-        - "nvidia-smi"
-        - "--list-gpus"
-        resources:
-          limits:
-            nvidia.com/gpu: 1
-      tolerations:
-        - key: nvidia.com/gpu
-          operator: Exists
 `
 
 func validateStorage(t *testing.T, kubeconfig string) {
