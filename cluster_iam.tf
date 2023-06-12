@@ -1,4 +1,9 @@
+locals {
+  eks_cluster_role_arn = length(var.cluster_role_arn) == 0 ? aws_iam_role.eks_cluster_role[0].arn : var.cluster_role_arn
+}
+
 resource "aws_iam_role" "eks_cluster_role" {
+  count              = length(var.cluster_role_arn) == 0 ? 1 : 0
   name               = "${var.iam_role_name_prefix}EksCluster-${var.name}"
   assume_role_policy = data.aws_iam_policy_document.eks_assume_role_policy.json
 
@@ -33,6 +38,7 @@ data "aws_iam_policy_document" "eks_assume_role_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  role       = aws_iam_role.eks_cluster_role.name
+  count      = length(var.cluster_role_arn) == 0 ? 1 : 0
+  role       = aws_iam_role.eks_cluster_role[0].name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }

@@ -8,7 +8,7 @@ locals {
 
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
-  role_arn = aws_iam_role.eks_cluster_role.arn
+  role_arn = local.eks_cluster_role_arn
   tags     = var.tags
 
   version = local.k8s_version

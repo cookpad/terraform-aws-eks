@@ -35,6 +35,12 @@ variable "iam_role_name_prefix" {
   description = "An optional prefix to any IAM Roles created by this module"
 }
 
+variable "cluster_role_arn" {
+  type        = string
+  description = "The ARN of IAM role to be used by the cluster, if not specified a role will be created"
+  default     = ""
+}
+
 variable "oidc_root_ca_thumbprints" {
   type        = list(string)
   default     = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
