@@ -2,7 +2,7 @@ resource "aws_eks_fargate_profile" "fargate" {
   for_each               = var.fargate_namespaces
   cluster_name           = aws_eks_cluster.control_plane.name
   fargate_profile_name   = "Karpenter-${var.name}"
-  pod_execution_role_arn = aws_iam_role.karpenter_fargate.arn
+  pod_execution_role_arn = aws_iam_role.fargate.arn
   subnet_ids             = values(var.vpc_config.private_subnet_ids)
 
   selector {

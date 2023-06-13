@@ -57,7 +57,7 @@ locals {
     mapRoles = yamlencode(concat(
       [
         {
-          rolearn  = aws_iam_role.karpenter_fargate.arn
+          rolearn  = aws_iam_role.fargate.arn
           username = "system:node:{{SessionName}}"
           groups = [
             "system:bootstrappers",
