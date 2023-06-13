@@ -1,5 +1,6 @@
 variable "name" {
-  type = string
+  type        = string
+  description = "A name for this eks cluster"
 }
 
 
@@ -89,4 +90,10 @@ variable "security_group_ids" {
   type        = list(string)
   default     = []
   description = "A list of security group IDs for the cross-account elastic network interfaces that Amazon EKS creates to use to allow communication with the Kubernetes control plane. *WARNING* changes to this list will cause the cluster to be recreated."
+}
+
+variable "fargate_namespaces" {
+  type        = list(string)
+  default     = ["karpenter", "flux-system"]
+  description = "A list of namespaces to create fargate profiles for, by default supports karpenter and flux, for simple bootsrapping"
 }
