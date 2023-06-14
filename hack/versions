@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+require "json"
+
+K8S_VERSION = ARGV[0]
+
+unless K8S_VERSION
+  puts <<~INFO
+    usage hack/versions <k8s version number>
+
+    outputs the local variables with the latest addon
+    version numbers for a particular k8s release
+  INFO
+
+  exit 1
+end
+
+ADDONS = %w(vpc-cni kube-proxy coredns aws-ebs-csi-driver)
+
+addons = []
+
+ADDONS.each do |addon|
+  addons += JSON.load(`aws eks describe-addon-versions --kubernetes-version #{K8S_VERSION} --addon-name #{addon}`)["addons"]
+end
+
+puts <<-VERSION
+locals {
+  versions = {
+    k8s = "#{K8S_VERSION}"
+VERSION
+
+addons.each do |addon|
+  puts <<-VERSION
+    #{addon["addonName"].gsub("-", "_")} = "#{addon["addonVersions"].map { |version| version["addonVersion"] }.sort.last}"
+  VERSION
+end
+
+puts <<-END
+  }
+}
+END

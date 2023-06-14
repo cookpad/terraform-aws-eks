@@ -2,16 +2,12 @@
   EKS control plane
 */
 
-locals {
-  k8s_version = "1.25"
-}
-
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
   role_arn = local.eks_cluster_role_arn
   tags     = var.tags
 
-  version = local.k8s_version
+  version = local.versions.k8s
 
   enabled_cluster_log_types = var.cluster_log_types
 
