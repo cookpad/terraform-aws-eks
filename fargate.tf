@@ -1,13 +1,16 @@
-resource "aws_eks_fargate_profile" "fargate" {
-  for_each               = var.fargate_namespaces
+resource "aws_eks_fargate_profile" "critical_pods" {
   cluster_name           = aws_eks_cluster.control_plane.name
-  fargate_profile_name   = "Karpenter-${var.name}"
+  fargate_profile_name   = "${var.name}-critical-pods"
   pod_execution_role_arn = aws_iam_role.fargate.arn
   subnet_ids             = values(var.vpc_config.private_subnet_ids)
 
-  selector {
-    namespace = each.value
-    labels    = {}
+  dynamic "selector" {
+    for_each = var.fargate_namespaces
+
+    content {
+      namespace = selector.value
+      labels    = {}
+    }
   }
 }
 

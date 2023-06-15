@@ -93,7 +93,31 @@ variable "security_group_ids" {
 }
 
 variable "fargate_namespaces" {
-  type        = list(string)
-  default     = ["karpenter", "flux-system"]
-  description = "A list of namespaces to create fargate profiles for, by default supports karpenter and flux, for simple bootsrapping"
+  type        = set(string)
+  default     = ["kube-system", "karpenter", "flux-system"]
+  description = "A list of namespaces to create fargate profiles for, should be set to a list of namespaces critical for flux / cluster bootstrapping"
+}
+
+variable "vpc_cni_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the vpc-cni EKS addon."
+}
+
+variable "kube_proxy_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the kube-proxy EKS addon."
+}
+
+variable "coredns_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the coredns EKS addon."
+}
+
+variable "ebs_csi_configuration_values" {
+  type        = string
+  default     = null
+  description = "Configuration values passed to the ebs-csi EKS addon."
 }

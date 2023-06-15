@@ -56,14 +56,6 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 		installKarpenter(t, kubeconfig, clusterName, sgName)
 	})
 
-	test_structure.RunTestStage(t, "install_ebs_csi_driver", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-		clusterName := terraform.Output(t, terraformOptions, "cluster_name")
-		kubeconfig := writeKubeconfig(t, clusterName)
-		defer os.Remove(kubeconfig)
-		installCSIDriver(t, kubeconfig, clusterName)
-	})
-
 	test_structure.RunTestStage(t, "validate_cluster", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 		kubeconfig := writeKubeconfig(t, terraform.Output(t, terraformOptions, "cluster_name"))
@@ -135,35 +127,6 @@ spec:
   userData: |
     [settings.network]
     hostname = "terraform-aws-eks-testing-node-default"
-`
-
-func installCSIDriver(t *testing.T, kubeconfig, clusterName string) {
-	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-system")
-	helmOptions := helm.Options{
-		KubectlOptions: kubectlOptions,
-		SetValues: map[string]string{
-			"controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn": "arn:aws:iam::214219211678:role/EksEBSCSIDriver-" + clusterName,
-		},
-	}
-	helm.AddRepo(t, &helmOptions, "aws-ebs-csi-driver", "https://kubernetes-sigs.github.io/aws-ebs-csi-driver")
-	defer helm.RemoveRepo(t, &helmOptions, "aws-ebs-csi-driver")
-	helm.Upgrade(t, &helmOptions, "aws-ebs-csi-driver/aws-ebs-csi-driver", "aws-ebs-csi-driver")
-	k8s.RunKubectlE(t, kubectlOptions, "delete", "storageclass/gp2")
-	k8s.KubectlApplyFromString(t, kubectlOptions, STORAGE_CLASS)
-}
-
-const STORAGE_CLASS = `---
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: gp3
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
-provisioner: ebs.csi.aws.com
-volumeBindingMode: WaitForFirstConsumer
-parameters:
-  type: gp3
-  fsType: ext4
 `
 
 func validateAdminRole(t *testing.T, kubeconfig string) {
