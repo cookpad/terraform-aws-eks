@@ -3,7 +3,6 @@ variable "name" {
   description = "A name for this eks cluster"
 }
 
-
 variable "endpoint_public_access" {
   type        = bool
   description = "Indicates whether or not the Amazon EKS public API server endpoint is enabled."
