@@ -45,14 +45,6 @@ func deployTerraform(t *testing.T, workingDir string, vars map[string]interface{
 	terraform.InitAndApply(t, terraformOptions)
 }
 
-func overideAndApplyTerraform(t *testing.T, workingDir string, vars map[string]interface{}) {
-	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-	for k, v := range vars {
-		terraformOptions.Vars[k] = v
-	}
-	terraform.InitAndApply(t, terraformOptions)
-}
-
 func cleanupTerraform(t *testing.T, workingDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
 	terraform.Destroy(t, terraformOptions)
@@ -88,28 +80,6 @@ func waitForCluster(t *testing.T, kubectlOptions *k8s.KubectlOptions) {
 		return "", err
 	})
 
-}
-
-func waitForNodes(t *testing.T, kubectlOptions *k8s.KubectlOptions, numNodes int) {
-	maxRetries := 40
-	sleepBetweenRetries := 10 * time.Second
-	retry.DoWithRetry(t, "wait for nodes to launch", maxRetries, sleepBetweenRetries, func() (string, error) {
-		nodes, err := k8s.GetNodesE(t, kubectlOptions)
-
-		if err != nil {
-			return "", err
-		}
-
-		// Wait for at least n nodes to start
-		if len(nodes) < numNodes {
-			return "", fmt.Errorf("less than %d nodes started", numNodes)
-		}
-
-		return "", err
-	})
-
-	// Wait for the nodes to be ready
-	k8s.WaitUntilAllNodesReady(t, kubectlOptions, maxRetries, sleepBetweenRetries)
 }
 
 func WaitUntilPodsAvailableE(t *testing.T, options *k8s.KubectlOptions, filters metav1.ListOptions, desiredCount, retries int, sleepBetweenRetries time.Duration) error {
@@ -150,7 +120,6 @@ func WaitUntilPodsAvailableE(t *testing.T, options *k8s.KubectlOptions, filters 
 func WaitUntilPodsAvailable(t *testing.T, options *k8s.KubectlOptions, filters metav1.ListOptions, desiredCount, retries int, sleepBetweenRetries time.Duration) {
 	require.NoError(t, WaitUntilPodsAvailableE(t, options, filters, desiredCount, retries, sleepBetweenRetries))
 }
-
 func WaitUntilPodsSucceededE(t *testing.T, options *k8s.KubectlOptions, filters metav1.ListOptions, desiredCount, retries int, sleepBetweenRetries time.Duration) error {
 	statusMsg := "Wait for pods to Succeed."
 	message, err := retry.DoWithRetryE(

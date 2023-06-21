@@ -2,19 +2,12 @@
   EKS control plane
 */
 
-data "aws_iam_role" "service_role" {
-  name = var.iam_config.service_role
-}
-locals {
-  k8s_version = "1.24"
-}
-
 resource "aws_eks_cluster" "control_plane" {
   name     = var.name
-  role_arn = data.aws_iam_role.service_role.arn
+  role_arn = local.eks_cluster_role_arn
   tags     = var.tags
 
-  version = local.k8s_version
+  version = local.versions.k8s
 
   enabled_cluster_log_types = var.cluster_log_types
 
@@ -37,6 +30,8 @@ resource "aws_eks_cluster" "control_plane" {
   depends_on = [aws_cloudwatch_log_group.control_plane]
 }
 
+
+
 resource "aws_iam_openid_connect_provider" "cluster_oidc" {
   url             = aws_eks_cluster.control_plane.identity.0.oidc.0.issuer
   thumbprint_list = var.oidc_root_ca_thumbprints
@@ -49,51 +44,67 @@ resource "aws_cloudwatch_log_group" "control_plane" {
   tags              = var.tags
   kms_key_id        = local.kms_cmk_arn
 }
-
 /*
   Allow nodes to join the cluster
 */
 
-data "aws_iam_role" "node_role" {
-  name = var.iam_config.node_role
-}
-
 locals {
-  aws_auth_role_map = concat(
-    [
-      {
-        rolearn  = data.aws_iam_role.node_role.arn
-        username = "system:node:{{EC2PrivateDNSName}}"
-        groups   = ["system:bootstrappers", "system:nodes"]
-      },
-    ],
-    var.aws_auth_role_map,
-  )
+  aws_auth_configmap_data = {
+    mapRoles = yamlencode(concat(
+      [
+        {
+          rolearn  = aws_iam_role.fargate.arn
+          username = "system:node:{{SessionName}}"
+          groups = [
+            "system:bootstrappers",
+            "system:nodes",
+            "system:node-proxier",
+          ]
+        },
+        {
+          rolearn  = aws_iam_role.karpenter_node.arn
+          username = "system:node:{{EC2PrivateDNSName}}"
+          groups = [
+            "system:bootstrappers",
+            "system:nodes",
+          ]
+        },
+      ],
+      var.aws_auth_role_map,
+    ))
+    mapUsers = yamlencode(var.aws_auth_user_map)
+  }
 }
 
-module "aws_auth" {
-  source = "./kubectl"
-  config = local.config
-  manifest = templatefile(
-    "${path.module}/aws-auth-cm.yaml.tmpl",
-    {
-      role_map = jsonencode(local.aws_auth_role_map)
-      user_map = jsonencode(var.aws_auth_user_map)
-    }
-  )
+resource "kubernetes_config_map" "aws_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = local.aws_auth_configmap_data
+
+  lifecycle {
+    # We are ignoring the data here since we will manage it with the resource below
+    # This is only intended to be used in scenarios where the configmap does not exist
+    ignore_changes = [data, metadata[0].labels, metadata[0].annotations]
+  }
 }
 
-module "storage_classes" {
-  source  = "./kubectl"
-  config  = local.config
-  replace = true
-  manifest = templatefile(
-    "${path.module}/storage_classes.yaml.tmpl",
-    {
-      provisioner = "ebs.csi.aws.com",
-      fstype      = "csi.storage.k8s.io/fstype: ${var.pv_fstype}",
-    }
-  )
+resource "kubernetes_config_map_v1_data" "aws_auth" {
+  force = true
+
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = local.aws_auth_configmap_data
+
+  depends_on = [
+    # Required for instances where the configmap does not exist yet to avoid race condition
+    kubernetes_config_map.aws_auth,
+  ]
 }
 
 locals {
@@ -101,8 +112,6 @@ locals {
   kms_cmk_arn = local.create_key ? aws_kms_key.cmk.*.arn[0] : var.kms_cmk_arn
 }
 
-data "aws_caller_identity" "current" {}
-data "aws_partition" "current" {}
 
 data "aws_iam_policy_document" "cloudwatch" {
   policy_id = "key-policy-cloudwatch"

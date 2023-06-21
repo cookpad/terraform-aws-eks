@@ -10,3 +10,7 @@ output "cluster_config" {
   value     = module.cluster.config
   sensitive = true
 }
+
+output "node_security_group_name" {
+  value = data.aws_security_group.nodes.name
+}

@@ -1,15 +1,17 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "4.47.0"
-    }
-  }
-}
-
 provider "aws" {
   region              = "us-east-1"
   allowed_account_ids = ["214219211678"]
+}
+
+provider "kubernetes" {
+  host                   = module.cluster.config.endpoint
+  cluster_ca_certificate = base64decode(module.cluster.config.ca_data)
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", module.cluster.config.name]
+  }
 }
 
 data "http" "ip" {
@@ -17,19 +19,14 @@ data "http" "ip" {
 }
 
 module "cluster" {
-  source = "../../modules/cluster"
+  source = "../../"
 
   name = var.cluster_name
 
   vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
-  iam_config = data.terraform_remote_state.environment.outputs.iam_config
 
-  critical_addons_node_group_key_name = "development"
-
-  critical_addons_coredns_configuration_values = jsonencode({ replicaCount = 3 })
-  critical_addons_ebs-csi_configuration_values = jsonencode({ node = { tolerateAllTaints = true } })
-  endpoint_public_access                       = true
-  endpoint_public_access_cidrs                 = ["${chomp(data.http.ip.body)}/32"]
+  endpoint_public_access       = true
+  endpoint_public_access_cidrs = ["${chomp(data.http.ip.body)}/32"]
 
 
   aws_auth_role_map = [
@@ -43,4 +40,8 @@ module "cluster" {
   tags = {
     Project = "terraform-aws-eks"
   }
+}
+
+data "aws_security_group" "nodes" {
+  id = module.cluster.config.node_security_group
 }
