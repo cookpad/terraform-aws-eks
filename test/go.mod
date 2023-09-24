@@ -5,7 +5,6 @@ go 1.17
 require (
 	github.com/gruntwork-io/terratest v0.38.2
 	github.com/stretchr/testify v1.7.0
-	gopkg.in/yaml.v3 v3.0.0
 	k8s.io/api v0.20.6
 	k8s.io/apimachinery v0.20.6
 )
@@ -50,17 +49,18 @@ require (
 	github.com/tmccombs/hcl2json v0.3.3 // indirect
 	github.com/urfave/cli v1.22.2 // indirect
 	github.com/zclconf/go-cty v1.8.1 // indirect
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
-	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
-	golang.org/x/text v0.3.8 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/term v0.1.0 // indirect
+	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0 // indirect
 	k8s.io/client-go v0.20.6 // indirect
 	k8s.io/klog/v2 v2.4.0 // indirect
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920 // indirect
