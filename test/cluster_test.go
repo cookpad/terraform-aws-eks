@@ -73,6 +73,13 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "karpenter")
 	helmOptions := helm.Options{
+		KubectlOptions: kubectlOptions,
+		ExtraArgs: map[string][]string{
+			"upgrade": []string{"--create-namespace", "--version", "v0.31.0", "--force"},
+		},
+	}
+	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter-crd", "karpenter-crd")
+	helmOptions = helm.Options{
 		SetValues: map[string]string{
 			"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn": "arn:aws:iam::214219211678:role/Karpenter-" + clusterName,
 			"settings.aws.clusterName":                                  clusterName,
@@ -85,7 +92,7 @@ func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 		},
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
-			"upgrade": []string{"--create-namespace", "--version", "v0.27.5"},
+			"upgrade": []string{"--create-namespace", "--version", "v0.31.0"},
 		},
 	}
 	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter", "karpenter")
@@ -124,9 +131,6 @@ spec:
     Name: terraform-aws-eks-test-environment-private*
   securityGroupSelector:
     Name: %s
-  userData: |
-    [settings.network]
-    hostname = "terraform-aws-eks-testing-node-default"
 `
 
 func validateAdminRole(t *testing.T, kubeconfig string) {
