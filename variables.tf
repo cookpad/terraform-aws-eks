@@ -93,7 +93,7 @@ variable "security_group_ids" {
 
 variable "fargate_namespaces" {
   type        = set(string)
-  default     = ["kube-system", "karpenter", "flux-system"]
+  default     = ["kube-system", "flux-system"]
   description = "A list of namespaces to create fargate profiles for, should be set to a list of namespaces critical for flux / cluster bootstrapping"
 }
 

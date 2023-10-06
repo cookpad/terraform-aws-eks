@@ -61,14 +61,6 @@ locals {
             "system:node-proxier",
           ]
         },
-        {
-          rolearn  = aws_iam_role.karpenter_node.arn
-          username = "system:node:{{EC2PrivateDNSName}}"
-          groups = [
-            "system:bootstrappers",
-            "system:nodes",
-          ]
-        },
       ],
       var.aws_auth_role_map,
     ))
