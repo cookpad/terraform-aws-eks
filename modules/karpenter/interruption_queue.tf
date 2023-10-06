@@ -1,5 +1,5 @@
 resource "aws_sqs_queue" "karpenter_interruption" {
-  name                      = "Karpenter-${var.name}"
+  name                      = "Karpenter-${var.cluster_config.name}"
   message_retention_seconds = 300
   sqs_managed_sse_enabled   = true
 }
@@ -61,7 +61,7 @@ locals {
 resource "aws_cloudwatch_event_rule" "karpenter" {
   for_each = local.karpenter_events
 
-  name          = "Karpenter${each.value.name}-${var.name}"
+  name          = "Karpenter${each.value.name}-${var.cluster_config.name}"
   description   = each.value.description
   event_pattern = jsonencode(each.value.event_pattern)
 }
