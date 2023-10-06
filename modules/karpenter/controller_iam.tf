@@ -1,7 +1,7 @@
 resource "aws_iam_role" "karpenter_controller" {
-  name               = "${var.iam_role_name_prefix}Karpenter-${var.name}"
+  name               = "${var.cluster_config.iam_role_name_prefix}Karpenter-${var.cluster_config.name}"
   assume_role_policy = data.aws_iam_policy_document.karpenter_controller_assume_role_policy.json
-  description        = "Karpenter controller role for ${var.name} cluster"
+  description        = "Karpenter controller role for ${var.cluster_config.name} cluster"
 }
 
 data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
@@ -11,18 +11,18 @@ data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
 
     condition {
       test     = "StringEquals"
-      variable = "${replace(aws_iam_openid_connect_provider.cluster_oidc.url, "https://", "")}:sub"
+      variable = "${replace(var.oidc_config.url, "https://", "")}:sub"
       values   = ["system:serviceaccount:karpenter:karpenter"]
     }
 
     condition {
       test     = "StringEquals"
-      variable = "${replace(aws_iam_openid_connect_provider.cluster_oidc.url, "https://", "")}:aud"
+      variable = "${replace(var.oidc_config.url, "https://", "")}:aud"
       values   = ["sts.amazonaws.com"]
     }
 
     principals {
-      identifiers = [aws_iam_openid_connect_provider.cluster_oidc.arn]
+      identifiers = [var.oidc_config.arn]
       type        = "Federated"
     }
   }
@@ -69,7 +69,7 @@ data "aws_iam_policy_document" "karpenter_controller" {
 
   statement {
     actions   = ["eks:DescribeCluster"]
-    resources = [aws_eks_cluster.control_plane.arn]
+    resources = [var.cluster_config.arn]
   }
 
   statement {

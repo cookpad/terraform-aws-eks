@@ -1,7 +1,7 @@
 resource "aws_iam_role" "karpenter_node" {
-  name               = "${var.iam_role_name_prefix}KarpenterNode-${var.name}"
+  name               = "${var.cluster_config.iam_role_name_prefix}KarpenterNode-${var.cluster_config.name}"
   assume_role_policy = data.aws_iam_policy_document.karpenter_node_assume_role_policy.json
-  description        = "Karpenter node role for ${var.name} cluster"
+  description        = "Karpenter node role for ${var.cluster_config.name} cluster"
 }
 
 data "aws_iam_policy_document" "karpenter_node_assume_role_policy" {
