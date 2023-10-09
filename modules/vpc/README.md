@@ -47,12 +47,10 @@ module "network" {
 }
 
 module "sal" {
-  source  = "cookpad/eks/aws//modules/cluster"
+  source  = "cookpad/eks/aws"
 
-  name               = "sal-9000"
-  vpc_config         = module.network.config
-
-  ...
+  name        = "sal-9000"
+  vpc_config  = module.network.config
 }
 ```
 
@@ -71,12 +69,3 @@ Because of the way this module subdivides `cidr_block` it can only accommodate
 up to 7 subnet pairs.
 
 The size of each subnet is relative to the CIDR block chosen for the VPC.
-
-## Development
-
-This module is tested by [`test/vpc_test.go`](test/vpc_test.go) which validates
-the example configuration in [`examples/vpc`](examples/vpc).
-
-When making additions / changes to the behaviour of this module please ensure
-the tests still run successfully, consider testing the behaviour of any new
-feature.
