@@ -6,68 +6,77 @@ This repo contains a set of Terraform modules that can be used to provision
 an Elastic Kubernetes (EKS) cluster on AWS.
 
 This module provides a way to provision an EKS cluster based on the current
-best practices employed by Cookpad's Global SRE team. 
+best practices employed at Cookpad.
 
 ## Using this module
 
-We recommend setting up your cluster(s) using the submodules.
-
-This will allow you to flexibly manage and grow the configuration of your
-cluster(s) over time, you can also pick and choose the parts of the configuration
-you want to manage with these modules.
-
-This setup allows you to:
-
-* Easily add (and remove) additional node groups to your cluster.
-* Easily add additional clusters to your VPC.
-* Provision a cluster to an existing VPC (assuming it has the correct subnets setup)
+To provision an EKS cluster you need (as a minimum) to specify
+a name, and the details of the VPC network you will create it in.
 
 ```hcl
-module "vpc" {
-  source  = "cookpad/eks/aws//modules/vpc"
-  version = "~> 1.22"
-
-  name               = "us-east-1"
-  cidr_block         = "10.4.0.0/16"
-  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
-}
-
-module "iam" {
-  source  = "cookpad/eks/aws//modules/iam"
-  version = "~> 1.22"
-}
-
-
 module "cluster" {
-  source  = "cookpad/eks/aws//modules/cluster"
-  version = "~> 1.22"
+  source  = "cookpad/eks/aws"
+  version = "~> 1.25"
 
   name       = "hal-9000"
 
-  vpc_config = module.vpc.config
-  iam_config = module.iam.config
+  vpc_config = {
+    vpc_id = "vpc-345abc"
+
+    public_subnet_ids = {
+      use-east-1a = subnet-000af1234
+      use-east-1b = subnet-123ae3456
+      use-east-1c = subnet-456ab6789
+    }
+
+    private_subnet_ids = {
+      use-east-1a = subnet-123af1234
+      use-east-1b = subnet-456bc3456
+      use-east-1c = subnet-789fe6789
+    }
+  }
 }
 
-module "node_group" {
-  source  = "cookpad/eks/aws//modules/asg_node_group"
-  version = "~> 1.22"
+provider "kubernetes" {
+  host                   = module.cluster.config.endpoint
+  cluster_ca_certificate = base64decode(module.cluster.config.ca_data)
 
-  cluster_config = module.cluster.config
-
-  max_size           = 60
-  instance_family    = "burstable"
-  instance_size      = "medium"
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", module.cluster.config.name]
+  }
 }
 ```
 
+There are many options that can be set to configure your cluster.
+Check the [input documentation](https://registry.terraform.io/modules/cookpad/eks/aws/latest?tab=inputs) for more information.
+
+
+## Networking
+
+If you only have simple networking requirements you can use the
+submodule `cookpad/eks/aws/modules/vpc` to create a VPC, it's output
+variable `config` can be used to configure the `vpc_config` variable.
+
+Check the [VPC module documentation](https://registry.terraform.io/modules/cookpad/eks/aws/latest/submodules/vpc) for more extensive information.
+
+## Karpenter
+
+We use karpenter to provision the nodes that run the workloads in
+our clusters. You can use the submodule `cookpad/eks/aws/modules/vpc`
+to provision the resources required to use karpenter, and a fargate
+profile to run the karpenter pods.
+
+Check the [Karpenter module documentation](https://registry.terraform.io/modules/cookpad/eks/aws/latest/submodules/karpenter) for more information.
+
 ## Requirements
 
-In order to communicate with kubernetes  correctly this module requires
-`kubectl` and the `aws` cli to be installed and on your path.
+In order for this module to communicate with kubernetes correctly this module
+requires the `aws` cli to be installed and on your path.
 
-Note: We considered an approach using the kubernetes terraform provider. But
-this required multiple edit - plan - apply cycles to create a cluster.
-This module allows a cluster to be created and ready to use in a single PR.
+You will need to initialise the kuberntes provider as shown in the
+example.
 
 ## Multi User Environments
 
@@ -87,33 +96,6 @@ provider "aws" {
 
 [see an example role here](https://github.com/cookpad/terraform-aws-eks/blob/main/examples/iam_permissions/main.tf)
 
-Without this you may encounter difficulties applying kubernetes manifests to
-the cluster.
 
 Alternatively you should ensure that all users who need to run terraform
 are listed in the `aws_auth_user_map` variable of the cluster module.
-
-## Modules
-
-### `vpc`
-
-This module provisions a VPC with public and private subnets suitable for
-launching an EKS cluster into.
-
-### `iam`
-
-This module provisions the IAM roles and policies needed to run an EKS cluster
-and nodes.
-
-### `cluster`
-
-This module provisions an EKS cluster, including the EKS Kubernetes control
-plane, and several important cluster services (critical addons), and nodes to
-run these services.
-
-It will **not** provision any nodes that can be used to run non cluster services.
-
-### `asg_node_group`
-
-This module provisions EC2 autoscaling groups that will make compute resources
-available, in order to run Kubernetes pods.

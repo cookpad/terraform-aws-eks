@@ -26,7 +26,9 @@ so they can connect to the cluster.
 
 ```hcl
 module "cluster" {
-  source  = "cookpad/eks/aws"
+  source     = "cookpad/eks/aws"
+  name       = "hal-9000"
+  vpc_config = module.vpc.config
 
   aws_auth_role_map = [
     {
