@@ -15,8 +15,11 @@ data "aws_iam_policy_document" "karpenter_interruption_queue_policy" {
     actions   = ["sqs:SendMessage"]
     resources = [aws_sqs_queue.karpenter_interruption.arn]
     principals {
-      type        = "Service"
-      identifiers = ["events.${data.aws_partition.current.dns_suffix}"]
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com",
+        "sqs.amazonaws.com",
+      ]
     }
   }
 }
