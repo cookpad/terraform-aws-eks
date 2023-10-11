@@ -120,3 +120,9 @@ variable "ebs_csi_configuration_values" {
   default     = null
   description = "Configuration values passed to the ebs-csi EKS addon."
 }
+
+variable "prevent_destroy" {
+  type = boolean
+  default = true
+  description = "Prevent the cluster from being destroyed by terraform, useful because some config changes can cause the cluster to be destroyed and recreated"
+}

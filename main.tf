@@ -28,6 +28,10 @@ resource "aws_eks_cluster" "control_plane" {
   }
 
   depends_on = [aws_cloudwatch_log_group.control_plane]
+
+  lifecycle {
+    prevent_destroy = var.prevent_destroy
+  }
 }
 
 
