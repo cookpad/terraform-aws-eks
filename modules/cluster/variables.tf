@@ -223,3 +223,9 @@ variable "security_group_ids" {
   default     = []
   description = "A list of security group IDs for the cross-account elastic network interfaces that Amazon EKS creates to use to allow communication with the Kubernetes control plane. *WARNING* changes to this list will cause the cluster to be recreated."
 }
+
+variable "fargate_namespaces" {
+  type        = set(string)
+  default     = ["kube-system", "flux-system"]
+  description = "A list of namespaces to create fargate profiles for, should be set to a list of namespaces critical for flux / cluster bootstrapping"
+}
