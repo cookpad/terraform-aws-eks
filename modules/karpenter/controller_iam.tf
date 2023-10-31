@@ -244,7 +244,7 @@ data "aws_iam_policy_document" "karpenter_controller" {
   statement {
     sid       = "AllowPassingInstanceRole"
     effect    = "Allow"
-    resources = [aws_iam_role.karpenter_node.arn]
+    resources = concat([aws_iam_role.karpenter_node.arn], var.additional_node_role_arns)
     actions   = ["iam:PassRole"]
 
     condition {
