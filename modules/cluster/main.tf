@@ -66,6 +66,15 @@ locals {
         username = "system:node:{{EC2PrivateDNSName}}"
         groups   = ["system:bootstrappers", "system:nodes"]
       },
+      {
+        rolearn  = aws_iam_role.fargate.arn
+        username = "system:node:{{SessionName}}"
+        groups = [
+          "system:bootstrappers",
+          "system:nodes",
+          "system:node-proxier",
+        ]
+      },
     ],
     var.aws_auth_role_map,
   )
