@@ -16,3 +16,15 @@ variable "oidc_config" {
     arn = string
   })
 }
+
+variable "additional_node_role_arns" {
+  description = <<-EOF
+    Additional Node Role ARNS that karpenter should manage
+
+    This can be used where karpenter is using existing node
+    roles, and you want to transition to the namespaced role
+    created by this module
+  EOF
+  type        = list(string)
+  default     = []
+}
