@@ -6,9 +6,29 @@
 * After upgrading the terraform module, remember to follow the [roll nodes](docs/roll_nodes.md) procedure to roll out upgraded nodes to your cluster.
 * If providing custom `configuration_values` for any EKS addons, check for compatibility with the upgraded EKS addon version, using `aws eks describe-addon-configuration`. You can find the EKS addon versions in [addons.tf](modules/cluster/addons.tf)
 
+## 1.24 -> 1.25
+ * Check the [API deprecation guide](https://kubernetes.io/docs/reference/using-api/deprecation-guide/#v1-25)
+   * If you are using aws-load-balancer-controller, check you are on version 2.4.7+
+   * Check that you are not using Pod Security Policies (PSPs)
+     * Run `kubectl get psp --all-namespaces` to check - `eks.privileged` is OK as it will be automaticly migrated during the upgrade!
+ * Check [The AWS blogpost about this version](https://aws.amazon.com/blogs/containers/amazon-eks-now-supports-kubernetes-version-1-25/)
+ * IAM module was removed
+ * Cluster module is no longer a submodule
+   * change `source` from `cookpad/eks/aws//modules/cluster` to `cookpad/eks/aws`
+ * `node_group` submodule was removed
+   * We recommend to use karpenter to provision nodes for eks clusters
+   * A new submodule [`cookpad/eks/aws//modules/karpenter`](https://github.com/cookpad/terraform-aws-eks/tree/release-1-25/modules/karpenter) was added that provisions the resources required to use karpenter.
+ * Module now uses terraform kubernetes provider
+   * Provider config should be added to your project - [check the example in the README](https://github.com/cookpad/terraform-aws-eks/tree/release-1-25#using-this-module)
+   * Take special care to correctly configure the provider if you are managing more than one EKS cluster in the same terraform project.
+   * If upgrading an existing cluster import existing `aws-auth` configmap from your cluster - e.g. `terraform import module.cluster.kubernetes_config_map.aws_auth kube-system/aws-auth`
+ * 1.25+ uses fargate to run cluster critical pods from `kube-system`, `flux-system` and optionaly `fargate`
+   * It is recomended to first upgrade the module to 1.24.3+ and add the karpenter sub-module before upgrading to 1.25 - so that the fargate profiles are created
+     before the ASG that managed these "critical" addons is removed.
+
 ## 1.23 -> 1.24
  * Dockershim support is removed. Make sure none of your workload requires Docker functions specifically. Read more [here](https://docs.aws.amazon.com/eks/latest/userguide/dockershim-deprecation.html).
- * IPv6 is enabled for pods by default. Check your multi-container pods, make sure they can bid to all loopback interfaces IP address (IPv6 is the default for communication).
+ * IPv6 is enabled for pods by default. Check your multi-container pods, make sure they can bind to all loopback interfaces IP address (IPv6 is the default for communication).
 
 ## 1.22 -> 1.23
  * [324](https://github.com/cookpad/terraform-aws-eks/pull/324) EBS CSI driver is now non-optional. Check your cluster module's `aws_ebs_csi_driver` variable. Refer to [this AWS FAQ](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi-migration-faq.html).
