@@ -25,6 +25,16 @@
  * 1.25+ uses fargate to run cluster critical pods from `kube-system`, `flux-system` and optionaly `fargate`
    * It is recomended to first upgrade the module to 1.24.3+ and add the karpenter sub-module before upgrading to 1.25 - so that the fargate profiles are created
      before the ASG that managed these "critical" addons is removed.
+ * We removed the `hack/roll_nodes.sh` script from version 1.25
+   * To replace fargate nodes with new version it is recomended to:
+     * kubectl get deployment in each of the enabled namespaces e.g. kube-system, flux-system, karpenter
+     * kubectl rollout restart deployment/<name> for each deployment
+   * To have karpenter rollout the new version to the nodes that it manages:
+    * Consider using the [drift](https://karpenter.sh/preview/concepts/disruption/#drift) feature
+      * `kubectl edit configmap -n karpenter karpenter-global-settings`
+      * set `featureGates.driftEnabled` to true
+      * `kubectl rollout restart deploy karpenter -n karpenter` to restart karpenter with the drift feature enabled
+      * 📝 this feature is currently in alpha, so consider if you want to leave it perminantly enabled
 
 ## 1.23 -> 1.24
  * Dockershim support is removed. Make sure none of your workload requires Docker functions specifically. Read more [here](https://docs.aws.amazon.com/eks/latest/userguide/dockershim-deprecation.html).
