@@ -16,6 +16,11 @@ unless K8S_VERSION
 end
 
 ADDONS = %w(vpc-cni kube-proxy coredns aws-ebs-csi-driver)
+PADDING = ADDONS.map(&:size).max
+
+def pad(string)
+  string.ljust(PADDING)
+end
 
 addons = []
 
@@ -24,14 +29,16 @@ ADDONS.each do |addon|
 end
 
 puts <<-VERSION
+# Run hack/versions k8sVersionNumber > versions.tf
+# to generate the latest values for this
 locals {
   versions = {
-    k8s = "#{K8S_VERSION}"
+    #{pad("k8s")} = "#{K8S_VERSION}"
 VERSION
 
 addons.each do |addon|
   puts <<-VERSION
-    #{addon["addonName"].gsub("-", "_")} = "#{addon["addonVersions"].map { |version| version["addonVersion"] }.sort.last}"
+    #{pad(addon["addonName"].gsub("-", "_"))} = "#{addon["addonVersions"].map { |version| version["addonVersion"] }.sort.last}"
   VERSION
 end
 
