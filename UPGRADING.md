@@ -13,6 +13,8 @@
      * Run `kubectl get psp --all-namespaces` to check - `eks.privileged` is OK as it will be automaticly migrated during the upgrade!
  * Check [The AWS blogpost about this version](https://aws.amazon.com/blogs/containers/amazon-eks-now-supports-kubernetes-version-1-25/)
  * IAM module was removed
+  * By default the module now makes IAM roles for each cluster rather than using shared roles
+  * ⚠️  if you are upgrading an existing cluster be sure to set `cluster_role_arn` to it's previous default value, i.e. `arn:aws:iam::<account number>:role/eksServiceRole` This value cannot be changed, so terraform will attempt to delete and recreate the cluster. ⚠️
  * Cluster module is no longer a submodule
    * change `source` from `cookpad/eks/aws//modules/cluster` to `cookpad/eks/aws`
  * `node_group` submodule was removed
