@@ -1,10 +1,10 @@
-FROM golang:1.20-alpine3.18
+FROM golang:1.22-alpine3.19
 
 WORKDIR /
 
-ARG TERRAFORM_VERSION=1.6.0
-ARG KUBECTL_VERSION=1.25.14
-ARG HELM_VERSION=3.12.3
+ARG TERRAFORM_VERSION=1.7.3
+ARG KUBECTL_VERSION=1.25.16
+ARG HELM_VERSION=3.14.1
 
 RUN apk add --no-cache \
       bash \
@@ -14,8 +14,7 @@ RUN apk add --no-cache \
       git \
       jq \
       perl-utils \
-      py3-pip && \
-    pip install awscli && \
+      aws-cli && \
     git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
     echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile && ln -s ~/.tfenv/bin/* /usr/local/bin && \
     tfenv install $TERRAFORM_VERSION && \
