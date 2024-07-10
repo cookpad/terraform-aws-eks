@@ -56,6 +56,27 @@ data "aws_iam_policy_document" "karpenter_controller" {
   }
 
   statement {
+    sid    = "AllowScopedEC2LaunchTemplateAccessActions"
+    effect = "Allow"
+
+    # tfsec:ignore:aws-iam-no-policy-wildcards
+    resources = [
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
+    ]
+
+    actions = [
+      "ec2:RunInstances",
+      "ec2:CreateFleet",
+    ]
+
+    condition {
+      test     = "StringLike"
+      variable = "aws:RequestTag/karpenter.sh/provisioner-name"
+      values   = ["*"]
+    }
+  }
+
+  statement {
     sid    = "AllowScopedEC2InstanceActionsWithTags"
     effect = "Allow"
 
