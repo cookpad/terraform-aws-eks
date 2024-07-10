@@ -257,10 +257,11 @@ spec:
 `
 
 func validateKubeBench(t *testing.T, kubeconfig string) {
-	validateKubeBenchExpectedFails(t, kubeconfig, 0)
+	// https://github.com/awslabs/amazon-eks-ami/pull/391
+	validateKubeBenchExpectedFails(t, kubeconfig, 2, 0)
 }
 
-func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedFails int) {
+func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedWarns, expectedFails int) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-bench")
 	defer k8s.DeleteNamespace(t, kubectlOptions, "kube-bench")
 	k8s.KubectlApplyFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
@@ -274,9 +275,8 @@ func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedFai
 	if !assert.Equal(t, expectedFails, result.TotalFail) {
 		fmt.Printf(`unexpected total_fail: %s`, output)
 	}
-	// https://github.com/awslabs/amazon-eks-ami/pull/391
-	if !assert.LessOrEqual(t, result.TotalWarn, 1) {
-		fmt.Printf(`>=1 total_warn: %s`, output)
+	if !assert.LessOrEqual(t, result.TotalWarn, expectedWarns) {
+		fmt.Printf(`>=%d total_warn: %s`, expectedWarns, output)
 	}
 }
 

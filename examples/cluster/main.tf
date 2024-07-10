@@ -15,7 +15,7 @@ provider "kubernetes" {
 }
 
 data "http" "ip" {
-  url = "http://ipv4.icanhazip.com"
+  url = "https://ipv4.icanhazip.com"
 }
 
 module "cluster" {
@@ -26,7 +26,7 @@ module "cluster" {
   vpc_config = data.terraform_remote_state.environment.outputs.vpc_config
 
   endpoint_public_access       = true
-  endpoint_public_access_cidrs = ["${chomp(data.http.ip.body)}/32"]
+  endpoint_public_access_cidrs = ["${chomp(data.http.ip.response_body)}/32"]
 
 
   aws_auth_role_map = [
