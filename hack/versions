@@ -37,8 +37,9 @@ locals {
 VERSION
 
 addons.each do |addon|
+  addon_version = addon["addonVersions"].sort_by { |v| Gem::Version.new(v["addonVersion"][1..-1]) }.last["addonVersion"]
   puts <<-VERSION
-    #{pad(addon["addonName"].gsub("-", "_"))} = "#{addon["addonVersions"].map { |version| version["addonVersion"] }.sort.last}"
+    #{pad(addon["addonName"].gsub("-", "_"))} = "#{ addon_version }"
   VERSION
 end
 
