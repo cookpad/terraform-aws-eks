@@ -111,7 +111,7 @@ variable "kube_proxy_configuration_values" {
 
 variable "coredns_configuration_values" {
   type        = string
-  default     = "{ \"computeType\": \"fargate\" }"
+  default     = "{ \"computeType\": \"fargate\", \"autoScaling\":{ \"enabled\": true } }"
   description = "Configuration values passed to the coredns EKS addon."
 }
 

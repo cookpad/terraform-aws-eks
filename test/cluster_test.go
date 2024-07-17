@@ -257,11 +257,6 @@ spec:
 `
 
 func validateKubeBench(t *testing.T, kubeconfig string) {
-	// https://github.com/awslabs/amazon-eks-ami/pull/391
-	validateKubeBenchExpectedFails(t, kubeconfig, 2, 0)
-}
-
-func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedWarns, expectedFails int) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "kube-bench")
 	defer k8s.DeleteNamespace(t, kubectlOptions, "kube-bench")
 	k8s.KubectlApplyFromString(t, kubectlOptions, KUBEBENCH_MANIFEST)
@@ -272,11 +267,11 @@ func validateKubeBenchExpectedFails(t *testing.T, kubeconfig string, expectedWar
 	err = json.Unmarshal([]byte(output), &resultWrapper)
 	require.NoError(t, err)
 	result := resultWrapper.Totals
-	if !assert.Equal(t, expectedFails, result.TotalFail) {
-		fmt.Printf(`unexpected total_fail: %s`, output)
+	if !assert.Equal(t, result.TotalFail, 0) {
+		fmt.Printf(`unexpected total_fail: %d`, result.TotalFail)
 	}
-	if !assert.LessOrEqual(t, result.TotalWarn, expectedWarns) {
-		fmt.Printf(`>=%d total_warn: %s`, expectedWarns, output)
+	if !assert.Equal(t, result.TotalWarn, 0) {
+		fmt.Printf(`unexpected total_warn: %d`, result.TotalWarn)
 	}
 }
 
@@ -290,6 +285,12 @@ type KubeBenchResultTotals struct {
 	TotalWarn int `json:"total_warn"`
 	TotalInfo int `json:"total_info"`
 }
+
+//Skipped tests:
+//3.2.8: --hostname-override is used by bottlerocket to have hostname match the dns name of the ec2 instance, this is appropriate and not a security issue
+//3.2.9: eventRecordQPS is 50 by default, and can be overidden as required by users
+//3.2.11: See https://github.com/bottlerocket-os/bottlerocket/issues/3506 - the test checks for the presence of RotateKubeletServerCertificate feature gate, but this is set by default since k8s 1.12 so is not needed
+//3.3.1: Manual test: bottlerocket is a container-optimized OS so we pass this control
 
 const KUBEBENCH_MANIFEST = `---
 apiVersion: v1
@@ -311,8 +312,8 @@ spec:
       hostPID: true
       containers:
         - name: kube-bench
-          image: aquasec/kube-bench:v0.6.8
-          command: ["kube-bench", "run", "--targets=node", "--benchmark", "eks-1.0.1", "--json"]
+          image: aquasec/kube-bench:v0.8.0
+          command: ["kube-bench", "run", "--targets=node", "--benchmark", "eks-1.2.0", "--json", "--skip", "3.2.8,3.2.9,3.2.11,3.3.1"]
           volumeMounts:
             - name: var-lib-kubelet
               mountPath: /var/lib/kubelet
