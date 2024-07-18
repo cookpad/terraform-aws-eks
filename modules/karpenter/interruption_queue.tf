@@ -22,6 +22,18 @@ data "aws_iam_policy_document" "karpenter_interruption_queue_policy" {
       ]
     }
   }
+
+  statement {
+    sid       = "DenyHTTP"
+    effect    = "Deny"
+    actions   = ["sqs:*"]
+    resources = [aws_sqs_queue.karpenter_interruption.arn]
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = [false]
+    }
+  }
 }
 
 locals {

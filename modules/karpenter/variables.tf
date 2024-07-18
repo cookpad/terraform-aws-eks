@@ -17,6 +17,18 @@ variable "oidc_config" {
   })
 }
 
+variable "v1alpha" {
+  description = "Enable controller policy for v1alpha resources (Karpenter <= 0.32.*)"
+  type        = bool
+  default     = true
+}
+
+variable "v1beta" {
+  description = "Enable controller policy for v1beta resources (Karpenter >= 0.32.*)"
+  type        = bool
+  default     = true
+}
+
 variable "additional_node_role_arns" {
   description = <<-EOF
     Additional Node Role ARNS that karpenter should manage

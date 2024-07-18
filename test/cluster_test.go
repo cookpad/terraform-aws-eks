@@ -75,62 +75,68 @@ func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 	helmOptions := helm.Options{
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
-			"upgrade": []string{"--create-namespace", "--version", "v0.31.0", "--force"},
+			"upgrade": []string{"--create-namespace", "--version", "0.37.0", "--force"},
 		},
 	}
 	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter-crd", "karpenter-crd")
 	helmOptions = helm.Options{
 		SetValues: map[string]string{
 			"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn": "arn:aws:iam::214219211678:role/Karpenter-" + clusterName,
-			"settings.aws.clusterName":                                  clusterName,
-			"settings.aws.defaultInstanceProfile":                       "KarpenterNode-" + clusterName,
-			"settings.aws.interruptionQueueName":                        "Karpenter-" + clusterName,
-			"controller.resources.requests.cpu":                         "1",
-			"controller.resources.requests.memory":                      "1Gi",
-			"controller.resources.limits.cpu":                           "1",
-			"controller.resources.limits.memory":                        "1Gi",
+			"settings.clusterName":                 clusterName,
+			"settings.interruptionQueueName":       "Karpenter-" + clusterName,
+			"controller.resources.requests.cpu":    "1",
+			"controller.resources.requests.memory": "1Gi",
+			"controller.resources.limits.cpu":      "1",
+			"controller.resources.limits.memory":   "1Gi",
 		},
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
-			"upgrade": []string{"--create-namespace", "--version", "v0.31.0"},
+			"upgrade": []string{"--create-namespace", "--version", "0.37.0"},
 		},
 	}
 	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter", "karpenter")
 	WaitUntilPodsAvailable(t, kubectlOptions, metav1.ListOptions{LabelSelector: "app.kubernetes.io/name=karpenter"}, 2, 30, 6*time.Second)
-	provisionerManifest := fmt.Sprintf(KARPENTER_PROVISIONER, sgName)
+	provisionerManifest := fmt.Sprintf(KARPENTER_PROVISIONER, sgName, clusterName)
 	k8s.KubectlApplyFromString(t, kubectlOptions, provisionerManifest)
 }
 
 const KARPENTER_PROVISIONER = `---
-apiVersion: karpenter.sh/v1alpha5
-kind: Provisioner
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
 metadata:
   name: default
 spec:
-  requirements:
-    - key: karpenter.k8s.aws/instance-family
-      operator: In
-      values: [t3]
-    - key: karpenter.sh/capacity-type
-      operator: In
-      values: ["spot"]
-    - key: karpenter.k8s.aws/instance-size
-      operator: In
-      values: [small, medium, large]
-  providerRef:
-    name: default
-  ttlSecondsAfterEmpty: 30
+  template:
+    spec:
+      nodeClassRef:
+        apiVersion: karpenter.k8s.aws/v1beta1
+        kind: EC2NodeClass
+        name: default
+      requirements:
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: [t3]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot"]
+        - key: karpenter.k8s.aws/instance-size
+          operator: In
+          values: [small, medium, large]
 ---
-apiVersion: karpenter.k8s.aws/v1alpha1
-kind: AWSNodeTemplate
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
 metadata:
   name: default
 spec:
   amiFamily: Bottlerocket
-  subnetSelector:
-    Name: terraform-aws-eks-test-environment-private*
-  securityGroupSelector:
-    Name: %s
+  subnetSelectorTerms:
+    - tags:
+        Name: terraform-aws-eks-test-environment-private*
+  securityGroupSelectorTerms:
+    - tags:
+        Name: %s
+  instanceProfile:
+    KarpenterNode-%s
 `
 
 func validateAdminRole(t *testing.T, kubeconfig string) {
