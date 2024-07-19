@@ -30,14 +30,14 @@ data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
 
 resource "aws_iam_role_policy" "karpenter_controller_v1_alpha" {
   count  = var.v1alpha ? 1 : 0
-  name   = "KarpenterController-v1alpha"
+  name   = "KarpenterController"
   role   = aws_iam_role.karpenter_controller.id
   policy = data.aws_iam_policy_document.karpenter_controller_v1_alpha.json
 }
 
 moved {
   from = aws_iam_role_policy.karpenter_controller
-  to   = aws_iam_role_policy.karpenter_controller_v1_alpha
+  to   = aws_iam_role_policy.karpenter_controller_v1_alpha[0]
 }
 
 data "aws_iam_policy_document" "karpenter_controller_v1_alpha" {
