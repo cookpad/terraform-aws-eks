@@ -230,6 +230,7 @@ metadata:
   name: ebs-claim
   namespace: %s
 spec:
+  storageClassName: gp2
   accessModes:
     - ReadWriteOnce
   resources:
