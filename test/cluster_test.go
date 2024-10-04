@@ -75,7 +75,7 @@ func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 	helmOptions := helm.Options{
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
-			"upgrade": []string{"--create-namespace", "--version", "0.37.0", "--force"},
+			"upgrade": []string{"--create-namespace", "--version", "1.0.5", "--force"},
 		},
 	}
 	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter-crd", "karpenter-crd")
@@ -91,7 +91,7 @@ func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 		},
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
-			"upgrade": []string{"--create-namespace", "--version", "0.37.0"},
+			"upgrade": []string{"--create-namespace", "--version", "1.0.5"},
 		},
 	}
 	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter", "karpenter")
