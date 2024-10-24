@@ -29,14 +29,15 @@ data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
 }
 
 resource "aws_iam_role_policy" "karpenter_controller_v1_beta" {
+  count  = var.v1beta ? 1 : 0
   name   = "KarpenterController-v1beta"
   role   = aws_iam_role.karpenter_controller.id
   policy = data.aws_iam_policy_document.karpenter_controller_v1_beta.json
 }
 
 moved {
-  from = aws_iam_role_policy.karpenter_controller_v1_beta[0]
-  to   = aws_iam_role_policy.karpenter_controller_v1_beta
+  from = aws_iam_role_policy.karpenter_controller_v1_beta
+  to   = aws_iam_role_policy.karpenter_controller_v1_beta[0]
 }
 
 data "aws_iam_policy_document" "karpenter_controller_v1_beta" {
