@@ -101,7 +101,7 @@ func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 }
 
 const KARPENTER_PROVISIONER = `---
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: default
@@ -109,7 +109,7 @@ spec:
   template:
     spec:
       nodeClassRef:
-        apiVersion: karpenter.k8s.aws/v1beta1
+        group: karpenter.k8s.aws
         kind: EC2NodeClass
         name: default
       requirements:
@@ -123,12 +123,13 @@ spec:
           operator: In
           values: [small, medium, large]
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
   name: default
 spec:
-  amiFamily: Bottlerocket
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
   subnetSelectorTerms:
     - tags:
         Name: terraform-aws-eks-test-environment-private*

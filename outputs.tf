@@ -9,6 +9,7 @@ locals {
     node_security_group        = aws_eks_cluster.control_plane.vpc_config.0.cluster_security_group_id
     tags                       = var.tags
     iam_role_name_prefix       = var.iam_role_name_prefix
+    iam_policy_name_prefix     = var.iam_policy_name_prefix
     fargate_execution_role_arn = aws_iam_role.fargate.arn
   }
 }
