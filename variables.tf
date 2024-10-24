@@ -35,6 +35,11 @@ variable "iam_role_name_prefix" {
   description = "An optional prefix to any IAM Roles created by this module"
 }
 
+variable "iam_policy_name_prefix" {
+  default     = ""
+  description = "An optional prefix to any IAM Policies created by this module"
+}
+
 variable "cluster_role_arn" {
   type        = string
   description = "The ARN of IAM role to be used by the cluster, if not specified a role will be created"
