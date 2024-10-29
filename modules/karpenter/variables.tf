@@ -5,6 +5,7 @@ variable "cluster_config" {
     arn                        = string
     private_subnet_ids         = map(string)
     iam_role_name_prefix       = string
+    iam_policy_name_prefix     = string
     fargate_execution_role_arn = string
   })
 }
