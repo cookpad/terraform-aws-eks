@@ -289,15 +289,10 @@ data "aws_iam_policy_document" "karpenter_controller_v1_alpha" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "karpenter_controller_v1_beta" {
-  count      = var.v1beta ? 1 : 0
-  role       = aws_iam_role.karpenter_controller.id
-  policy_arn = aws_iam_policy.karpenter_controller_v1_beta[0].arn
-}
-
-resource "aws_iam_policy" "karpenter_controller_v1_beta" {
+resource "aws_iam_role_policy" "karpenter_controller_v1_beta" {
   count  = var.v1beta ? 1 : 0
-  name   = "${var.cluster_config.iam_policy_name_prefix}KarpenterController-v1beta-${var.cluster_config.name}"
+  name   = "KarpenterController-v1beta"
+  role   = aws_iam_role.karpenter_controller.id
   policy = data.aws_iam_policy_document.karpenter_controller_v1_beta.json
 }
 
