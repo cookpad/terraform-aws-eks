@@ -5,6 +5,7 @@ variable "cluster_config" {
     arn                        = string
     private_subnet_ids         = map(string)
     iam_role_name_prefix       = string
+    iam_policy_name_prefix     = string
     fargate_execution_role_arn = string
   })
 }
@@ -25,6 +26,12 @@ variable "v1alpha" {
 
 variable "v1beta" {
   description = "Enable controller policy for v1beta resources (Karpenter >= 0.32.*)"
+  type        = bool
+  default     = true
+}
+
+variable "v1" {
+  description = "Enable controller policy for v1 resources (Karpenter >= 1.*)"
   type        = bool
   default     = true
 }
