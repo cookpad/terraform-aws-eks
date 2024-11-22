@@ -1,12 +1,12 @@
 variable "cluster_config" {
   type = object({
-    name                  = string
-    endpoint              = string
-    ca_data               = string
-    vpc_id                = string
-    private_subnet_ids    = map(string)
-    node_security_group   = string
-    tags                  = map(string)
+    name                = string
+    endpoint            = string
+    ca_data             = string
+    vpc_id              = string
+    private_subnet_ids  = map(string)
+    node_security_group = string
+    tags                = map(string)
   })
 }
 
@@ -195,6 +195,6 @@ variable "imdsv2_required" {
 }
 
 variable "node_instance_profile" {
-  type = string
+  type    = string
   default = "EKSNode"
 }
