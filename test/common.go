@@ -47,6 +47,11 @@ func deployTerraform(t *testing.T, workingDir string, vars map[string]interface{
 
 func cleanupTerraform(t *testing.T, workingDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+	terraformOptions.RetryableTerraformErrors = map[string]string{
+		".*operation error EKS: DeleteFargateProfile.*": "Fargate delete failed",
+	}
+	terraformOptions.MaxRetries = 5
+	terraformOptions.TimeBetweenRetries = time.Minute
 	terraform.Destroy(t, terraformOptions)
 	test_structure.CleanupTestDataFolder(t, workingDir)
 }

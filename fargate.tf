@@ -12,6 +12,11 @@ resource "aws_eks_fargate_profile" "critical_pods" {
       labels    = {}
     }
   }
+
+  timeouts {
+    create = "10m"
+    delete = "20m"
+  }
 }
 
 resource "aws_iam_role" "fargate" {
