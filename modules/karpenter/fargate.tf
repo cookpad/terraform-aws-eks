@@ -8,4 +8,9 @@ resource "aws_eks_fargate_profile" "critical_pods" {
     namespace = "karpenter"
     labels    = {}
   }
+
+  timeouts {
+    create = "10m"
+    delete = "20m"
+  }
 }
