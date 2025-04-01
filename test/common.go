@@ -118,7 +118,7 @@ func WaitUntilPodsAvailableE(t *testing.T, options *k8s.KubectlOptions, filters 
 		logger.Logf(t, "Timedout waiting for the desired number of Pods to be available: %s", err)
 		return err
 	}
-	logger.Logf(t, message)
+	logger.Log(t, message)
 	return nil
 }
 
@@ -156,7 +156,7 @@ func WaitUntilPodsSucceededE(t *testing.T, options *k8s.KubectlOptions, filters 
 		logger.Logf(t, "Timedout waiting for the desired number of Pods to Succeed: %s", err)
 		return err
 	}
-	logger.Logf(t, message)
+	logger.Log(t, message)
 	return nil
 }
 
