@@ -50,8 +50,8 @@ func cleanupTerraform(t *testing.T, workingDir string) {
 	terraformOptions.RetryableTerraformErrors = map[string]string{
 		".*operation error EKS: DeleteFargateProfile.*": "Fargate delete failed",
 	}
-	terraformOptions.MaxRetries = 5
-	terraformOptions.TimeBetweenRetries = time.Minute
+	terraformOptions.MaxRetries = 15
+	terraformOptions.TimeBetweenRetries = 3 * time.Minute
 	terraform.Destroy(t, terraformOptions)
 	test_structure.CleanupTestDataFolder(t, workingDir)
 }
