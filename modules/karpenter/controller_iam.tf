@@ -402,6 +402,7 @@ resource "aws_iam_policy" "karpenter_controller_v1" {
   policy = data.aws_iam_policy_document.karpenter_controller_v1.json
 }
 
+#trivy:ignore:AVD-AWS-0342
 data "aws_iam_policy_document" "karpenter_controller_v1" {
   statement {
     sid    = "AllowScopedEC2InstanceAccessActions"

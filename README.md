@@ -16,7 +16,7 @@ a name, and the details of the VPC network you will create it in.
 ```hcl
 module "cluster" {
   source  = "cookpad/eks/aws"
-  version = "~> 1.25"
+  version = "~> 1.32"
 
   name       = "hal-9000"
 
@@ -87,7 +87,6 @@ to assume a common IAM role in the aws provider definition.
 ```hcl
 provider "aws" {
   region              = "us-east-1"
-  version             = "3.53.0"
   assume_role {
     role_arn = "arn:aws:iam::<your account id>:role/Terraform"
   }
