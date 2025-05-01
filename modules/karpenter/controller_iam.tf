@@ -45,7 +45,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1_beta" {
     sid    = "AllowScopedEC2InstanceAccessActions"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}::image/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}::snapshot/*",
@@ -63,7 +62,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1_beta" {
     sid    = "AllowScopedEC2LaunchTemplateAccessActions"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
     ]
@@ -90,7 +88,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1_beta" {
     sid    = "AllowScopedEC2InstanceActionsWithTags"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:fleet/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
@@ -123,7 +120,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1_beta" {
     sid    = "AllowScopedResourceCreationTagging"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:fleet/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
@@ -163,7 +159,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1_beta" {
     sid    = "AllowScopedResourceTagging"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = ["arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*"]
     actions   = ["ec2:CreateTags"]
 
@@ -191,7 +186,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1_beta" {
     sid    = "AllowScopedDeletion"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
@@ -408,7 +402,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     sid    = "AllowScopedEC2InstanceAccessActions"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}::image/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}::snapshot/*",
@@ -426,7 +419,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     sid    = "AllowScopedEC2LaunchTemplateAccessActions"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
     ]
@@ -453,7 +445,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     sid    = "AllowScopedEC2InstanceActionsWithTags"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:fleet/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
@@ -492,7 +483,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     sid    = "AllowScopedResourceCreationTagging"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:fleet/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
@@ -538,7 +528,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     sid    = "AllowScopedResourceTagging"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = ["arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*"]
     actions   = ["ec2:CreateTags"]
 
@@ -572,7 +561,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     sid    = "AllowScopedDeletion"
     effect = "Allow"
 
-    # tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
