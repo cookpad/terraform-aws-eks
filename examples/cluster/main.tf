@@ -18,6 +18,7 @@ data "http" "ip" {
   url = "https://ipv4.icanhazip.com"
 }
 
+#trivy:ignore:AVD-AWS-0040
 module "cluster" {
   source = "../../"
 

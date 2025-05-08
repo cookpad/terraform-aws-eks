@@ -1,14 +1,19 @@
-name: tfsec-pr-commenter
+name: trivy-pr-commenter
 on:
   pull_request:
 jobs:
-  tfsec:
-    name: tfsec PR commenter
+  trivy:
+    name: trivy PR commenter
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
         uses: actions/checkout@v4
-      - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
+      - name: trivy
+        uses: reviewdog/action-trivy@v1.13.10
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          trivy_command: config
+          trivy_target: .
+          level: info
+          reporter: github-pr-review
+          filter_mode: nofilter

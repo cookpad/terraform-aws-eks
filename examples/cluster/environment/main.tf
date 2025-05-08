@@ -3,6 +3,7 @@ provider "aws" {
   allowed_account_ids = ["214219211678"]
 }
 
+#trivy:ignore:AVD-AWS-0178 trivy:ignore:AVD-AWS-0164
 module "vpc" {
   source = "../../../modules/vpc"
 
