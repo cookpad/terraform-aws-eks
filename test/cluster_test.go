@@ -72,10 +72,11 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 
 func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "karpenter")
+	karpenterVersion := "1.8.2"
 	helmOptions := helm.Options{
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
-			"upgrade": []string{"--create-namespace", "--version", "1.0.5", "--force"},
+			"upgrade": []string{"--create-namespace", "--version", karpenterVersion, "--force"},
 		},
 	}
 	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter-crd", "karpenter-crd")
@@ -91,7 +92,7 @@ func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 		},
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
-			"upgrade": []string{"--create-namespace", "--version", "1.0.5"},
+			"upgrade": []string{"--create-namespace", "--version", karpenterVersion},
 		},
 	}
 	helm.Upgrade(t, &helmOptions, "oci://public.ecr.aws/karpenter/karpenter", "karpenter")

@@ -59,6 +59,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}::snapshot/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:security-group/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:subnet/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:capacity-reservation/*",
     ]
 
     actions = [
@@ -104,6 +105,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:network-interface/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:spot-instances-request/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:capacity-reservation/*",
     ]
 
     actions = [
@@ -243,6 +245,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
 
     actions = [
       "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeCapacityReservations",
       "ec2:DescribeImages",
       "ec2:DescribeInstances",
       "ec2:DescribeInstanceTypeOfferings",
@@ -413,6 +416,13 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     effect    = "Allow"
     resources = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:instance-profile/*"]
     actions   = ["iam:GetInstanceProfile"]
+  }
+
+  statement {
+    sid       = "AllowUnscopedInstanceProfileListAction"
+    effect    = "Allow"
+    resources = ["*"]
+    actions   = ["iam:ListInstanceProfiles"]
   }
 
   statement {
