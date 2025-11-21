@@ -296,10 +296,8 @@ type KubeBenchResultTotals struct {
 }
 
 //Skipped tests:
-//3.2.8: --hostname-override is used by bottlerocket to have hostname match the dns name of the ec2 instance, this is appropriate and not a security issue
-//3.2.9: eventRecordQPS is 50 by default, and can be overidden as required by users
-//3.2.11: See https://github.com/bottlerocket-os/bottlerocket/issues/3506 - the test checks for the presence of RotateKubeletServerCertificate feature gate, but this is set by default since k8s 1.12 so is not needed
-//3.3.1: Manual test: bottlerocket is a container-optimized OS so we pass this control
+//3.2.7: eventRecordQPS is 50 by default, and can be overidden as required by users
+//3.2.9: See https://github.com/bottlerocket-os/bottlerocket/issues/3506 - the test checks for the presence of RotateKubeletServerCertificate feature gate, but this is set by default since k8s 1.12 so is not needed
 
 const KUBEBENCH_MANIFEST = `---
 apiVersion: v1
@@ -321,8 +319,8 @@ spec:
       hostPID: true
       containers:
         - name: kube-bench
-          image: aquasec/kube-bench:v0.8.0
-          command: ["kube-bench", "run", "--targets=node", "--benchmark", "eks-1.2.0", "--json", "--skip", "3.2.8,3.2.9,3.2.11,3.3.1"]
+          image: aquasec/kube-bench:v0.14.0
+          command: ["kube-bench", "run", "--targets=node", "--benchmark", "eks-1.5.0", "--json", "--skip", "3.2.7,3.2.9"]
           volumeMounts:
             - name: var-lib-kubelet
               mountPath: /var/lib/kubelet
