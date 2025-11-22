@@ -64,7 +64,7 @@ Check the [VPC module documentation](https://registry.terraform.io/modules/cookp
 ## Karpenter
 
 We use karpenter to provision the nodes that run the workloads in
-our clusters. You can use the submodule `cookpad/eks/aws/modules/vpc`
+our clusters. You can use the submodule `cookpad/eks/aws/modules/karpenter`
 to provision the resources required to use karpenter, and a fargate
 profile to run the karpenter pods.
 
