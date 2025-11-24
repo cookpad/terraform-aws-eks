@@ -16,7 +16,7 @@ a name, and the details of the VPC network you will create it in.
 ```hcl
 module "cluster" {
   source  = "cookpad/eks/aws"
-  version = "~> 1.33"
+  version = "~> 1.34"
 
   name       = "hal-9000"
 
