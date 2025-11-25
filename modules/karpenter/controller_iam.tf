@@ -55,11 +55,11 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     effect = "Allow"
 
     resources = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}::image/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}::snapshot/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:security-group/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:subnet/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:capacity-reservation/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}::image/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}::snapshot/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:security-group/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:subnet/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:capacity-reservation/*",
     ]
 
     actions = [
@@ -73,7 +73,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     effect = "Allow"
 
     resources = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:launch-template/*",
     ]
 
     actions = [
@@ -99,13 +99,13 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     effect = "Allow"
 
     resources = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:fleet/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:volume/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:network-interface/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:spot-instances-request/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:capacity-reservation/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:fleet/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:instance/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:volume/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:network-interface/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:launch-template/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:spot-instances-request/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:capacity-reservation/*",
     ]
 
     actions = [
@@ -138,12 +138,12 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     effect = "Allow"
 
     resources = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:fleet/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:volume/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:network-interface/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:spot-instances-request/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:fleet/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:instance/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:volume/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:network-interface/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:launch-template/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:spot-instances-request/*",
     ]
 
     actions = ["ec2:CreateTags"]
@@ -182,7 +182,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     sid    = "AllowScopedResourceTagging"
     effect = "Allow"
 
-    resources = ["arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*"]
+    resources = ["arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:instance/*"]
     actions   = ["ec2:CreateTags"]
 
     condition {
@@ -216,8 +216,8 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     effect = "Allow"
 
     resources = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:instance/*",
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:*:launch-template/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:instance/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:launch-template/*",
     ]
 
     actions = [
@@ -259,14 +259,14 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     condition {
       test     = "StringEquals"
       variable = "aws:RequestedRegion"
-      values   = [data.aws_region.current.name]
+      values   = [data.aws_region.current.region]
     }
   }
 
   statement {
     sid       = "AllowSSMReadActions"
     effect    = "Allow"
-    resources = ["arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.name}::parameter/aws/service/*"]
+    resources = ["arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.region}::parameter/aws/service/*"]
     actions   = ["ssm:GetParameter"]
   }
 
@@ -323,7 +323,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     condition {
       test     = "StringEquals"
       variable = "aws:RequestTag/topology.kubernetes.io/region"
-      values   = [data.aws_region.current.name]
+      values   = [data.aws_region.current.region]
     }
 
     condition {
@@ -348,7 +348,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     condition {
       test     = "StringEquals"
       variable = "aws:ResourceTag/topology.kubernetes.io/region"
-      values   = [data.aws_region.current.name]
+      values   = [data.aws_region.current.region]
     }
 
     condition {
@@ -366,7 +366,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     condition {
       test     = "StringEquals"
       variable = "aws:RequestTag/topology.kubernetes.io/region"
-      values   = [data.aws_region.current.name]
+      values   = [data.aws_region.current.region]
     }
 
     condition {
@@ -401,7 +401,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     condition {
       test     = "StringEquals"
       variable = "aws:ResourceTag/topology.kubernetes.io/region"
-      values   = [data.aws_region.current.name]
+      values   = [data.aws_region.current.region]
     }
 
     condition {
