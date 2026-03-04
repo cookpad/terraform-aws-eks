@@ -23,9 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Terraform version
+        id: terraform-version
+        run: echo "version=$(cat .terraform-version)" >> $GITHUB_OUTPUT
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.14.0
+          terraform_version: ${{ steps.terraform-version.outputs.version }}
       - name: 'Terraform Format'
         run: terraform fmt -check -recursive
       - name: 'Terraform Init cluster'
