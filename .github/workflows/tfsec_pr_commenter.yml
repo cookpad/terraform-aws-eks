@@ -9,7 +9,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v4
       - name: trivy
-        uses: reviewdog/action-trivy@v1.13.10
+        uses: reviewdog/action-trivy@v1.14.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           trivy_command: config

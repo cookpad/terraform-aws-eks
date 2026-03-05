@@ -40,12 +40,11 @@ module "cluster" {
 provider "kubernetes" {
   host                   = module.cluster.config.endpoint
   cluster_ca_certificate = base64decode(module.cluster.config.ca_data)
+  token                  = ephemeral.aws_eks_cluster_auth.auth.token
+}
 
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.cluster.config.name]
-  }
+ephemeral "aws_eks_cluster_auth" "auth" {
+  name = module.cluster.config.name
 }
 ```
 
