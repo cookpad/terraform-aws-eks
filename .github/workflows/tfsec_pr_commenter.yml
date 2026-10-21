@@ -7,9 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: trivy
-        uses: reviewdog/action-trivy@v1.14.0
+        uses: reviewdog/action-trivy@1d4e9cf7cd9d2a130f84f9c4d171dcdea3af5348 # v1.17.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           trivy_command: config
