@@ -60,6 +60,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:security-group/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:subnet/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:capacity-reservation/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:placement-group/*",
     ]
 
     actions = [
@@ -222,6 +223,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
 
     actions = [
       "ec2:TerminateInstances",
+      "ec2:RebootInstances",
       "ec2:DeleteLaunchTemplate",
     ]
 
@@ -248,9 +250,11 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
       "ec2:DescribeCapacityReservations",
       "ec2:DescribeImages",
       "ec2:DescribeInstances",
+      "ec2:DescribeInstanceStatus",
       "ec2:DescribeInstanceTypeOfferings",
       "ec2:DescribeInstanceTypes",
       "ec2:DescribeLaunchTemplates",
+      "ec2:DescribePlacementGroups",
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeSpotPriceHistory",
       "ec2:DescribeSubnets",
@@ -298,7 +302,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     condition {
       test     = "StringEquals"
       variable = "iam:PassedToService"
-      values   = ["ec2.amazonaws.com"]
+      values   = ["ec2.amazonaws.com", "ec2.amazonaws.com.cn"]
     }
   }
 
@@ -430,5 +434,18 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     effect    = "Allow"
     resources = [var.cluster_config.arn]
     actions   = ["eks:DescribeCluster"]
+  }
+
+  statement {
+    sid       = "AllowZonalShiftStatusReadOnly"
+    effect    = "Allow"
+    resources = ["*"]
+    actions   = ["arc-zonal-shift:GetManagedResource"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "arc-zonal-shift:ResourceIdentifier"
+      values   = [var.cluster_config.arn]
+    }
   }
 }
