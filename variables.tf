@@ -1,6 +1,11 @@
 variable "name" {
   type        = string
   description = "A name for this eks cluster"
+
+  validation {
+    condition     = length(var.name) <= 35
+    error_message = "The cluster name must be no more than 35 characters."
+  }
 }
 
 variable "endpoint_public_access" {

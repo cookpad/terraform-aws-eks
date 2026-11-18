@@ -69,7 +69,7 @@ func TestTerraformAwsEksCluster(t *testing.T) {
 
 func installKarpenter(t *testing.T, kubeconfig, clusterName, sgName string) {
 	kubectlOptions := k8s.NewKubectlOptions("", kubeconfig, "karpenter")
-	karpenterVersion := "1.8.2"
+	karpenterVersion := "1.15.2"
 	helmOptions := helm.Options{
 		KubectlOptions: kubectlOptions,
 		ExtraArgs: map[string][]string{
