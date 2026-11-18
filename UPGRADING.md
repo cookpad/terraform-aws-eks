@@ -23,7 +23,7 @@
  * Module now uses terraform kubernetes provider
    * Provider config should be added to your project - [check the example in the README](https://github.com/cookpad/terraform-aws-eks/tree/release-1-25#using-this-module)
    * Take special care to correctly configure the provider if you are managing more than one EKS cluster in the same terraform project.
-   * If upgrading an existing cluster import existing `aws-auth` configmap from your cluster - e.g. `terraform import module.cluster.kubernetes_config_map.aws_auth kube-system/aws-auth`
+   * If upgrading an existing cluster import existing `aws-auth` configmap from your cluster - e.g. `terraform import module.cluster.kubernetes_config_map_v1.aws_auth kube-system/aws-auth`
  * 1.25+ uses fargate to run cluster critical pods from `kube-system`, `flux-system` and optionaly `fargate`
    * It is recomended to first upgrade the module to 1.24.3+ and add the karpenter sub-module before upgrading to 1.25 - so that the fargate profiles are created
      before the ASG that managed these "critical" addons is removed.
