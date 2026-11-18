@@ -28,28 +28,34 @@ data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "karpenter_controller_v1" {
+locals {
+  karpenter_controller_policies = {
+    node_lifecycle     = data.aws_iam_policy_document.karpenter_controller_node_lifecycle.json
+    iam_integration    = data.aws_iam_policy_document.karpenter_controller_iam_integration.json
+    eks_integration    = data.aws_iam_policy_document.karpenter_controller_eks_integration.json
+    interruption       = data.aws_iam_policy_document.karpenter_controller_interruption.json
+    zonal_shift        = data.aws_iam_policy_document.karpenter_controller_zonal_shift.json
+    resource_discovery = data.aws_iam_policy_document.karpenter_controller_resource_discovery.json
+  }
+}
+
+# Split into several managed policies, mirroring the upstream CloudFormation template, to stay under the 6144 character managed policy size quota
+resource "aws_iam_policy" "karpenter_controller" {
+  for_each = local.karpenter_controller_policies
+
+  name   = "${var.cluster_config.iam_policy_name_prefix}KarpenterController-${replace(title(replace(each.key, "_", " ")), " ", "")}-${var.cluster_config.name}"
+  policy = each.value
+}
+
+resource "aws_iam_role_policy_attachment" "karpenter_controller" {
+  for_each = aws_iam_policy.karpenter_controller
+
   role       = aws_iam_role.karpenter_controller.id
-  policy_arn = aws_iam_policy.karpenter_controller_v1.arn
-}
-
-moved {
-  from = aws_iam_role_policy_attachment.karpenter_controller_v1[0]
-  to   = aws_iam_role_policy_attachment.karpenter_controller_v1
-}
-
-resource "aws_iam_policy" "karpenter_controller_v1" {
-  name   = "${var.cluster_config.iam_policy_name_prefix}KarpenterController-v1-${var.cluster_config.name}"
-  policy = data.aws_iam_policy_document.karpenter_controller_v1.json
-}
-
-moved {
-  from = aws_iam_policy.karpenter_controller_v1[0]
-  to   = aws_iam_policy.karpenter_controller_v1
+  policy_arn = each.value.arn
 }
 
 #trivy:ignore:AVD-AWS-0342
-data "aws_iam_policy_document" "karpenter_controller_v1" {
+data "aws_iam_policy_document" "karpenter_controller_node_lifecycle" {
   statement {
     sid    = "AllowScopedEC2InstanceAccessActions"
     effect = "Allow"
@@ -60,6 +66,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:security-group/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:subnet/*",
       "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:capacity-reservation/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:*:placement-group/*",
     ]
 
     actions = [
@@ -210,7 +217,6 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     }
   }
 
-
   statement {
     sid    = "AllowScopedDeletion"
     effect = "Allow"
@@ -222,6 +228,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
 
     actions = [
       "ec2:TerminateInstances",
+      "ec2:RebootInstances",
       "ec2:DeleteLaunchTemplate",
     ]
 
@@ -237,58 +244,10 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
       values   = ["*"]
     }
   }
+}
 
-  statement {
-    sid       = "AllowRegionalReadActions"
-    effect    = "Allow"
-    resources = ["*"]
-
-    actions = [
-      "ec2:DescribeAvailabilityZones",
-      "ec2:DescribeCapacityReservations",
-      "ec2:DescribeImages",
-      "ec2:DescribeInstances",
-      "ec2:DescribeInstanceTypeOfferings",
-      "ec2:DescribeInstanceTypes",
-      "ec2:DescribeLaunchTemplates",
-      "ec2:DescribeSecurityGroups",
-      "ec2:DescribeSpotPriceHistory",
-      "ec2:DescribeSubnets",
-    ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:RequestedRegion"
-      values   = [data.aws_region.current.region]
-    }
-  }
-
-  statement {
-    sid       = "AllowSSMReadActions"
-    effect    = "Allow"
-    resources = ["arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.region}::parameter/aws/service/*"]
-    actions   = ["ssm:GetParameter"]
-  }
-
-  statement {
-    sid       = "AllowPricingReadActions"
-    effect    = "Allow"
-    resources = ["*"]
-    actions   = ["pricing:GetProducts"]
-  }
-
-  statement {
-    sid       = "AllowInterruptionQueueActions"
-    effect    = "Allow"
-    resources = [aws_sqs_queue.karpenter_interruption.arn]
-
-    actions = [
-      "sqs:DeleteMessage",
-      "sqs:GetQueueUrl",
-      "sqs:ReceiveMessage",
-    ]
-  }
-
+#trivy:ignore:AVD-AWS-0342
+data "aws_iam_policy_document" "karpenter_controller_iam_integration" {
   statement {
     sid       = "AllowPassingInstanceRole"
     effect    = "Allow"
@@ -298,7 +257,7 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
     condition {
       test     = "StringEquals"
       variable = "iam:PassedToService"
-      values   = ["ec2.amazonaws.com"]
+      values   = ["ec2.amazonaws.com", "ec2.amazonaws.com.cn"]
     }
   }
 
@@ -410,12 +369,90 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
       values   = ["*"]
     }
   }
+}
+
+#trivy:ignore:AVD-AWS-0342
+data "aws_iam_policy_document" "karpenter_controller_eks_integration" {
+  statement {
+    sid       = "AllowAPIServerEndpointDiscovery"
+    effect    = "Allow"
+    resources = [var.cluster_config.arn]
+    actions   = ["eks:DescribeCluster"]
+  }
+}
+
+#trivy:ignore:AVD-AWS-0342
+data "aws_iam_policy_document" "karpenter_controller_interruption" {
+  statement {
+    sid       = "AllowInterruptionQueueActions"
+    effect    = "Allow"
+    resources = [aws_sqs_queue.karpenter_interruption.arn]
+
+    actions = [
+      "sqs:DeleteMessage",
+      "sqs:GetQueueUrl",
+      "sqs:ReceiveMessage",
+    ]
+  }
+}
+
+#trivy:ignore:AVD-AWS-0342
+data "aws_iam_policy_document" "karpenter_controller_zonal_shift" {
+  statement {
+    sid       = "AllowZonalShiftStatusReadOnly"
+    effect    = "Allow"
+    resources = ["*"]
+    actions   = ["arc-zonal-shift:GetManagedResource"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "arc-zonal-shift:ResourceIdentifier"
+      values   = [var.cluster_config.arn]
+    }
+  }
+}
+
+#trivy:ignore:AVD-AWS-0342
+data "aws_iam_policy_document" "karpenter_controller_resource_discovery" {
+  statement {
+    sid       = "AllowRegionalReadActions"
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeCapacityReservations",
+      "ec2:DescribeImages",
+      "ec2:DescribeInstances",
+      "ec2:DescribeInstanceStatus",
+      "ec2:DescribeInstanceTypeOfferings",
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeLaunchTemplates",
+      "ec2:DescribePlacementGroups",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSpotPriceHistory",
+      "ec2:DescribeSubnets",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestedRegion"
+      values   = [data.aws_region.current.region]
+    }
+  }
 
   statement {
-    sid       = "AllowInstanceProfileReadActions"
+    sid       = "AllowSSMReadActions"
     effect    = "Allow"
-    resources = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:instance-profile/*"]
-    actions   = ["iam:GetInstanceProfile"]
+    resources = ["arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.region}::parameter/aws/service/*"]
+    actions   = ["ssm:GetParameter"]
+  }
+
+  statement {
+    sid       = "AllowPricingReadActions"
+    effect    = "Allow"
+    resources = ["*"]
+    actions   = ["pricing:GetProducts"]
   }
 
   statement {
@@ -426,9 +463,9 @@ data "aws_iam_policy_document" "karpenter_controller_v1" {
   }
 
   statement {
-    sid       = "AllowAPIServerEndpointDiscovery"
+    sid       = "AllowInstanceProfileReadActions"
     effect    = "Allow"
-    resources = [var.cluster_config.arn]
-    actions   = ["eks:DescribeCluster"]
+    resources = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:instance-profile/*"]
+    actions   = ["iam:GetInstanceProfile"]
   }
 }
