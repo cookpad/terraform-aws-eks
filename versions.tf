@@ -3,9 +3,9 @@
 locals {
   versions = {
     k8s                = "1.34"
-    vpc_cni            = "v1.21.1-eksbuild.3"
-    kube_proxy         = "v1.34.3-eksbuild.5"
-    coredns            = "v1.13.2-eksbuild.1"
-    aws_ebs_csi_driver = "v1.56.0-eksbuild.1"
+    vpc_cni            = "v1.23.3-eksbuild.1"
+    kube_proxy         = "v1.34.6-eksbuild.69"
+    coredns            = "v1.13.2-eksbuild.75"
+    aws_ebs_csi_driver = "v1.68.0-eksbuild.1"
   }
 }
